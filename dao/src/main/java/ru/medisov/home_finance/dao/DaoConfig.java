@@ -9,14 +9,14 @@ import java.util.logging.Logger;
 
 public class DaoConfig
 {
-    private static final String CONFIG_NAME = "config.properties";
+    private static final String CONFIG_NAME = "dao_config.properties";
     private static final Properties DAO_CONFIG = new Properties();
 
-    public static void initGlobalConfig() {
-        initGlobalConfig(null);
+    public static void initConfig() {
+        initConfig(null);
     }
 
-    public static void initGlobalConfig(String name) {
+    public static void initConfig(String name) {
         try {
             if (name != null && !name.trim().isEmpty()) {
                 DAO_CONFIG.load(new FileReader(name));

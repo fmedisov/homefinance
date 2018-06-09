@@ -9,14 +9,14 @@ import java.util.logging.Logger;
 
 public class UiConfig
 {
-    private static final String CONFIG_NAME = "config.properties";
+    private static final String CONFIG_NAME = "ui_config.properties";
     private static final Properties UI_CONFIG = new Properties();
 
-    public static void initGlobalConfig() {
-        initGlobalConfig(null);
+    public static void initConfig() {
+        initConfig(null);
     }
 
-    public static void initGlobalConfig(String name) {
+    public static void initConfig(String name) {
         try {
             if (name != null && !name.trim().isEmpty()) {
                 UI_CONFIG.load(new FileReader(name));

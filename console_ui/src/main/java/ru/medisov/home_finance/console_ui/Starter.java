@@ -1,15 +1,15 @@
 package ru.medisov.home_finance.console_ui;
 
-import ru.medisov.home_finance.dao.DaoConfig;
+import ru.medisov.home_finance.service.ServiceInit;
 
 public class Starter {
     public static void main(String[] args) {
-        DaoConfig.initGlobalConfig();
-        UiConfig.initGlobalConfig();
+        UiConfig.initConfig();
         startUi();
     }
 
     private static void startUi() {
+        new ServiceInit().init();
         Command commandType;
 
         do {

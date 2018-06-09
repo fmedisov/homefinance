@@ -5,16 +5,19 @@ import ru.medisov.home_finance.dao.repository.CurrencyRepository;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class CurrencyServiceImpl implements CurrencyService {
     @Override
-    public Optional<CurrencyModel> findByName(String name) {
-        return new CurrencyRepository().findByName(name);
+    public Optional<CurrencyModelDto> findByName(String name) {
+        Optional<CurrencyModel> optional = new CurrencyRepository().findByName(name);
+        return Optional.of(new CurrencyModelDto(optional.get()));
     }
 
     @Override
-    public Collection<CurrencyModel> findAll() {
-        return new CurrencyRepository().findAll();
+    public Collection<CurrencyModelDto> findAll() {
+        Collection<CurrencyModel> collection = new CurrencyRepository().findAll();
+        return collection.stream().map(CurrencyModelDto::new).collect(Collectors.toList());
     }
 
     @Override
@@ -23,12 +26,16 @@ public class CurrencyServiceImpl implements CurrencyService {
     }
 
     @Override
-    public CurrencyModel save(CurrencyModel model) {
-        return new CurrencyRepository().save(model);
+    public CurrencyModelDto save(CurrencyModelDto modelDto) {
+        CurrencyModel model = new CurrencyModel().setId(modelDto.getId()).setCode(modelDto.getCode())
+                .setName(modelDto.getName()).setSymbol(modelDto.getSymbol());
+        return new CurrencyModelDto(new CurrencyRepository().save(model));
     }
 
     @Override
-    public CurrencyModel update(CurrencyModel model) {
-        return new CurrencyRepository().update(model);
+    public CurrencyModelDto update(CurrencyModelDto modelDto) {
+        CurrencyModel model = new CurrencyModel().setId(modelDto.getId()).setCode(modelDto.getCode())
+                .setName(modelDto.getName()).setSymbol(modelDto.getSymbol());
+        return new CurrencyModelDto(new CurrencyRepository().update(model));
     }
 }
