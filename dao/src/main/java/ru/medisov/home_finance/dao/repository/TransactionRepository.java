@@ -11,7 +11,6 @@ import java.util.*;
 public class TransactionRepository extends AbstractRepository<TransactionModel, Long> implements Repository<TransactionModel, Long> {
     private static final String INSERT = "INSERT INTO transaction_tbl (amount, datetime, account, category, transaction_type, tags, name) VALUES (?, ?, ?, ?, ?, ?, ?)";
     private static final String SELECT_BY_NAME = "SELECT id, amount, datetime, account, category, transaction_type, tags, name FROM transaction_tbl WHERE name = ?";
-    private static final String SELECT_BY_ID = "SELECT id, amount, datetime, account, category, transaction_type, tags, name FROM transaction_tbl WHERE id = ?";
     private static final String SELECT_ALL = "SELECT id, amount, datetime, account, category, transaction_type, tags, name FROM transaction_tbl";
     private static final String UPDATE = "UPDATE transaction_tbl SET amount = ?, datetime = ?, account = ?, category = ?, transaction_type = ?, tags = ?, name = ? WHERE id = ?";
 
@@ -163,5 +162,33 @@ public class TransactionRepository extends AbstractRepository<TransactionModel, 
                     .setTransactionType(transactionType).setTags(tags).setName(currentName);
         }
         return transactionModel;
+    }
+
+    public Collection<TransactionModel> findByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate) {
+        return new ArrayList<>();
+    }
+
+    public Collection<TransactionModel> findByCategory(long categoryId) {
+        return new ArrayList<>();
+    }
+
+    public BigDecimal incomeByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate) {
+        return BigDecimal.ZERO;
+    }
+
+    public BigDecimal expenseByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate) {
+        return BigDecimal.ZERO;
+    }
+
+    public Map<String, BigDecimal> incomeByCategory(LocalDateTime dateFrom, LocalDateTime upToDate) {
+        return new HashMap<>();
+    }
+
+    public Map<String, BigDecimal> expenseByCategory(LocalDateTime dateFrom, LocalDateTime upToDate) {
+        return new HashMap<>();
+    }
+
+    public boolean removeByAccount(Long accountId) {
+        return false;
     }
 }

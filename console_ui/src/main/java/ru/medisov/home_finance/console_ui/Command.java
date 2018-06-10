@@ -19,13 +19,25 @@ public enum Command {
 
     ACCOUNT_TYPE_DEBIT(1, UiConfig.getProperty("command.ACCOUNT_TYPE_DEBIT.name"), CommandType.ACCOUNT_TYPE),
 
+    TRANSACTION_LIST_WEEK(1, UiConfig.getProperty("command.TRANSACTION_LIST_WEEK.name"), CommandType.TRANSACTION_LIST),
+    TRANSACTION_LIST_MONTH(2, UiConfig.getProperty("command.TRANSACTION_LIST_MONTH.name"), CommandType.TRANSACTION_LIST),
+    TRANSACTION_LIST_YEAR(3, UiConfig.getProperty("command.TRANSACTION_LIST_YEAR.name"), CommandType.TRANSACTION_LIST),
+
+    TRANSACTION_SUM_DAY(1, UiConfig.getProperty("command.TRANSACTION_SUM_DAY.name"), CommandType.TRANSACTION_SUM),
+    TRANSACTION_SUM_WEEK(2, UiConfig.getProperty("command.TRANSACTION_SUM_WEEK.name"), CommandType.TRANSACTION_SUM),
+    TRANSACTION_SUM_MONTH(3, UiConfig.getProperty("command.TRANSACTION_SUM_MONTH.name"), CommandType.TRANSACTION_SUM),
+    TRANSACTION_SUM_YEAR(4, UiConfig.getProperty("command.TRANSACTION_SUM_YEAR.name"), CommandType.TRANSACTION_SUM),
+
+    TRANSACTION_SUM_CATEGORY(1, UiConfig.getProperty("command.TRANSACTION_SUM_CATEGORY.name"), CommandType.TRANSACTION_SUM_VARIANT),
+    TRANSACTION_SUM_NO_CATEGORY(2, UiConfig.getProperty("command.TRANSACTION_SUM_NO_CATEGORY.name"), CommandType.TRANSACTION_SUM_VARIANT),
+
     EXIT(0, UiConfig.getProperty("command.EXIT.name"), CommandType.TYPE),
     ACCOUNT(1, UiConfig.getProperty("command.ACCOUNT.name"), CommandType.TYPE),
     CURRENCY(2, UiConfig.getProperty("command.CURRENCY.name"), CommandType.TYPE),
     TRANSACTION(3, UiConfig.getProperty("command.TRANSACTION.name"), CommandType.TYPE),
     ACCOUNT_TYPE(4, UiConfig.getProperty("command.ACCOUNT_TYPE.name"), CommandType.TYPE);
 
-    public enum CommandType { ACCOUNT, CURRENCY, TRANSACTION, ACCOUNT_TYPE, TYPE }
+    public enum CommandType { ACCOUNT, CURRENCY, TRANSACTION, ACCOUNT_TYPE, TRANSACTION_LIST, TRANSACTION_SUM, TRANSACTION_SUM_VARIANT, TYPE }
 
     private final int number;
     private final String name;
