@@ -18,7 +18,13 @@ public class AccountRepository extends AbstractRepository<AccountModel, Long> im
     private static final String SELECT_ALL = "SELECT id, name, account_type, currency, amount FROM account_tbl";
     private static final String UPDATE = "UPDATE account_tbl SET name = ?, account_type = ?, currency = ?, amount = ? WHERE id = ?";
 
-    private ConnectionBuilder connectionBuilder = new SimpleConnectionBuilder();
+    private ConnectionBuilder connectionBuilder = new DbConnectionBuilder();
+
+    public AccountRepository() {}
+
+    public AccountRepository(ConnectionBuilder connectionBuilder) {
+        this.connectionBuilder = connectionBuilder;
+    }
 
     @Override
     public AccountModel save(AccountModel model) {

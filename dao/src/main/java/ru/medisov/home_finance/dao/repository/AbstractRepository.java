@@ -1,17 +1,15 @@
 package ru.medisov.home_finance.dao.repository;
 
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
-import ru.medisov.home_finance.dao.model.TransactionModel;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
 
 public abstract class AbstractRepository<T, ID> implements Repository<T, ID> {
-    private ConnectionBuilder connectionBuilder = new SimpleConnectionBuilder();
+    private ConnectionBuilder connectionBuilder = new DbConnectionBuilder();
 
     public abstract T save(T model);
 

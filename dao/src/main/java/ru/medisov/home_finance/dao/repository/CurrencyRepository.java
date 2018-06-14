@@ -15,7 +15,9 @@ public class CurrencyRepository extends AbstractRepository<CurrencyModel, Long> 
     private static final String SELECT_ALL = "SELECT id, name, code, symbol FROM currency_tbl";
     private static final String UPDATE = "UPDATE currency_tbl SET name = ?, code = ?, symbol = ? WHERE id = ?";
 
-    private ConnectionBuilder connectionBuilder = new SimpleConnectionBuilder();
+    private ConnectionBuilder connectionBuilder = new DbConnectionBuilder();
+
+    public CurrencyRepository() {}
 
     @Override
     public CurrencyModel save(CurrencyModel model) {

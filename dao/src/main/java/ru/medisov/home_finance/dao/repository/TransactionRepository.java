@@ -14,7 +14,13 @@ public class TransactionRepository extends AbstractRepository<TransactionModel, 
     private static final String SELECT_ALL = "SELECT id, amount, datetime, account, category, transaction_type, tags, name FROM transaction_tbl";
     private static final String UPDATE = "UPDATE transaction_tbl SET amount = ?, datetime = ?, account = ?, category = ?, transaction_type = ?, tags = ?, name = ? WHERE id = ?";
 
-    private ConnectionBuilder connectionBuilder = new SimpleConnectionBuilder();
+    private ConnectionBuilder connectionBuilder = new DbConnectionBuilder();
+
+    public TransactionRepository() {}
+
+    public TransactionRepository(ConnectionBuilder connectionBuilder) {
+        this.connectionBuilder = connectionBuilder;
+    }
 
     @Override
     public TransactionModel save(TransactionModel model) {

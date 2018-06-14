@@ -15,7 +15,13 @@ public class CategoryRepository extends AbstractRepository<CategoryTransactionMo
     private static final String SELECT_ALL = "SELECT id, name, parent FROM category_tbl";
     private static final String UPDATE = "UPDATE category_tbl SET name = ?, parent = ? WHERE id = ?";
 
-    private ConnectionBuilder connectionBuilder = new SimpleConnectionBuilder();
+    private ConnectionBuilder connectionBuilder = new DbConnectionBuilder();
+
+    public CategoryRepository() {}
+
+    public CategoryRepository(ConnectionBuilder connectionBuilder) {
+        this.connectionBuilder = connectionBuilder;
+    }
 
     @Override
     public CategoryTransactionModel save(CategoryTransactionModel model) {
