@@ -2,6 +2,10 @@ package ru.medisov.home_finance.dao.exception;
 
 public class HomeFinanceDaoException extends RuntimeException {
 
+    public HomeFinanceDaoException() {
+        super();
+    }
+
     public HomeFinanceDaoException(String message) {
         super(message);
     }

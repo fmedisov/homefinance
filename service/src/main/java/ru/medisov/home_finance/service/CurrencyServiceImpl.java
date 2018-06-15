@@ -13,22 +13,24 @@ import java.util.stream.Collectors;
 
 public class CurrencyServiceImpl implements CurrencyService {
     private Validator validator = new ClassValidator();
-    private Repository<CurrencyModel, Long> repository = new CurrencyRepository();
+    private Repository<CurrencyModel, Long> repository;
+
+    public CurrencyServiceImpl() {
+        repository = new CurrencyRepository();
+    }
 
     @Override
     public Optional<CurrencyModelDto> findByName(String name) {
         try {
             Optional<CurrencyModel> optional = repository.findByName(name);
-            CurrencyModel currencyModel = optional.orElseGet(CurrencyModel::new);
+            CurrencyModel currencyModel = optional.orElseThrow(HomeFinanceDaoException::new);
             validate(currencyModel);
             return Optional.of(new CurrencyModelDto(currencyModel));
         } catch (HomeFinanceDaoException e) {
             throw new HomeFinanceServiceException(e);
         } catch (HomeFinanceServiceException e) {
-            e.printStackTrace();
+            return Optional.empty();
         }
-
-        return Optional.empty();
     }
 
     @Override
@@ -71,29 +73,20 @@ public class CurrencyServiceImpl implements CurrencyService {
         return new CurrencyModelDto(newModel);
     }
 
-    private boolean validate(CurrencyModel model) {
-        try {
-            if (!validator.isValid(model)) {
-                throw new HomeFinanceServiceException("Валюта " + model + " не валидирована");
-            }
-        } catch (HomeFinanceServiceException e) {
-            e.printStackTrace();
-            return false;
+    private boolean validate(CurrencyModel model) throws HomeFinanceServiceException {
+        if (!validator.isValid(model)) {
+            throw new HomeFinanceServiceException("Валюта " + model + " не валидирована");
         }
 
         return true;
     }
 
-    private void currencyVerification(CurrencyModel model) {
-        try {
-            String name = model.getName();
-            repository.findByName(name).ifPresent(found -> {
-                if (name.equals(found.getName())) {
-                    throw new HomeFinanceServiceException("Валюта уже существует");
-                }
-            });
-        } catch (HomeFinanceServiceException e) {
-            e.printStackTrace();
-        }
+    private void currencyVerification(CurrencyModel model) throws HomeFinanceServiceException {
+        String name = model.getName();
+        repository.findByName(name).ifPresent(found -> {
+            if (name.equals(found.getName())) {
+                throw new HomeFinanceServiceException("Валюта уже существует");
+            }
+        });
     }
 }

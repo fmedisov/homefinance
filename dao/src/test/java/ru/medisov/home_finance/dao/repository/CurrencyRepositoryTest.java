@@ -1,9 +1,6 @@
 package ru.medisov.home_finance.dao.repository;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import ru.medisov.home_finance.dao.DaoConfig;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.dao.model.CurrencyModel;
@@ -15,7 +12,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CurrencyRepositoryTest {
+class CurrencyRepositoryTest {
     private CurrencyModel currencyModel = getCurrencyModel();
     private CurrencyRepository repository = new CurrencyRepository();
 
@@ -36,14 +33,14 @@ public class CurrencyRepositoryTest {
 
     @Test
     @DisplayName("Save correct CurrencyModel to database")
-    public void saveCorrectModelNonZeroIdReturned() {
+    void saveCorrectModelNonZeroIdReturned() {
         CurrencyModel changed = repository.save(currencyModel);
         assertTrue(changed.getId() != 0);
     }
 
     @Test
     @DisplayName("Attempt to save an incorrect CurrencyModel to database throws HomeFinanceDaoException")
-    public void saveIncorrectModelCausesException() throws HomeFinanceDaoException {
+    void saveIncorrectModelCausesException() throws HomeFinanceDaoException {
         CurrencyModel modelWithLongCode = getCurrencyModel().setCode("Too long code");
         Throwable thrown = assertThrows(HomeFinanceDaoException.class, () -> repository.save(modelWithLongCode));
         assertNotNull(thrown.getMessage());
@@ -52,7 +49,7 @@ public class CurrencyRepositoryTest {
 
     @Test
     @DisplayName("Search by name for an existing currency in the database")
-    public void findByNameIfExistsInDatabase() {
+    void findByNameIfExistsInDatabase() {
         CurrencyModel changed = repository.save(currencyModel);
         CurrencyModel found = repository.findByName(currencyModel.getName()).orElse(new CurrencyModel());
         assertEquals(changed, found);
@@ -60,14 +57,14 @@ public class CurrencyRepositoryTest {
 
     @Test
     @DisplayName("Attempt to search by name for a non-existent currency returns Optional.empty()")
-    public void findByNameIfNotExistsInDatabase() {
+    void findByNameIfNotExistsInDatabase() {
         Optional<CurrencyModel> found = repository.findByName(currencyModel.getName());
         assertEquals(found, Optional.empty());
     }
 
     @Test
     @DisplayName("Search for all currency models returns collection of models ")
-    public void findAllExistsOneEntry() {
+    void findAllExistsOneEntry() {
         CurrencyModel model = repository.save(currencyModel);
         Collection<CurrencyModel> models = repository.findAll();
         assertEquals(1, models.size());
@@ -76,27 +73,27 @@ public class CurrencyRepositoryTest {
 
     @Test
     @DisplayName("Attempt to search currency models in empty table returns empty collection")
-    public void findAllEmptyTable() {
+    void findAllEmptyTable() {
         Collection<CurrencyModel> models = repository.findAll();
         assertEquals(0, models.size());
     }
 
     @Test
     @DisplayName("Remove existing model returns true")
-    public void removeExistingEntryReturnsTrue() {
+    void removeExistingEntryReturnsTrue() {
         CurrencyModel model = repository.save(currencyModel);
         assertTrue(repository.remove(model.getId()));
     }
 
     @Test
     @DisplayName("Remove non-existent model returns false")
-    public void removeIfNotExistsReturnsFalse() {
+    void removeIfNotExistsReturnsFalse() {
         assertFalse(repository.remove(currencyModel.getId()));
     }
 
     @Test
     @DisplayName("update correct CurrencyModel returns the same model")
-    public void updateCorrectModelSameModelReturned() {
+    void updateCorrectModelSameModelReturned() {
         CurrencyModel changed = repository.save(currencyModel).setName("Эскудо").setCode("CVE");
         CurrencyModel updated = repository.update(changed);
         assertEquals(changed, repository.findByName(updated.getName()).orElse(new CurrencyModel()));
@@ -104,7 +101,7 @@ public class CurrencyRepositoryTest {
 
     @Test
     @DisplayName("Attempt to update an incorrect CurrencyModel throws HomeFinanceDaoException")
-    public void updateIncorrectModelCausesException() throws HomeFinanceDaoException {
+    void updateIncorrectModelCausesException() throws HomeFinanceDaoException {
         CurrencyModel modelWithLongCode = repository.save(currencyModel).setCode("Too long code");
         Throwable thrown = assertThrows(HomeFinanceDaoException.class, () -> repository.update(modelWithLongCode));
         assertNotNull(thrown.getMessage());
@@ -112,7 +109,7 @@ public class CurrencyRepositoryTest {
 
     @Test
     @DisplayName("Search by id for an existing currency in the database")
-    public void findByIdIfExistsInDatabase() {
+    void findByIdIfExistsInDatabase() {
         CurrencyModel changed = repository.save(currencyModel);
         CurrencyModel found = repository.findById(currencyModel.getId()).orElse(new CurrencyModel());
         assertEquals(changed, found);
@@ -120,7 +117,7 @@ public class CurrencyRepositoryTest {
 
     @Test
     @DisplayName("Attempt to search by id for a non-existent currency returns Optional.empty()")
-    public void findByIdIfNotExistsInDatabase() {
+    void findByIdIfNotExistsInDatabase() {
         Optional<CurrencyModel> found = repository.findById(currencyModel.getId());
         assertEquals(found, Optional.empty());
     }
