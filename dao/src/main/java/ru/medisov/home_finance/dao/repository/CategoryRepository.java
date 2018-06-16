@@ -93,6 +93,7 @@ public class CategoryRepository extends AbstractRepository<CategoryTransactionMo
     }
 
     @Override
+    //todo check existing children by this id
     public boolean remove(Long aLong) {
         return super.remove(aLong, getClass());
     }
@@ -121,6 +122,16 @@ public class CategoryRepository extends AbstractRepository<CategoryTransactionMo
         } catch (SQLException e) {
             throw new HomeFinanceDaoException("error while update category transaction model " + model, e);
         }
+    }
+
+    public CategoryTransactionModel saveWithParents(CategoryTransactionModel model) {
+        CategoryTransactionModel parent = model.getParent();
+
+        if (parent != null) {
+            model.setParent(saveWithParents(parent));
+        }
+
+        return save(model);
     }
 
     public Optional<CategoryTransactionModel> findById(Long aLong) {
