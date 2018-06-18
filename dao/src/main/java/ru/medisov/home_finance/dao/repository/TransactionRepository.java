@@ -9,23 +9,21 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class TransactionRepository extends AbstractRepository<TransactionModel, Long> implements Repository<TransactionModel, Long> {
-    private static final String INSERT = "INSERT INTO transaction_tbl (amount, datetime, account, category, transaction_type, tags, name) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    private static final String SELECT_BY_NAME = "SELECT id, amount, datetime, account, category, transaction_type, tags, name FROM transaction_tbl WHERE name = ?";
-    private static final String SELECT_ALL = "SELECT id, amount, datetime, account, category, transaction_type, tags, name FROM transaction_tbl";
-    private static final String UPDATE = "UPDATE transaction_tbl SET amount = ?, datetime = ?, account = ?, category = ?, transaction_type = ?, tags = ?, name = ? WHERE id = ?";
+    private static final String INSERT = "INSERT INTO transaction_tbl (amount, datetime, account, category, transaction_type, name) VALUES (?, ?, ?, ?, ?, ?)";
+    private static final String SELECT_BY_NAME = "SELECT id, amount, datetime, account, category, transaction_type, name FROM transaction_tbl WHERE name = ?";
+    private static final String SELECT_ALL = "SELECT id, amount, datetime, account, category, transaction_type, name FROM transaction_tbl";
+    private static final String UPDATE = "UPDATE transaction_tbl SET amount = ?, datetime = ?, account = ?, category = ?, transaction_type = ?, name = ? WHERE id = ?";
 
     private ConnectionBuilder connectionBuilder = new DbConnectionBuilder();
 
     public TransactionRepository() {}
 
-    public TransactionRepository(ConnectionBuilder connectionBuilder) {
-        this.connectionBuilder = connectionBuilder;
-    }
-
     @Override
     public TransactionModel save(TransactionModel model) {
         try (Connection connection = connectionBuilder.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+                updateCategoryModel(model);
+                updateAccountModel(model);
                 preparedStatement.setBigDecimal(1, model.getAmount());
                 preparedStatement.setTimestamp(2, Timestamp.valueOf(model.getDateTime()));
 
@@ -41,12 +39,18 @@ public class TransactionRepository extends AbstractRepository<TransactionModel, 
                     preparedStatement.setLong(4, model.getCategory().getId());
                 }
 
+                if (model.getTransactionType() == null) {
+                    throw new SQLException("transaction type must have a value");
+                }
+
                 preparedStatement.setString(5, model.getTransactionType().name());
-                preparedStatement.setString(6, model.getTags().toString());
-                preparedStatement.setString(7, model.getName());
+                preparedStatement.setString(6, model.getName());
                 preparedStatement.executeUpdate();
                 model.setId(new IdGetter(preparedStatement).getId());
+
                 connection.commit();
+
+                model.setTags(new TagRepository().saveByTransaction(model));
                 return model;
             } catch (SQLException e) {
                 connection.rollback();
@@ -88,14 +92,13 @@ public class TransactionRepository extends AbstractRepository<TransactionModel, 
                     Optional<AccountModel> optionalAccount = new AccountRepository().findById(resultSet.getLong("account"));
                     Optional<CategoryTransactionModel> optionalCategory = new CategoryRepository().findById(resultSet.getLong("category"));
                     TransactionType transactionType = Enum.valueOf(TransactionType.class, resultSet.getString("transaction_type"));
-                    String tagsString = resultSet.getString("tags");
                     String name = resultSet.getString("name");
-
-                    List<String> tags = tagsString == null ? null : Arrays.asList(tagsString.split(","));
 
                     TransactionModel model = new TransactionModel().setId(id).setAmount(amount).setDateTime(dateTime)
                             .setAccount(optionalAccount.orElse(null)).setCategory(optionalCategory.orElse(null))
-                            .setTransactionType(transactionType).setTags(tags).setName(name);
+                            .setTransactionType(transactionType).setName(name);
+
+                    model.setTags(new TagRepository().findByTransaction(model));
 
                     models.add(model);
                 }
@@ -111,13 +114,15 @@ public class TransactionRepository extends AbstractRepository<TransactionModel, 
 
     @Override
     public boolean remove(Long aLong) {
-        return super.remove(aLong, getClass());
+        return new TagRepository().removeByTransaction(aLong) && super.remove(aLong, getClass());
     }
 
     @Override
     public TransactionModel update(TransactionModel model) {
         try (Connection connection = connectionBuilder.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
+                updateCategoryModel(model);
+                updateAccountModel(model);
                 preparedStatement.setBigDecimal(1, model.getAmount());
                 preparedStatement.setTimestamp(2, Timestamp.valueOf(model.getDateTime()));
 
@@ -133,14 +138,19 @@ public class TransactionRepository extends AbstractRepository<TransactionModel, 
                     preparedStatement.setLong(4, model.getCategory().getId());
                 }
 
-                preparedStatement.setString(5, model.getTransactionType().name());
-                preparedStatement.setString(6, model.getTags().toString());
-                preparedStatement.setString(7, model.getName());
+                if (model.getTransactionType() == null) {
+                    throw new SQLException("transaction type must have a value");
+                }
 
-                preparedStatement.setLong(8, model.getId());
+                preparedStatement.setString(5, model.getTransactionType().name());
+                preparedStatement.setString(6, model.getName());
+
+                preparedStatement.setLong(7, model.getId());
                 preparedStatement.executeUpdate();
 
                 connection.commit();
+
+                model.setTags(new TagRepository().saveByTransaction(model));
                 return model;
             } catch (SQLException e) {
                 connection.rollback();
@@ -160,12 +170,13 @@ public class TransactionRepository extends AbstractRepository<TransactionModel, 
             Optional<AccountModel> optionalAccount = new AccountRepository().findById(resultSet.getLong("account"));
             Optional<CategoryTransactionModel> optionalCategory = new CategoryRepository().findById(resultSet.getLong("category"));
             TransactionType transactionType = Enum.valueOf(TransactionType.class, resultSet.getString("transaction_type"));
-            List<String> tags = Arrays.asList(resultSet.getString("tags").split(","));
             String currentName = resultSet.getString("name");
 
             transactionModel = new TransactionModel().setId(id).setAmount(amount).setDateTime(dateTime)
                     .setAccount(optionalAccount.orElse(null)).setCategory(optionalCategory.orElse(null))
-                    .setTransactionType(transactionType).setTags(tags).setName(currentName);
+                    .setTransactionType(transactionType).setName(currentName);
+
+            transactionModel.setTags(new TagRepository().findByTransaction(transactionModel));
         }
         return transactionModel;
     }
@@ -196,5 +207,17 @@ public class TransactionRepository extends AbstractRepository<TransactionModel, 
 
     public boolean removeByAccount(Long accountId) {
         return false;
+    }
+
+    private void updateCategoryModel(TransactionModel model) {
+        if (model.getCategory() != null && model.getCategory().getId() == 0) {
+            model.setCategory(new CategoryRepository().saveWithParents(model.getCategory()));
+        }
+    }
+
+    private void updateAccountModel(TransactionModel model) {
+        if (model.getAccount() != null && model.getAccount().getId() == 0) {
+            model.setAccount(new AccountRepository().save(model.getAccount()));
+        }
     }
 }

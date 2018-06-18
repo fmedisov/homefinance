@@ -22,15 +22,17 @@ public class AccountRepository extends AbstractRepository<AccountModel, Long> im
 
     public AccountRepository() {}
 
-    public AccountRepository(ConnectionBuilder connectionBuilder) {
-        this.connectionBuilder = connectionBuilder;
-    }
-
     @Override
     public AccountModel save(AccountModel model) {
         try (Connection connection = connectionBuilder.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+                updateCurrencyModel(model);
                 preparedStatement.setString(1, model.getName());
+
+                if (model.getAccountType() == null) {
+                    throw new SQLException("account type must have a value");
+                }
+
                 preparedStatement.setString(2, model.getAccountType().name());
 
                 if (model.getCurrencyModel() == null) {
@@ -107,7 +109,13 @@ public class AccountRepository extends AbstractRepository<AccountModel, Long> im
     public AccountModel update(AccountModel model) {
         try (Connection connection = connectionBuilder.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
+                updateCurrencyModel(model);
                 preparedStatement.setString(1, model.getName());
+
+                if (model.getAccountType() == null) {
+                    throw new SQLException("account type must have a value");
+                }
+
                 preparedStatement.setString(2, model.getAccountType().name());
 
                 if (model.getCurrencyModel() == null) {
@@ -129,6 +137,12 @@ public class AccountRepository extends AbstractRepository<AccountModel, Long> im
             }
         } catch (SQLException e) {
             throw new HomeFinanceDaoException("error while update account model " + model, e);
+        }
+    }
+
+    private void updateCurrencyModel(AccountModel model) {
+        if (model.getCurrencyModel() != null && model.getCurrencyModel().getId() == 0) {
+            model.setCurrencyModel(new CurrencyRepository().save(model.getCurrencyModel()));
         }
     }
 

@@ -62,6 +62,9 @@ public abstract class AbstractRepository<T, ID> implements Repository<T, ID> {
             case "TransactionRepository":
                 tblName = "transaction_tbl";
                 break;
+            case "TagRepository":
+                tblName = "tag_tbl";
+                break;
         }
 
         return tblName;

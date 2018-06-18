@@ -23,5 +23,5 @@ public class TransactionModel {
     private AccountModel account;
     private CategoryTransactionModel category;
     private TransactionType transactionType;
-    private List<String> tags;
+    private List<TagModel> tags;
 }

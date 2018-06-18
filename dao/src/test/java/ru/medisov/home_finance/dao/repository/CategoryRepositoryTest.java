@@ -1,35 +1,17 @@
 package ru.medisov.home_finance.dao.repository;
 
 import org.junit.jupiter.api.*;
-import ru.medisov.home_finance.dao.DaoConfig;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.dao.model.CategoryTransactionModel;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CategoryRepositoryTest {
+class CategoryRepositoryTest extends AbstractRepositoryTest {
     private CategoryTransactionModel categoryModel = getCategoryModel();
     private CategoryRepository repository = new CategoryRepository();
-
-    @BeforeAll
-    static void initConfig() {
-        DaoConfig.initConfig();
-        System.out.println("init config");
-    }
-
-    @BeforeEach
-    void initDatabase() {
-        try (Connection connection = new DbConnectionBuilder().getConnection()) {
-            connection.prepareStatement(initDDL()).execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Test
     @DisplayName("Save correct Model to database")
@@ -120,23 +102,5 @@ class CategoryRepositoryTest {
     void findByIdIfNotExistsInDatabase() {
         Optional<CategoryTransactionModel> found = repository.findById(categoryModel.getId());
         assertEquals(found, Optional.empty());
-    }
-
-    private CategoryTransactionModel getCategoryModel() {
-        return new CategoryTransactionModel().setName("Проезд").setParent(null);
-    }
-
-    private String getLongName() {
-        return "Long long long long long long long long long long long long long long long long long long category name";
-    }
-
-    private String initDDL() {
-        return "DROP TABLE IF EXISTS `category_tbl`; CREATE TABLE IF NOT EXISTS `category_tbl` ( " +
-                    "`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
-                    "`name` VARCHAR(45) NULL, " +
-                    "`parent` INT NULL, " +
-                "CONSTRAINT `parent_category_fk` " +
-                "FOREIGN KEY (`parent`) " +
-                "REFERENCES `category_tbl` (`id`));";
     }
 }
