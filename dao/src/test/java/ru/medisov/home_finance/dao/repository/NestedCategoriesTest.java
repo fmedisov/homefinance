@@ -3,7 +3,7 @@ package ru.medisov.home_finance.dao.repository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
-import ru.medisov.home_finance.dao.model.CategoryTransactionModel;
+import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 
 import java.util.Collection;
 import java.util.Optional;

@@ -1,6 +1,6 @@
 package ru.medisov.home_finance.service;
 
-import ru.medisov.home_finance.dao.model.CategoryTransactionModel;
+import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 
 import java.util.Collection;
 import java.util.Optional;

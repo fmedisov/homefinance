@@ -1,4 +1,4 @@
-package ru.medisov.home_finance.dao.model;
+package ru.medisov.home_finance.common.model;
 
 public enum  TransactionType {
     EXPENSE, INCOME;

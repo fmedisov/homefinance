@@ -1,7 +1,7 @@
 package ru.medisov.home_finance.dao.repository;
 
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
-import ru.medisov.home_finance.dao.model.CurrencyModel;
+import ru.medisov.home_finance.common.model.CurrencyModel;
 
 import java.sql.*;
 import java.util.ArrayList;

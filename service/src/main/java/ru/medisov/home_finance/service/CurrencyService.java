@@ -1,16 +1,18 @@
 package ru.medisov.home_finance.service;
 
+import ru.medisov.home_finance.common.model.CurrencyModel;
+
 import java.util.Collection;
 import java.util.Optional;
 
 public interface CurrencyService {
-    Optional<CurrencyModelDto> findByName(String name);
+    Optional<CurrencyModel> findByName(String name);
 
-    Collection<CurrencyModelDto> findAll();
+    Collection<CurrencyModel> findAll();
 
     boolean remove(Long id);
 
-    CurrencyModelDto save(CurrencyModelDto model);
+    CurrencyModel save(CurrencyModel model);
 
-    CurrencyModelDto update(CurrencyModelDto model);
+    CurrencyModel update(CurrencyModel model);
 }

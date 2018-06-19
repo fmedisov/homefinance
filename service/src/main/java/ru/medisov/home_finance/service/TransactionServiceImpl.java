@@ -1,25 +1,22 @@
 package ru.medisov.home_finance.service;
 
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
-import ru.medisov.home_finance.dao.model.CategoryTransactionModel;
-import ru.medisov.home_finance.dao.model.TransactionModel;
+import ru.medisov.home_finance.common.model.CategoryTransactionModel;
+import ru.medisov.home_finance.common.model.TransactionModel;
 import ru.medisov.home_finance.dao.repository.TransactionRepository;
-import ru.medisov.home_finance.dao.validator.ClassValidator;
-import ru.medisov.home_finance.dao.validator.Validator;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
-public class TransactionServiceImpl implements TransactionService {
-    private Validator validator = new ClassValidator();
+public class TransactionServiceImpl extends AbstractService implements TransactionService {
     private TransactionRepository repository = new TransactionRepository();
 
     @Override
     public Optional<TransactionModel> findByName(String name) {
         try {
             Optional<TransactionModel> optional = repository.findByName(name);
-            TransactionModel model = optional.orElseGet(TransactionModel::new);
+            TransactionModel model = optional.orElseThrow(HomeFinanceDaoException::new);
             validate(model);
 
             return Optional.of(model);
@@ -42,7 +39,7 @@ public class TransactionServiceImpl implements TransactionService {
         Collection<TransactionModel> models = repository.findAll();
         models.forEach(this::validate);
 
-        return repository.findAll();
+        return models;
     }
 
     @Override
@@ -54,7 +51,7 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionModel save(TransactionModel model) {
         TransactionModel newModel = new TransactionModel();
         if (validate(model)) {
-            newModel = repository.update(model);
+            newModel = repository.save(model);
         }
         return newModel;
     }
@@ -98,19 +95,6 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         return sumByPeriod;
-    }
-
-    private boolean validate(TransactionModel model) {
-        try {
-            if (!validator.isValid(model)) {
-                throw new HomeFinanceServiceException("Транзакция " + model + " не валидирована");
-            }
-        } catch (HomeFinanceServiceException e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        return true;
     }
 
     public boolean removeByAccount(Long accountId) {

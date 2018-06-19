@@ -1,123 +1,115 @@
 package ru.medisov.home_finance.service;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.medisov.home_finance.common.model.AccountModel;
+import ru.medisov.home_finance.common.model.AccountType;
 import ru.medisov.home_finance.common.model.CurrencyModel;
 import ru.medisov.home_finance.dao.repository.Repository;
 
-import java.util.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class CurrencyServiceTest {
-    private CurrencyModel model = getCurrencyModel();
+class AccountServiceTest {
+    private AccountModel model = getAccountModel();
 
     @Mock
-    private Repository<CurrencyModel, Long> repositoryMock;
+    private Repository<AccountModel, Long> repositoryMock;
 
     @InjectMocks
-    private CurrencyServiceImpl currencyService;
+    private AccountServiceImpl accountService;
 
     @BeforeEach
     void reset() {
-        model = getCurrencyModel();
+        model = getAccountModel();
     }
 
     @Test
-    @DisplayName("Search by name for an existing currency. Correct model returned")
+    @DisplayName("Search by name for an existing account. Correct model returned")
     void findByNameIfExistsCorrectModelReturned() {
-        CurrencyModel returnModel = model.setId(1);
+        AccountModel returnModel = model;
         when(repositoryMock.findByName(model.getName())).thenReturn(Optional.of(returnModel));
 
-        assertEquals(Optional.of(returnModel), currencyService.findByName(model.getName()));
+        assertEquals(Optional.of(returnModel), accountService.findByName(model.getName()));
         verify(repositoryMock, times(1)).findByName(model.getName());
     }
 
     @Test
-    @DisplayName("Attempt to search by name for a non-existent currency throws HomeFinanceServiceException")
+    @DisplayName("Attempt to search by name for a non-existent account throws HomeFinanceServiceException")
     void findByNameIfNotExists() {
         when(repositoryMock.findByName(model.getName())).thenReturn(Optional.empty());
 
-        Throwable thrown = assertThrows(HomeFinanceServiceException.class, () -> currencyService
+        Throwable thrown = assertThrows(HomeFinanceServiceException.class, () -> accountService
                 .findByName(model.getName()));
         assertNotNull(thrown.getMessage());
     }
 
     @Test
-    @DisplayName("Search for all currency models returns collection of models ")
+    @DisplayName("Search for all account models returns collection of models ")
     void findAllExistsOneEntry() {
-        CurrencyModel returnModel = model.setId(1);
-        Collection<CurrencyModel> models = new ArrayList<>();
+        AccountModel returnModel = model;
+        Collection<AccountModel> models = new ArrayList<>();
         models.add(returnModel);
         when(repositoryMock.findAll()).thenReturn(models);
 
-        Collection<CurrencyModel> actual = currencyService.findAll();
+        Collection<AccountModel> actual = accountService.findAll();
         assertEquals(models, actual);
         assertTrue(actual.contains(returnModel));
         verify(repositoryMock, times(1)).findAll();
     }
 
     @Test
-    @DisplayName("Attempt to search currency models in empty table returns empty collection")
+    @DisplayName("Attempt to search account models in empty table returns empty collection")
     void findAllEmptyTable() {
-        Collection<CurrencyModel> emptyCollection = new ArrayList<>();
+        Collection<AccountModel> emptyCollection = new ArrayList<>();
         when(repositoryMock.findAll()).thenReturn(emptyCollection);
-        assertEquals(new ArrayList<CurrencyModel>(), currencyService.findAll());
+        assertEquals(new ArrayList<AccountModel>(), accountService.findAll());
     }
 
     @Test
     @DisplayName("Remove existing model returns true")
     void removeExistingEntryReturnsTrue() {
         when(repositoryMock.remove(model.getId())).thenReturn(true);
-        assertTrue(currencyService.remove(model.getId()));
+        assertTrue(accountService.remove(model.getId()));
     }
 
     @Test
     @DisplayName("Remove non-existent model returns false")
     void removeIfNotExistsReturnsFalse() {
         when(repositoryMock.remove(model.getId())).thenReturn(false);
-        assertFalse(currencyService.remove(model.getId()));
+        assertFalse(accountService.remove(model.getId()));
     }
 
     @Test
     @DisplayName("Save correct model. Successful Validation")
     void saveCorrectModelSuccessfulValidation() {
-        CurrencyModel returnModel = model.setId(1);
+        AccountModel returnModel = model;
 
         when(repositoryMock.save(any())).thenReturn(returnModel);
-        when(repositoryMock.findByName(model.getName())).thenReturn(Optional.empty());
 
-        assertNotNull(currencyService);
-        assertEquals(returnModel, currencyService.save(model));
+        assertNotNull(accountService);
+        assertEquals(returnModel, accountService.save(model));
 
         verify(repositoryMock, times(1)).save(any());
-        verify(repositoryMock, times(1)).findByName(returnModel.getName());
     }
 
     @Test
     @DisplayName("Attempt to save an incorrect model throws HomeFinanceServiceException. Validation not accepted")
     void saveIncorrectModelValidationNotAccepted() throws HomeFinanceServiceException {
         String emptyName = "";
-        when(repositoryMock.findByName(emptyName)).thenReturn(Optional.empty());
-        Throwable thrown = assertThrows(HomeFinanceServiceException.class, () -> currencyService
+        Throwable thrown = assertThrows(HomeFinanceServiceException.class, () -> accountService
                                                                         .save(model.setName(emptyName)));
-        assertNotNull(thrown.getMessage());
-        verify(repositoryMock, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("Attempt to save an incorrect model throws HomeFinanceServiceException. Varification not accepted")
-    void saveExistingModelVerificationNotAccepted() throws HomeFinanceServiceException {
-        String name = model.getName();
-        CurrencyModel returnModel = new CurrencyModel().setName(name);
-
-        when(repositoryMock.findByName(name)).thenReturn(Optional.of(returnModel));
-        Throwable thrown = assertThrows(HomeFinanceServiceException.class, () -> currencyService.save(model));
         assertNotNull(thrown.getMessage());
         verify(repositoryMock, never()).save(any());
     }
@@ -125,10 +117,10 @@ class CurrencyServiceTest {
     @Test
     @DisplayName("update correct Model returns the same model")
     void updateCorrectModelSameModelReturned() {
-        CurrencyModel returnModel = model.setId(1);
+        AccountModel returnModel = model;
 
         when(repositoryMock.update(any())).thenReturn(returnModel);
-        assertEquals(returnModel, currencyService.update(model));
+        assertEquals(returnModel, accountService.update(model));
         verify(repositoryMock, times(1)).update(any());
     }
 
@@ -136,12 +128,19 @@ class CurrencyServiceTest {
     @DisplayName("Attempt to update an incorrect Model throws HomeFinanceServiceException")
     void updateIncorrectModelCausesException() throws HomeFinanceServiceException {
         String emptyName = "";
-        Throwable thrown = assertThrows(HomeFinanceServiceException.class, () -> currencyService.update(model.setName(emptyName)));
+        Throwable thrown = assertThrows(HomeFinanceServiceException.class, () -> accountService.update(model.setName(emptyName)));
         assertNotNull(thrown.getMessage());
         verify(repositoryMock, never()).update(any());
     }
 
-    private CurrencyModel getCurrencyModel() {
-        return new CurrencyModel().setName("Боливиано").setCode("BOB").setSymbol("$");
+    public BigDecimal getBaseAmount() {
+        return BigDecimal.ZERO.setScale(2, BigDecimal.ROUND_CEILING);
+    }
+
+    public AccountModel getAccountModel() {
+        CurrencyModel currencyModel = new CurrencyModel().setName("Боливиано").setCode("BOB").setSymbol("$");
+        BigDecimal amount = getBaseAmount().add(BigDecimal.valueOf(50000));
+        return new AccountModel().setCurrencyModel(currencyModel).setAccountType(AccountType.CASH)
+                .setName("Кошелек").setAmount(amount);
     }
 }

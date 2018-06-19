@@ -2,8 +2,8 @@ package ru.medisov.home_finance.dao.repository;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import ru.medisov.home_finance.common.model.*;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
-import ru.medisov.home_finance.dao.model.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

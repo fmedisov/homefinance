@@ -1,8 +1,8 @@
-package ru.medisov.home_finance.dao.validator;
+package ru.medisov.home_finance.common.validator;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,8 +18,8 @@ public class ClassValidator implements Validator {
 
             return isValidStrFields(object) & isCheckedForMin(object) & isCheckedDates(object);
         } catch (Exception e) {
-            System.out.println(e);
-            return true;
+            System.out.println(e.getMessage());
+            return false;
         }
     }
 
@@ -31,11 +31,13 @@ public class ClassValidator implements Validator {
             int annYear = field.getAnnotation(DateSince.class).year();
             int annMonth = field.getAnnotation(DateSince.class).month();
             int annDay = field.getAnnotation(DateSince.class).day();
+            int annHour = field.getAnnotation(DateSince.class).hour();
+            int annMinute = field.getAnnotation(DateSince.class).minute();
 
             try {
-                LocalDate annDate = LocalDate.of(annYear, annMonth, annDay);
+                LocalDateTime annDate = LocalDateTime.of(annYear, annMonth, annDay, annHour, annMinute);
                 field.setAccessible(true);
-                LocalDate fieldDate = (LocalDate) field.get(object);
+                LocalDateTime fieldDate = (LocalDateTime) field.get(object);
                 field.setAccessible(false);
 
                 if (fieldDate.isBefore(annDate)) {
@@ -43,7 +45,7 @@ public class ClassValidator implements Validator {
                     throw new IncorrectDateException(message, new Throwable());
                 }
             } catch (IncorrectDateException e) {
-                System.out.println(e);
+                System.out.println(e.getMessage());
                 return false;
             } catch (IllegalAccessException e) {
                 System.out.println("Нет доступа к полю " + field.getName());
@@ -68,7 +70,7 @@ public class ClassValidator implements Validator {
                     throw new MinValueException(message, new Throwable());
                 }
             } catch (MinValueException e) {
-                System.out.println(e);
+                System.out.println(e.getMessage());
                 return false;
             } catch (IllegalAccessException e) {
                 System.out.println("Нет доступа к полю '" + field.getName() + "'");
@@ -97,7 +99,7 @@ public class ClassValidator implements Validator {
                 System.out.println("Нет доступа к полю '" + field.getName() + "'");
                 return false;
             } catch (Exception e) {
-                System.out.println(e);
+                System.out.println(e.getMessage());
                 return false;
             }
         }

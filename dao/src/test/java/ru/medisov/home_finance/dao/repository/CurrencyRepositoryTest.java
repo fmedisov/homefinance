@@ -2,7 +2,7 @@ package ru.medisov.home_finance.dao.repository;
 
 import org.junit.jupiter.api.*;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
-import ru.medisov.home_finance.dao.model.CurrencyModel;
+import ru.medisov.home_finance.common.model.CurrencyModel;
 
 import java.util.Collection;
 import java.util.Optional;

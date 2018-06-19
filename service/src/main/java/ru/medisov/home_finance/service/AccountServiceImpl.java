@@ -1,24 +1,21 @@
 package ru.medisov.home_finance.service;
 
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
-import ru.medisov.home_finance.dao.model.AccountModel;
+import ru.medisov.home_finance.common.model.AccountModel;
 import ru.medisov.home_finance.dao.repository.AccountRepository;
 import ru.medisov.home_finance.dao.repository.Repository;
-import ru.medisov.home_finance.dao.validator.ClassValidator;
-import ru.medisov.home_finance.dao.validator.Validator;
 
 import java.util.Collection;
 import java.util.Optional;
 
-public class AccountServiceImpl implements AccountService {
-    private Validator validator = new ClassValidator();
+public class AccountServiceImpl extends AbstractService implements AccountService {
     private Repository<AccountModel, Long> repository = new AccountRepository();
 
     @Override
     public Optional<AccountModel> findByName(String name) {
         try {
             Optional<AccountModel> optional = repository.findByName(name);
-            AccountModel model = optional.orElseGet(AccountModel::new);
+            AccountModel model = optional.orElseThrow(HomeFinanceDaoException::new);
             validate(model);
 
             return Optional.of(model);
@@ -61,18 +58,5 @@ public class AccountServiceImpl implements AccountService {
             newModel = repository.update(model);
         }
         return newModel;
-    }
-
-    private boolean validate(AccountModel model) {
-        try {
-            if (!validator.isValid(model)) {
-                throw new HomeFinanceServiceException("Кошелек " + model + " не валидирован");
-            }
-        } catch (HomeFinanceServiceException e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        return true;
     }
 }

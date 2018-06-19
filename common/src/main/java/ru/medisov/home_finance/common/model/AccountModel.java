@@ -1,15 +1,17 @@
-package ru.medisov.home_finance.dao.model;
+package ru.medisov.home_finance.common.model;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import ru.medisov.home_finance.dao.validator.NotEmpty;
-import ru.medisov.home_finance.dao.validator.Valid;
+import ru.medisov.home_finance.common.validator.Valid;
+import ru.medisov.home_finance.common.validator.NotEmpty;
 
 import java.math.BigDecimal;
 
 @Data
 @Accessors(chain = true)
 @Valid
+@NoArgsConstructor
 public class AccountModel {
     private long id;
     @NotEmpty

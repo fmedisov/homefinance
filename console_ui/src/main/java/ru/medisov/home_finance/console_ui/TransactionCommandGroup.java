@@ -1,7 +1,7 @@
 package ru.medisov.home_finance.console_ui;
 
-import ru.medisov.home_finance.dao.model.CategoryTransactionModel;
-import ru.medisov.home_finance.dao.model.TransactionModel;
+import ru.medisov.home_finance.common.model.CategoryTransactionModel;
+import ru.medisov.home_finance.common.model.TransactionModel;
 import ru.medisov.home_finance.service.*;
 
 import java.time.LocalDateTime;

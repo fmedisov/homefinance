@@ -1,8 +1,8 @@
 package ru.medisov.home_finance.dao.repository;
 
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
-import ru.medisov.home_finance.dao.model.TagModel;
-import ru.medisov.home_finance.dao.model.TransactionModel;
+import ru.medisov.home_finance.common.model.TagModel;
+import ru.medisov.home_finance.common.model.TransactionModel;
 
 import java.sql.*;
 import java.util.ArrayList;

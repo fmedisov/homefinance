@@ -2,16 +2,14 @@ package ru.medisov.home_finance.dao.repository;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import ru.medisov.home_finance.common.model.*;
 import ru.medisov.home_finance.dao.DaoConfig;
-import ru.medisov.home_finance.dao.model.*;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class AbstractRepositoryTest {
 

@@ -3,9 +3,9 @@ package ru.medisov.home_finance.dao.repository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
-import ru.medisov.home_finance.dao.model.AccountModel;
-import ru.medisov.home_finance.dao.model.AccountType;
-import ru.medisov.home_finance.dao.model.CurrencyModel;
+import ru.medisov.home_finance.common.model.AccountModel;
+import ru.medisov.home_finance.common.model.AccountType;
+import ru.medisov.home_finance.common.model.CurrencyModel;
 
 import java.math.BigDecimal;
 import java.util.Collection;

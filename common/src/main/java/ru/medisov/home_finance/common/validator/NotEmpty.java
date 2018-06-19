@@ -1,4 +1,4 @@
-package ru.medisov.home_finance.dao.validator;
+package ru.medisov.home_finance.common.validator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +7,5 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface Min {
-    int minValue();
+public @interface NotEmpty {
 }
