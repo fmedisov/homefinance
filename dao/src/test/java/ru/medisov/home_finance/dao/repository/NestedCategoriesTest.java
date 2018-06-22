@@ -11,9 +11,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class NestedCategoriesTest extends AbstractRepositoryTest {
+class NestedCategoriesTest extends CommonRepositoryTest implements RepositoryTest {
     private TestModelGenerator generator = new TestModelGenerator();
-    private CategoryRepository repository = new CategoryRepository();
+    private CategoryRepository repository = new CategoryRepositoryImpl();
 
     @Test
     @DisplayName("Save Nested Models to database")

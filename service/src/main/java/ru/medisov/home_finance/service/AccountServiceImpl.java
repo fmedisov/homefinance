@@ -3,13 +3,14 @@ package ru.medisov.home_finance.service;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.AccountModel;
 import ru.medisov.home_finance.dao.repository.AccountRepository;
+import ru.medisov.home_finance.dao.repository.AccountRepositoryImpl;
 import ru.medisov.home_finance.dao.repository.Repository;
 
 import java.util.Collection;
 import java.util.Optional;
 
 public class AccountServiceImpl extends AbstractService implements AccountService {
-    private Repository<AccountModel, Long> repository = new AccountRepository();
+    private AccountRepository repository = new AccountRepositoryImpl();
 
     @Override
     public Optional<AccountModel> findByName(String name) {

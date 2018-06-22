@@ -3,13 +3,14 @@ package ru.medisov.home_finance.service;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import ru.medisov.home_finance.dao.repository.CategoryRepository;
+import ru.medisov.home_finance.dao.repository.CategoryRepositoryImpl;
 import ru.medisov.home_finance.dao.repository.Repository;
 
 import java.util.Collection;
 import java.util.Optional;
 
 public class CategoryServiceImpl extends AbstractService implements CategoryService {
-    private Repository<CategoryTransactionModel, Long> repository = new CategoryRepository();
+    private CategoryRepository repository = new CategoryRepositoryImpl();
 
     @Override
     public Optional<CategoryTransactionModel> findByName(String name) {

@@ -1,6 +1,5 @@
 package ru.medisov.home_finance.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,11 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.medisov.home_finance.common.generator.TestModelGenerator;
 import ru.medisov.home_finance.common.model.AccountModel;
-import ru.medisov.home_finance.common.model.AccountType;
-import ru.medisov.home_finance.common.model.CurrencyModel;
-import ru.medisov.home_finance.dao.repository.Repository;
+import ru.medisov.home_finance.dao.repository.AccountRepository;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -26,7 +22,7 @@ class AccountServiceTest {
     private TestModelGenerator generator = new TestModelGenerator();
 
     @Mock
-    private Repository<AccountModel, Long> repositoryMock;
+    private AccountRepository repositoryMock;
 
     @InjectMocks
     private AccountServiceImpl accountService;

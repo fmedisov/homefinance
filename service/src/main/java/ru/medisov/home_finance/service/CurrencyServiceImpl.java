@@ -3,17 +3,14 @@ package ru.medisov.home_finance.service;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.CurrencyModel;
 import ru.medisov.home_finance.dao.repository.CurrencyRepository;
+import ru.medisov.home_finance.dao.repository.CurrencyRepositoryImpl;
 import ru.medisov.home_finance.dao.repository.Repository;
 
 import java.util.Collection;
 import java.util.Optional;
 
 public class CurrencyServiceImpl extends AbstractService implements CurrencyService {
-    private Repository<CurrencyModel, Long> repository;
-
-    public CurrencyServiceImpl() {
-        repository = new CurrencyRepository();
-    }
+    private CurrencyRepository repository = new CurrencyRepositoryImpl();
 
     @Override
     public Optional<CurrencyModel> findByName(String name) {

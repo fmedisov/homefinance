@@ -14,9 +14,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AccountRepositoryTest extends AbstractRepositoryTest {
+class AccountRepositoryTest extends CommonRepositoryTest implements RepositoryTest {
     private TestModelGenerator generator = new TestModelGenerator();
-    private AccountRepository repository = new AccountRepository();
+    private AccountRepository repository = new AccountRepositoryImpl();
 
     @Test
     @DisplayName("Save correct Model to database")
@@ -102,7 +102,7 @@ class AccountRepositoryTest extends AbstractRepositoryTest {
     @DisplayName("update correct Model returns the same model")
     void updateCorrectModelSameModelReturned() {
         AccountModel accountModel = generator.generateAccountModel();
-        CurrencyModel currencyModel = new CurrencyRepository().save(new CurrencyModel()
+        CurrencyModel currencyModel = new CurrencyRepositoryImpl().save(new CurrencyModel()
                                             .setName("US dollar").setCode("USD").setSymbol("$"));
         AccountModel changed = repository.save(accountModel)
                 .setAccountType(AccountType.CREDIT_CARD).setName("Citibank Card")

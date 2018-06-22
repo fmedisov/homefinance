@@ -13,7 +13,7 @@ public abstract class AbstractRepository<T, ID> implements Repository<T, ID> {
 
     public abstract T save(T model);
 
-    public abstract Optional<T> findByName(String name);
+    public abstract Optional<T> findById(Long aLong);
 
     public abstract Collection<T> findAll();
 
@@ -50,23 +50,43 @@ public abstract class AbstractRepository<T, ID> implements Repository<T, ID> {
     private String getTableName(Class oClass) {
         String tblName = null;
         switch (oClass.getSimpleName()) {
-            case "CurrencyRepository":
+            case "CurrencyRepositoryImpl":
                 tblName = "currency_tbl";
                 break;
-            case "CategoryRepository":
+            case "CategoryRepositoryImpl":
                 tblName = "category_tbl";
                 break;
-            case "AccountRepository":
+            case "AccountRepositoryImpl":
                 tblName = "account_tbl";
                 break;
-            case "TransactionRepository":
+            case "TransactionRepositoryImpl":
                 tblName = "transaction_tbl";
                 break;
-            case "TagRepository":
+            case "TagRepositoryImpl":
                 tblName = "tag_tbl";
                 break;
         }
 
         return tblName;
+    }
+
+    public CurrencyRepository getCurrencyRepository() {
+        return new CurrencyRepositoryImpl();
+    }
+
+    public CategoryRepository getCategoryRepository() {
+        return new CategoryRepositoryImpl();
+    }
+
+    public AccountRepository getAccountRepository() {
+        return new AccountRepositoryImpl();
+    }
+
+    public TagRepository getTagRepository() {
+        return new TagRepositoryImpl();
+    }
+
+    public TransactionRepository getTransactionRepository() {
+        return new TransactionRepositoryImpl();
     }
 }

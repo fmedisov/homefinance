@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.medisov.home_finance.common.generator.TestModelGenerator;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
-import ru.medisov.home_finance.dao.repository.Repository;
+import ru.medisov.home_finance.dao.repository.CategoryRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,7 +22,7 @@ class CategoryServiceTest {
     private TestModelGenerator generator = new TestModelGenerator();
 
     @Mock
-    private Repository<CategoryTransactionModel, Long> repositoryMock;
+    private CategoryRepository repositoryMock;
 
     @InjectMocks
     private CategoryServiceImpl categoryService;

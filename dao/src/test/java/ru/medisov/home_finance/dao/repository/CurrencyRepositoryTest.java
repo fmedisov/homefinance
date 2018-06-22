@@ -10,9 +10,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CurrencyRepositoryTest extends AbstractRepositoryTest {
+class CurrencyRepositoryTest extends CommonRepositoryTest implements RepositoryTest {
     private TestModelGenerator generator = new TestModelGenerator();
-    private CurrencyRepository repository = new CurrencyRepository();
+    private CurrencyRepository repository = new CurrencyRepositoryImpl();
 
     @Test
     @DisplayName("Save correct Model to database")

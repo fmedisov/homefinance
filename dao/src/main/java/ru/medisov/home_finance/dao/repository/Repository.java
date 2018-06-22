@@ -6,10 +6,9 @@ import java.util.Collection;
 /**
  * Generic CRUD
  */
-//todo implement different interfaces
 public interface Repository<T, ID> {
-    //todo implement interface for this method
-    Optional<T> findByName(String name);
+
+    Optional<T> findById(Long aLong);
 
     Collection<T> findAll();
 

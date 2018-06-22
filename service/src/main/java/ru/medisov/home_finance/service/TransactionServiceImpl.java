@@ -4,13 +4,14 @@ import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import ru.medisov.home_finance.common.model.TransactionModel;
 import ru.medisov.home_finance.dao.repository.TransactionRepository;
+import ru.medisov.home_finance.dao.repository.TransactionRepositoryImpl;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
 public class TransactionServiceImpl extends AbstractService implements TransactionService {
-    private TransactionRepository repository = new TransactionRepository();
+    private TransactionRepository repository = new TransactionRepositoryImpl();
 
     @Override
     public Optional<TransactionModel> findByName(String name) {

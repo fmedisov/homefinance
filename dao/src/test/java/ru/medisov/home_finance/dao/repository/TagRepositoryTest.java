@@ -11,9 +11,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TagRepositoryTest extends AbstractRepositoryTest {
+class TagRepositoryTest extends CommonRepositoryTest implements RepositoryTest {
     private TestModelGenerator generator = new TestModelGenerator();
-    private TagRepository repository = new TagRepository();
+    private TagRepository repository = new TagRepositoryImpl();
 
     @Test
     @DisplayName("Save correct Model to database")

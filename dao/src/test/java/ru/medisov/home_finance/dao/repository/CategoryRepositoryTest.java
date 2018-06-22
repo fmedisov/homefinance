@@ -10,9 +10,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CategoryRepositoryTest extends AbstractRepositoryTest {
+class CategoryRepositoryTest extends CommonRepositoryTest implements RepositoryTest {
     private TestModelGenerator generator = new TestModelGenerator();
-    private CategoryRepository repository = new CategoryRepository();
+    private CategoryRepository repository = new CategoryRepositoryImpl();
 
     @Test
     @DisplayName("Save correct Model to database")

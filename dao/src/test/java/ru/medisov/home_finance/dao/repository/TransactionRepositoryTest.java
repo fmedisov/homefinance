@@ -12,9 +12,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TransactionRepositoryTest extends AbstractRepositoryTest {
+class TransactionRepositoryTest extends CommonRepositoryTest implements RepositoryTest {
     private TestModelGenerator generator = new TestModelGenerator();
-    private TransactionRepository repository = new TransactionRepository();
+    private TransactionRepository repository = new TransactionRepositoryImpl();
 
     @Test
     @DisplayName("Save correct Model to database")
