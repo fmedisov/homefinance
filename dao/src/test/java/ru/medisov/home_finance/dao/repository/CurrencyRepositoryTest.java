@@ -19,7 +19,7 @@ class CurrencyRepositoryTest extends CommonRepositoryTest implements RepositoryT
     void saveCorrectModelNonZeroIdReturned() {
         CurrencyModel currencyModel = generator.generateCurrencyModel();
         CurrencyModel changed = repository.save(currencyModel);
-        assertTrue(changed.getId() != 0);
+        assertTrue(changed.getId() != null);
     }
 
     @Test

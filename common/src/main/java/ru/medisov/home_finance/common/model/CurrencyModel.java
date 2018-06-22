@@ -11,7 +11,7 @@ import ru.medisov.home_finance.common.validator.Valid;
 @Valid
 @NoArgsConstructor
 public class CurrencyModel {
-    private long id;
+    private Long id;
     @NotEmpty
     private String name;
     @NotEmpty

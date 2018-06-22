@@ -20,7 +20,12 @@ public abstract class AbstractRepository<T, ID> implements Repository<T, ID> {
     public abstract T update(T model);
 
     public boolean remove(Long aLong, Class oClass) {
+        if (aLong == null) {
+            return false;
+        }
+
         boolean isRemoved = false;
+
         try (Connection connection = connectionBuilder.getConnection()) {
             String tblName = getTableName(oClass);
             if (tblName == null) {

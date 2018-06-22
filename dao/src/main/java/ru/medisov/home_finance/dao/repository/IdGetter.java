@@ -13,7 +13,7 @@ public class IdGetter {
         this.statement = statement;
     }
 
-    public long getId() {
+    public Long getId() {
         try {
             ResultSet resultSet = statement.getGeneratedKeys();
             if (resultSet.next()) {
@@ -23,6 +23,6 @@ public class IdGetter {
             throw new HomeFinanceDaoException("error while get id ", e);
         }
 
-        return 0;
+        return 0L;
     }
 }

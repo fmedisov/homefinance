@@ -19,7 +19,7 @@ class CategoryRepositoryTest extends CommonRepositoryTest implements RepositoryT
     void saveCorrectModelNonZeroIdReturned() {
         CategoryTransactionModel categoryModel = generator.generateCategoryModel();
         CategoryTransactionModel changed = repository.save(categoryModel);
-        assertTrue(changed.getId() != 0);
+        assertTrue(changed.getId() != null);
     }
 
     @Test

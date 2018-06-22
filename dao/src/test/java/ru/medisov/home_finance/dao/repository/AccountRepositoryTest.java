@@ -23,8 +23,7 @@ class AccountRepositoryTest extends CommonRepositoryTest implements RepositoryTe
     void saveCorrectModelNonZeroIdReturned() {
         AccountModel accountModel = generator.generateAccountModel();
         AccountModel changed = repository.save(accountModel);
-        //todo id - Long object, check for null
-        assertTrue(changed.getId() != 0);
+        assertTrue(changed.getId() != null);
     }
 
     @Test

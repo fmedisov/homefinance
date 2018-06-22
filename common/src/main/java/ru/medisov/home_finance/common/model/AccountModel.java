@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @Valid
 @NoArgsConstructor
 public class AccountModel {
-    private long id;
+    private Long id;
     @NotEmpty
     private String name;
     private AccountType accountType;

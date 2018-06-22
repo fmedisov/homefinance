@@ -27,7 +27,7 @@ class CurrencyServiceTest {
     @Test
     @DisplayName("Search by name for an existing currency. Correct model returned")
     void findByNameIfExistsCorrectModelReturned() {
-        CurrencyModel returnModel = generator.generateCurrencyModel().setId(1);
+        CurrencyModel returnModel = generator.generateCurrencyModel().setId(1L);
         when(repositoryMock.findByName(returnModel.getName())).thenReturn(Optional.of(returnModel));
 
         assertEquals(Optional.of(returnModel), currencyService.findByName(returnModel.getName()));
@@ -37,7 +37,7 @@ class CurrencyServiceTest {
     @Test
     @DisplayName("Attempt to search by name for a non-existent currency throws HomeFinanceServiceException")
     void findByNameIfNotExists() {
-        CurrencyModel model = generator.generateCurrencyModel().setId(1);
+        CurrencyModel model = generator.generateCurrencyModel().setId(1L);
         when(repositoryMock.findByName(model.getName())).thenReturn(Optional.empty());
 
         Throwable thrown = assertThrows(HomeFinanceServiceException.class, () -> currencyService
@@ -48,7 +48,7 @@ class CurrencyServiceTest {
     @Test
     @DisplayName("Search for all currency models returns collection of models ")
     void findAllExistsOneEntry() {
-        CurrencyModel returnModel = generator.generateCurrencyModel().setId(1);
+        CurrencyModel returnModel = generator.generateCurrencyModel().setId(1L);
         Collection<CurrencyModel> models = new ArrayList<>();
         models.add(returnModel);
         when(repositoryMock.findAll()).thenReturn(models);
@@ -70,7 +70,7 @@ class CurrencyServiceTest {
     @Test
     @DisplayName("Remove existing model returns true")
     void removeExistingEntryReturnsTrue() {
-        CurrencyModel model = generator.generateCurrencyModel().setId(1);
+        CurrencyModel model = generator.generateCurrencyModel().setId(1L);
         when(repositoryMock.remove(model.getId())).thenReturn(true);
         assertTrue(currencyService.remove(model.getId()));
     }
@@ -78,7 +78,7 @@ class CurrencyServiceTest {
     @Test
     @DisplayName("Remove non-existent model returns false")
     void removeIfNotExistsReturnsFalse() {
-        CurrencyModel model = generator.generateCurrencyModel().setId(1);
+        CurrencyModel model = generator.generateCurrencyModel().setId(1L);
         when(repositoryMock.remove(model.getId())).thenReturn(false);
         assertFalse(currencyService.remove(model.getId()));
     }
@@ -87,7 +87,7 @@ class CurrencyServiceTest {
     @DisplayName("Save correct model. Successful Validation")
     void saveCorrectModelSuccessfulValidation() {
         CurrencyModel model = generator.generateCurrencyModel();
-        CurrencyModel returnModel = generator.generateCurrencyModel().setId(1);
+        CurrencyModel returnModel = generator.generateCurrencyModel().setId(1L);
 
         when(repositoryMock.save(any())).thenReturn(returnModel);
         when(repositoryMock.findByName(returnModel.getName())).thenReturn(Optional.empty());
@@ -127,7 +127,7 @@ class CurrencyServiceTest {
     @Test
     @DisplayName("update correct Model returns the same model")
     void updateCorrectModelSameModelReturned() {
-        CurrencyModel returnModel = generator.generateCurrencyModel().setId(1);
+        CurrencyModel returnModel = generator.generateCurrencyModel().setId(1L);
 
         when(repositoryMock.update(any())).thenReturn(returnModel);
         assertEquals(returnModel, currencyService.update(returnModel));
@@ -137,7 +137,7 @@ class CurrencyServiceTest {
     @Test
     @DisplayName("Attempt to update an incorrect Model throws HomeFinanceServiceException")
     void updateIncorrectModelCausesException() throws HomeFinanceServiceException {
-        CurrencyModel model = generator.generateCurrencyModel().setId(1);
+        CurrencyModel model = generator.generateCurrencyModel().setId(1L);
         String emptyName = "";
         Throwable thrown = assertThrows(HomeFinanceServiceException.class, () -> currencyService.update(model.setName(emptyName)));
         assertNotNull(thrown.getMessage());

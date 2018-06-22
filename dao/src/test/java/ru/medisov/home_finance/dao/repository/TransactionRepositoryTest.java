@@ -21,7 +21,7 @@ class TransactionRepositoryTest extends CommonRepositoryTest implements Reposito
     void saveCorrectModelNonZeroIdReturned() {
         TransactionModel transactionModel = generator.generateTransactionModel();
         TransactionModel changed = repository.save(transactionModel);
-        assertTrue(changed.getId() != 0);
+        assertTrue(changed.getId() != null);
     }
 
     @Test

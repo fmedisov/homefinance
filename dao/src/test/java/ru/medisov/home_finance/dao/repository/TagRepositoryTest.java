@@ -20,7 +20,7 @@ class TagRepositoryTest extends CommonRepositoryTest implements RepositoryTest {
     void saveCorrectModelNonZeroIdReturned() {
         TagModel tagModel = generator.generateTagModel();
         TagModel changed = repository.save(tagModel);
-        assertTrue(changed.getId() != 0);
+        assertTrue(changed.getId() != null);
     }
 
     @Test

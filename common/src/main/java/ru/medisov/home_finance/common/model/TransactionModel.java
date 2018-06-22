@@ -15,7 +15,7 @@ import java.util.List;
 @Valid
 @NoArgsConstructor
 public class TransactionModel {
-    private long id;
+    private Long id;
     @NotEmpty
     private String name;
     private BigDecimal amount;

@@ -11,7 +11,7 @@ import ru.medisov.home_finance.common.validator.Valid;
 @Valid
 @NoArgsConstructor
 public class TagModel {
-    private long id;
+    private Long id;
     @NotEmpty
     private String name;
     private long count;

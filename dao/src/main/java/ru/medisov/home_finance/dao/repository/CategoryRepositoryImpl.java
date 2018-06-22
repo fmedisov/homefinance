@@ -134,6 +134,10 @@ public class CategoryRepositoryImpl extends AbstractRepository<CategoryTransacti
     }
 
     public Optional<CategoryTransactionModel> findById(Long aLong) {
+        if (aLong == null) {
+            return Optional.empty();
+        }
+
         try (Connection connection = connectionBuilder.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_ID)) {
                 preparedStatement.setLong(1, aLong);

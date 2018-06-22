@@ -141,12 +141,16 @@ public class AccountRepositoryImpl extends AbstractRepository<AccountModel, Long
     }
 
     private void updateCurrencyModel(AccountModel model) {
-        if (model.getCurrencyModel() != null && model.getCurrencyModel().getId() == 0) {
+        if (model.getCurrencyModel() != null && model.getCurrencyModel().getId() == null) {
             model.setCurrencyModel(getCurrencyRepository().save(model.getCurrencyModel()));
         }
     }
 
     public Optional<AccountModel> findById(Long aLong) {
+        if (aLong == null) {
+            return Optional.empty();
+        }
+
         try (Connection connection = connectionBuilder.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_ID)) {
                 preparedStatement.setLong(1, aLong);

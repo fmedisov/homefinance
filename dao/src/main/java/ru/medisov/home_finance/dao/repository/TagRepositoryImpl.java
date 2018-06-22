@@ -121,6 +121,10 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
     }
 
     public Optional<TagModel> findById(Long aLong) {
+        if (aLong == null) {
+            return Optional.empty();
+        }
+
         try (Connection connection = connectionBuilder.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_ID)) {
                 preparedStatement.setLong(1, aLong);
@@ -198,6 +202,10 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
     }
 
     private boolean executeQueryByTransaction(String query, Long aLong) {
+        if (aLong == null) {
+            return false;
+        }
+
         try (Connection connection = connectionBuilder.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 preparedStatement.setLong(1, aLong);

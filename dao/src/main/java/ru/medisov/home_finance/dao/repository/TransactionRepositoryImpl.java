@@ -238,13 +238,13 @@ public class TransactionRepositoryImpl extends AbstractRepository<TransactionMod
     }
 
     private void updateCategoryModel(TransactionModel model) {
-        if (model.getCategory() != null && model.getCategory().getId() == 0) {
+        if (model.getCategory() != null && model.getCategory().getId() == null) {
             model.setCategory(getCategoryRepository().saveWithParents(model.getCategory()));
         }
     }
 
     private void updateAccountModel(TransactionModel model) {
-        if (model.getAccount() != null && model.getAccount().getId() == 0) {
+        if (model.getAccount() != null && model.getAccount().getId() == null) {
             model.setAccount(getAccountRepository().save(model.getAccount()));
         }
     }
