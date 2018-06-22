@@ -25,7 +25,7 @@ public final class CommandRunner {
         command = new CommandRequester().request(Command.CommandType.ACCOUNT);
 
         if (command != null) {
-            CommandGroup accountCommands = new AccountCommandGroup();
+            AccountCommandGroup accountCommands = new AccountCommandGroup();
             switch (command) {
                 case ACCOUNT_CREATE:
                     accountCommands.save();
@@ -38,6 +38,9 @@ public final class CommandRunner {
                     break;
                 case ACCOUNT_GET:
                     accountCommands.find();
+                    break;
+                case ACCOUNT_LIST:
+                    accountCommands.findAll();
                     break;
             }
         }
@@ -63,6 +66,9 @@ public final class CommandRunner {
                     break;
                 case CURRENCY_PAIR:
                     currencyCommands.getPairInfo();
+                    break;
+                case CURRENCY_LIST:
+                    currencyCommands.findAll();
                     break;
             }
         }

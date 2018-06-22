@@ -1,12 +1,12 @@
 package ru.medisov.home_finance.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.medisov.home_finance.common.generator.TestModelGenerator;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import ru.medisov.home_finance.dao.repository.Repository;
 
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
-    private CategoryTransactionModel model = getCategoryModel();
+    private TestModelGenerator generator = new TestModelGenerator();
 
     @Mock
     private Repository<CategoryTransactionModel, Long> repositoryMock;
@@ -27,24 +27,20 @@ class CategoryServiceTest {
     @InjectMocks
     private CategoryServiceImpl categoryService;
 
-    @BeforeEach
-    void reset() {
-        model = getCategoryModel();
-    }
-
     @Test
     @DisplayName("Search by name for an existing category. Correct model returned")
     void findByNameIfExistsCorrectModelReturned() {
-        CategoryTransactionModel returnModel = model;
-        when(repositoryMock.findByName(model.getName())).thenReturn(Optional.of(returnModel));
+        CategoryTransactionModel returnModel = generator.generateCategoryModel().setId(1);
+        when(repositoryMock.findByName(returnModel.getName())).thenReturn(Optional.of(returnModel));
 
-        assertEquals(Optional.of(returnModel), categoryService.findByName(model.getName()));
-        verify(repositoryMock, times(1)).findByName(model.getName());
+        assertEquals(Optional.of(returnModel), categoryService.findByName(returnModel.getName()));
+        verify(repositoryMock, times(1)).findByName(returnModel.getName());
     }
 
     @Test
     @DisplayName("Attempt to search by name for a non-existent Category throws HomeFinanceServiceException")
     void findByNameIfNotExists() {
+        CategoryTransactionModel model = generator.generateCategoryModel().setId(1);
         when(repositoryMock.findByName(model.getName())).thenReturn(Optional.empty());
 
         Throwable thrown = assertThrows(HomeFinanceServiceException.class, () -> categoryService
@@ -55,7 +51,7 @@ class CategoryServiceTest {
     @Test
     @DisplayName("Search for all Category models returns collection of models ")
     void findAllExistsOneEntry() {
-        CategoryTransactionModel returnModel = model;
+        CategoryTransactionModel returnModel = generator.generateCategoryModel().setId(1);
         Collection<CategoryTransactionModel> models = new ArrayList<>();
         models.add(returnModel);
         when(repositoryMock.findAll()).thenReturn(models);
@@ -77,6 +73,7 @@ class CategoryServiceTest {
     @Test
     @DisplayName("Remove existing model returns true")
     void removeExistingEntryReturnsTrue() {
+        CategoryTransactionModel model = generator.generateCategoryModel().setId(1);
         when(repositoryMock.remove(model.getId())).thenReturn(true);
         assertTrue(categoryService.remove(model.getId()));
     }
@@ -84,6 +81,7 @@ class CategoryServiceTest {
     @Test
     @DisplayName("Remove non-existent model returns false")
     void removeIfNotExistsReturnsFalse() {
+        CategoryTransactionModel model = generator.generateCategoryModel().setId(1);
         when(repositoryMock.remove(model.getId())).thenReturn(false);
         assertFalse(categoryService.remove(model.getId()));
     }
@@ -91,12 +89,12 @@ class CategoryServiceTest {
     @Test
     @DisplayName("Save correct model. Successful Validation")
     void saveCorrectModelSuccessfulValidation() {
-        CategoryTransactionModel returnModel = model;
+        CategoryTransactionModel returnModel = generator.generateCategoryModel().setId(1);
 
         when(repositoryMock.save(any())).thenReturn(returnModel);
 
         assertNotNull(categoryService);
-        assertEquals(returnModel, categoryService.save(model));
+        assertEquals(returnModel, categoryService.save(returnModel));
 
         verify(repositoryMock, times(1)).save(any());
     }
@@ -104,6 +102,7 @@ class CategoryServiceTest {
     @Test
     @DisplayName("Attempt to save an incorrect model throws HomeFinanceServiceException. Validation not accepted")
     void saveIncorrectModelValidationNotAccepted() throws HomeFinanceServiceException {
+        CategoryTransactionModel model = generator.generateCategoryModel().setId(1);
         String emptyName = "";
         Throwable thrown = assertThrows(HomeFinanceServiceException.class, () -> categoryService
                                                                         .save(model.setName(emptyName)));
@@ -114,23 +113,20 @@ class CategoryServiceTest {
     @Test
     @DisplayName("update correct Model returns the same model")
     void updateCorrectModelSameModelReturned() {
-        CategoryTransactionModel returnModel = model;
+        CategoryTransactionModel returnModel = generator.generateCategoryModel().setId(1);
 
         when(repositoryMock.update(any())).thenReturn(returnModel);
-        assertEquals(returnModel, categoryService.update(model));
+        assertEquals(returnModel, categoryService.update(returnModel));
         verify(repositoryMock, times(1)).update(any());
     }
 
     @Test
     @DisplayName("Attempt to update an incorrect Model throws HomeFinanceServiceException")
     void updateIncorrectModelCausesException() throws HomeFinanceServiceException {
+        CategoryTransactionModel model = generator.generateCategoryModel().setId(1);
         String emptyName = "";
         Throwable thrown = assertThrows(HomeFinanceServiceException.class, () -> categoryService.update(model.setName(emptyName)));
         assertNotNull(thrown.getMessage());
         verify(repositoryMock, never()).update(any());
-    }
-
-    private CategoryTransactionModel getCategoryModel() {
-        return new CategoryTransactionModel().setName("Проезд").setId(1);
     }
 }

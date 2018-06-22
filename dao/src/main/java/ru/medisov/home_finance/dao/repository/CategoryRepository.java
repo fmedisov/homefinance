@@ -93,7 +93,6 @@ public class CategoryRepository extends AbstractRepository<CategoryTransactionMo
     }
 
     @Override
-    //todo check existing children by this id
     public boolean remove(Long aLong) {
         return super.remove(aLong, getClass());
     }

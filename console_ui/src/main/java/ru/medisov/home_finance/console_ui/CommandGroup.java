@@ -1,11 +1,13 @@
 package ru.medisov.home_finance.console_ui;
 
-public interface CommandGroup {
-    void save();
+import java.util.Optional;
 
-    void update();
+public interface CommandGroup<T> {
+    T save();
 
-    void remove();
+    T update();
 
-    void find();
+    Optional<T> remove();
+
+    T find();
 }

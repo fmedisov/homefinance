@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.medisov.home_finance.common.generator.TestModelGenerator;
 import ru.medisov.home_finance.common.model.CurrencyModel;
 import ru.medisov.home_finance.dao.repository.Repository;
 
@@ -15,7 +16,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CurrencyServiceTest {
-    private CurrencyModel model = getCurrencyModel();
+    private TestModelGenerator generator = new TestModelGenerator();
 
     @Mock
     private Repository<CurrencyModel, Long> repositoryMock;
@@ -23,24 +24,20 @@ class CurrencyServiceTest {
     @InjectMocks
     private CurrencyServiceImpl currencyService;
 
-    @BeforeEach
-    void reset() {
-        model = getCurrencyModel();
-    }
-
     @Test
     @DisplayName("Search by name for an existing currency. Correct model returned")
     void findByNameIfExistsCorrectModelReturned() {
-        CurrencyModel returnModel = model.setId(1);
-        when(repositoryMock.findByName(model.getName())).thenReturn(Optional.of(returnModel));
+        CurrencyModel returnModel = generator.generateCurrencyModel().setId(1);
+        when(repositoryMock.findByName(returnModel.getName())).thenReturn(Optional.of(returnModel));
 
-        assertEquals(Optional.of(returnModel), currencyService.findByName(model.getName()));
-        verify(repositoryMock, times(1)).findByName(model.getName());
+        assertEquals(Optional.of(returnModel), currencyService.findByName(returnModel.getName()));
+        verify(repositoryMock, times(1)).findByName(returnModel.getName());
     }
 
     @Test
     @DisplayName("Attempt to search by name for a non-existent currency throws HomeFinanceServiceException")
     void findByNameIfNotExists() {
+        CurrencyModel model = generator.generateCurrencyModel().setId(1);
         when(repositoryMock.findByName(model.getName())).thenReturn(Optional.empty());
 
         Throwable thrown = assertThrows(HomeFinanceServiceException.class, () -> currencyService
@@ -51,7 +48,7 @@ class CurrencyServiceTest {
     @Test
     @DisplayName("Search for all currency models returns collection of models ")
     void findAllExistsOneEntry() {
-        CurrencyModel returnModel = model.setId(1);
+        CurrencyModel returnModel = generator.generateCurrencyModel().setId(1);
         Collection<CurrencyModel> models = new ArrayList<>();
         models.add(returnModel);
         when(repositoryMock.findAll()).thenReturn(models);
@@ -73,6 +70,7 @@ class CurrencyServiceTest {
     @Test
     @DisplayName("Remove existing model returns true")
     void removeExistingEntryReturnsTrue() {
+        CurrencyModel model = generator.generateCurrencyModel().setId(1);
         when(repositoryMock.remove(model.getId())).thenReturn(true);
         assertTrue(currencyService.remove(model.getId()));
     }
@@ -80,6 +78,7 @@ class CurrencyServiceTest {
     @Test
     @DisplayName("Remove non-existent model returns false")
     void removeIfNotExistsReturnsFalse() {
+        CurrencyModel model = generator.generateCurrencyModel().setId(1);
         when(repositoryMock.remove(model.getId())).thenReturn(false);
         assertFalse(currencyService.remove(model.getId()));
     }
@@ -87,10 +86,11 @@ class CurrencyServiceTest {
     @Test
     @DisplayName("Save correct model. Successful Validation")
     void saveCorrectModelSuccessfulValidation() {
-        CurrencyModel returnModel = model.setId(1);
+        CurrencyModel model = generator.generateCurrencyModel();
+        CurrencyModel returnModel = generator.generateCurrencyModel().setId(1);
 
         when(repositoryMock.save(any())).thenReturn(returnModel);
-        when(repositoryMock.findByName(model.getName())).thenReturn(Optional.empty());
+        when(repositoryMock.findByName(returnModel.getName())).thenReturn(Optional.empty());
 
         assertNotNull(currencyService);
         assertEquals(returnModel, currencyService.save(model));
@@ -102,6 +102,7 @@ class CurrencyServiceTest {
     @Test
     @DisplayName("Attempt to save an incorrect model throws HomeFinanceServiceException. Validation not accepted")
     void saveIncorrectModelValidationNotAccepted() throws HomeFinanceServiceException {
+        CurrencyModel model = generator.generateCurrencyModel();
         String emptyName = "";
         when(repositoryMock.findByName(emptyName)).thenReturn(Optional.empty());
         Throwable thrown = assertThrows(HomeFinanceServiceException.class, () -> currencyService
@@ -113,6 +114,7 @@ class CurrencyServiceTest {
     @Test
     @DisplayName("Attempt to save an incorrect model throws HomeFinanceServiceException. Varification not accepted")
     void saveExistingModelVerificationNotAccepted() throws HomeFinanceServiceException {
+        CurrencyModel model = generator.generateCurrencyModel();
         String name = model.getName();
         CurrencyModel returnModel = new CurrencyModel().setName(name);
 
@@ -125,23 +127,20 @@ class CurrencyServiceTest {
     @Test
     @DisplayName("update correct Model returns the same model")
     void updateCorrectModelSameModelReturned() {
-        CurrencyModel returnModel = model.setId(1);
+        CurrencyModel returnModel = generator.generateCurrencyModel().setId(1);
 
         when(repositoryMock.update(any())).thenReturn(returnModel);
-        assertEquals(returnModel, currencyService.update(model));
+        assertEquals(returnModel, currencyService.update(returnModel));
         verify(repositoryMock, times(1)).update(any());
     }
 
     @Test
     @DisplayName("Attempt to update an incorrect Model throws HomeFinanceServiceException")
     void updateIncorrectModelCausesException() throws HomeFinanceServiceException {
+        CurrencyModel model = generator.generateCurrencyModel().setId(1);
         String emptyName = "";
         Throwable thrown = assertThrows(HomeFinanceServiceException.class, () -> currencyService.update(model.setName(emptyName)));
         assertNotNull(thrown.getMessage());
         verify(repositoryMock, never()).update(any());
-    }
-
-    private CurrencyModel getCurrencyModel() {
-        return new CurrencyModel().setName("Боливиано").setCode("BOB").setSymbol("$");
     }
 }

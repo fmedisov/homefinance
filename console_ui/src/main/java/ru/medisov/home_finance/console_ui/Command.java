@@ -5,12 +5,14 @@ public enum Command {
     ACCOUNT_DELETE(2, UiConfig.getProperty("command.ACCOUNT_DELETE.name"), CommandType.ACCOUNT),
     ACCOUNT_EDIT(3, UiConfig.getProperty("command.ACCOUNT_EDIT.name"), CommandType.ACCOUNT),
     ACCOUNT_GET(4, UiConfig.getProperty("command.ACCOUNT_GET.name"), CommandType.ACCOUNT),
+    ACCOUNT_LIST(5, UiConfig.getProperty("command.ACCOUNT_LIST.name"), CommandType.ACCOUNT),
 
     CURRENCY_CREATE(1, UiConfig.getProperty("command.CURRENCY_CREATE.name"), CommandType.CURRENCY),
     CURRENCY_EDIT(2, UiConfig.getProperty("command.CURRENCY_EDIT.name"), CommandType.CURRENCY),
     CURRENCY_DELETE(3, UiConfig.getProperty("command.CURRENCY_DELETE.name"), CommandType.CURRENCY),
     CURRENCY_GET(4, UiConfig.getProperty("command.CURRENCY_GET.name"), CommandType.CURRENCY),
     CURRENCY_PAIR(5, UiConfig.getProperty("command.CURRENCY_PAIR.name"), CommandType.CURRENCY),
+    CURRENCY_LIST(6, UiConfig.getProperty("command.CURRENCY_LIST.name"), CommandType.CURRENCY),
 
     TRANSACTION_CREATE(1, UiConfig.getProperty("command.TRANSACTION_CREATE.name"), CommandType.TRANSACTION),
     TRANSACTION_BY_PERIOD(2, UiConfig.getProperty("command.TRANSACTION_BY_PERIOD.name"), CommandType.TRANSACTION),

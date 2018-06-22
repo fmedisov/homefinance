@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+//todo implement interface
 public class AbstractRepositoryTest {
 
     @BeforeAll
@@ -19,6 +20,7 @@ public class AbstractRepositoryTest {
     }
 
     @BeforeEach
+    //todo implement class for querys
     public void truncateAllTables() {
         String sqlQuery =
                 "SET FOREIGN_KEY_CHECKS=0; " +
@@ -38,49 +40,5 @@ public class AbstractRepositoryTest {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    public String getLongName() {
-        return "Long long long long long long long long long long long long long long long long long long category name";
-    }
-
-    public CurrencyModel getCurrencyModel() {
-        return new CurrencyModel().setName("Боливиано").setCode("BOB").setSymbol("$");
-    }
-
-    public BigDecimal getBaseAmount() {
-        return BigDecimal.ZERO.setScale(2, BigDecimal.ROUND_CEILING);
-    }
-
-    public CategoryTransactionModel getCategoryModel() {
-        return new CategoryTransactionModel().setName("Проезд").setParent(null);
-    }
-
-    public CategoryTransactionModel getCategoriesWithParents() {
-        CategoryTransactionModel mainParent = new CategoryTransactionModel().setName("Проезд");
-        CategoryTransactionModel parent = new CategoryTransactionModel().setName("Авто");
-        CategoryTransactionModel category = new CategoryTransactionModel().setName("Бензин");
-        parent.setParent(mainParent);
-        category.setParent(parent);
-        return category;
-    }
-
-    public AccountModel getAccountModel() {
-        CurrencyModel currencyModel = new CurrencyModel().setName("Боливиано").setCode("BOB").setSymbol("$");
-        BigDecimal amount = getBaseAmount().add(BigDecimal.valueOf(50000));
-        return new AccountModel().setCurrencyModel(currencyModel).setAccountType(AccountType.CASH)
-                .setName("Кошелек").setAmount(amount);
-    }
-
-    public TagModel getTagModel() {
-        return new TagModel().setName("#проэзд").setCount(1);
-    }
-
-    public List<TagModel> getTags() {
-        List<TagModel> models = new ArrayList<>();
-        models.add(new TagModel().setName("#отпуск"));
-        models.add(new TagModel().setName("#проезд"));
-        models.add(new TagModel().setName("#авто"));
-        return models;
     }
 }
