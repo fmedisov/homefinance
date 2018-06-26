@@ -5,7 +5,7 @@ import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import java.util.Collection;
 import java.util.Optional;
 
-public interface CategoryService {
+public interface CategoryService extends Service<CategoryTransactionModel> {
     Optional<CategoryTransactionModel> findByName(String name);
 
     Collection<CategoryTransactionModel> findAll();

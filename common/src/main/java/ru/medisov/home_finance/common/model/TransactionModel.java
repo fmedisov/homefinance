@@ -14,7 +14,7 @@ import java.util.List;
 @Accessors(chain = true)
 @Valid
 @NoArgsConstructor
-public class TransactionModel {
+public class TransactionModel extends TagModel {
     private Long id;
     @NotEmpty
     private String name;

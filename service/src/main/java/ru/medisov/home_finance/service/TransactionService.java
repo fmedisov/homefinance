@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
-public interface TransactionService {
+public interface TransactionService extends Service<TransactionModel> {
     Optional<TransactionModel> findByName(String name);
 
     Collection<TransactionModel> findByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate);

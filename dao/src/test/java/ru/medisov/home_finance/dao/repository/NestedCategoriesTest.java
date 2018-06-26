@@ -17,13 +17,17 @@ class NestedCategoriesTest extends CommonRepositoryTest implements RepositoryTes
 
     @Test
     @DisplayName("Save Nested Models to database")
-    void saveNestedCategoriesNonZeroIdReturned() {
+    void saveNestedCategoriesNonNullIdReturned() {
+        //arrange
         CategoryTransactionModel modelWithParents = generator.generateCategoryWithParents();
-        CategoryTransactionModel changed = repository.saveWithParents(modelWithParents);
 
-        assertEquals("Проезд", changed.getParent().getParent().getName());
-        assertEquals("Авто", changed.getParent().getName());
-        assertEquals("Бензин", changed.getName());
+        //act
+        CategoryTransactionModel actual = repository.saveWithParents(modelWithParents);
+
+        //assert
+        assertEquals("Проезд", actual.getParent().getParent().getName());
+        assertEquals("Авто", actual.getParent().getName());
+        assertEquals("Бензин", actual.getName());
     }
 
     @Test
@@ -31,41 +35,55 @@ class NestedCategoriesTest extends CommonRepositoryTest implements RepositoryTes
     void saveIfOneModelIncorrectCausesException() throws HomeFinanceDaoException {
         CategoryTransactionModel modelWithParents = generator.generateCategoryWithParents();
         CategoryTransactionModel modelWithLongName = modelWithParents.getParent().setName(generator.getLongName());
-        Throwable thrown = assertThrows(HomeFinanceDaoException.class, () -> repository.saveWithParents(modelWithLongName));
-        assertNotNull(thrown.getMessage());
 
+        assertThrows(HomeFinanceDaoException.class, () -> repository.saveWithParents(modelWithLongName));
     }
 
     @Test
     @DisplayName("Search by name for an existing Models in the database")
     void findByNameIfExistsInDatabase() {
+        //arrange
         CategoryTransactionModel modelWithParents = generator.generateCategoryWithParents();
-        CategoryTransactionModel changed = repository.saveWithParents(modelWithParents);
-        CategoryTransactionModel found = repository.findByName(modelWithParents.getName()).orElse(new CategoryTransactionModel());
-        assertEquals(changed, found);
+        CategoryTransactionModel expected = repository.saveWithParents(modelWithParents);
+
+        //act
+        CategoryTransactionModel actual = repository.findByName(modelWithParents.getName()).orElse(new CategoryTransactionModel());
+
+        //assert
+        assertEquals(expected, actual);
     }
 
     @Test
     @DisplayName("Search for all Models returns collection of models ")
     void findAllExistsThreeEntries() {
+        //arrange
+        int expectedSize = 3;
         CategoryTransactionModel modelWithParents = generator.generateCategoryWithParents();
-        CategoryTransactionModel model = repository.saveWithParents(modelWithParents);
-        Collection<CategoryTransactionModel> models = repository.findAll();
+        CategoryTransactionModel expectedModel = repository.saveWithParents(modelWithParents);
 
-        assertEquals(3, models.size());
-        assertTrue(models.contains(model));
-        assertTrue(models.contains(model.getParent()));
-        assertTrue(models.contains(model.getParent().getParent()));
+        //act
+        Collection<CategoryTransactionModel> actual = repository.findAll();
+
+        //assert
+        assertEquals(expectedSize, actual.size());
+        assertTrue(actual.contains(expectedModel));
+        assertTrue(actual.contains(expectedModel.getParent()));
+        assertTrue(actual.contains(expectedModel.getParent().getParent()));
     }
 
     @Test
     @DisplayName("Remove existing models returns true")
     void removeExistingEntriesReturnsTrue() {
+        //arrange
         CategoryTransactionModel modelWithParents = generator.generateCategoryWithParents();
-        CategoryTransactionModel model = repository.saveWithParents(modelWithParents);
-        assertTrue(repository.remove(model.getId()));
-        assertTrue(repository.remove(model.getParent().getId()));
-        assertTrue(repository.remove(model.getParent().getParent().getId()));
+
+        //act
+        CategoryTransactionModel actual = repository.saveWithParents(modelWithParents);
+
+        //assert
+        assertTrue(repository.remove(actual.getId()));
+        assertTrue(repository.remove(actual.getParent().getId()));
+        assertTrue(repository.remove(actual.getParent().getParent().getId()));
     }
 
     @Test
@@ -81,32 +99,46 @@ class NestedCategoriesTest extends CommonRepositoryTest implements RepositoryTes
 
     @Test
     @DisplayName("update parent of Model returns the correct model")
-    //todo divide the method into two logical parts
     void updateParentModelCorrectModelReturned() {
+        //arrange
         CategoryTransactionModel modelWithParents = generator.generateCategoryWithParents();
-        CategoryTransactionModel changed = repository.saveWithParents(modelWithParents);
-        CategoryTransactionModel remove = changed.getParent();
-        changed.setParent(changed.getParent().getParent());
+        CategoryTransactionModel expected = repository.saveWithParents(modelWithParents);
+        CategoryTransactionModel remove = expected.getParent();
+        expected.setParent(expected.getParent().getParent());
 
-        CategoryTransactionModel updated = repository.update(changed);
-        assertEquals(changed, repository.findByName(updated.getName()).orElse(new CategoryTransactionModel()));
+        //act
+        CategoryTransactionModel actual = repository.update(expected);
+
+        //assert
+        assertEquals(expected, actual);
         assertTrue(repository.remove(remove.getId()));  // for referential integrity
     }
 
     @Test
     @DisplayName("Search by id for an existing Models in the database")
     void findByIdIfExistsInDatabase() {
+        //arrange
         CategoryTransactionModel modelWithParents = generator.generateCategoryWithParents();
-        CategoryTransactionModel changed = repository.saveWithParents(modelWithParents);
-        CategoryTransactionModel found = repository.findById(modelWithParents.getId()).orElse(new CategoryTransactionModel());
-        assertEquals(changed, found);
+        CategoryTransactionModel expected = repository.saveWithParents(modelWithParents);
+
+        //act
+        CategoryTransactionModel actual = repository.findById(modelWithParents.getId()).orElse(new CategoryTransactionModel());
+
+        //assert
+        assertEquals(expected, actual);
     }
 
     @Test
     @DisplayName("Attempt to search by id for a non-existent Models returns Optional.empty()")
     void findByIdIfNotExistsInDatabase() {
+        //arrange
+        Optional<CategoryTransactionModel> expected = Optional.empty();
         CategoryTransactionModel modelWithParents = generator.generateCategoryWithParents();
-        Optional<CategoryTransactionModel> found = repository.findById(modelWithParents.getId());
-        assertEquals(found, Optional.empty());
+
+        //act
+        Optional<CategoryTransactionModel> actual = repository.findById(modelWithParents.getId());
+
+        //assert
+        assertEquals(expected, actual);
     }
 }

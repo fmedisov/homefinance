@@ -1,6 +1,8 @@
 package ru.medisov.home_finance.dao.repository;
 
 import org.junit.jupiter.api.*;
+import ru.medisov.home_finance.common.model.AccountModel;
+import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.CurrencyModel;
 import ru.medisov.home_finance.common.generator.TestModelGenerator;
@@ -16,10 +18,8 @@ class CurrencyRepositoryTest extends CommonRepositoryTest implements RepositoryT
 
     @Test
     @DisplayName("Save correct Model to database")
-    void saveCorrectModelNonZeroIdReturned() {
-        CurrencyModel currencyModel = generator.generateCurrencyModel();
-        CurrencyModel changed = repository.save(currencyModel);
-        assertTrue(changed.getId() != null);
+    void saveCorrectModelNonNullIdReturned() {
+        super.saveCorrectModelNonNullIdReturned(repository, generator, CurrencyModel.class);
     }
 
     @Test
@@ -27,67 +27,59 @@ class CurrencyRepositoryTest extends CommonRepositoryTest implements RepositoryT
     void saveIncorrectModelCausesException() throws HomeFinanceDaoException {
         CurrencyModel currencyModel = generator.generateCurrencyModel();
         CurrencyModel modelWithLongCode = currencyModel.setCode("Too long code");
-        Throwable thrown = assertThrows(HomeFinanceDaoException.class, () -> repository.save(modelWithLongCode));
-        assertNotNull(thrown.getMessage());
+
+        assertThrows(HomeFinanceDaoException.class, () -> repository.save(modelWithLongCode));
 
     }
 
     @Test
     @DisplayName("Search by name for an existing model in the database")
     void findByNameIfExistsInDatabase() {
-        CurrencyModel currencyModel = generator.generateCurrencyModel();
-        CurrencyModel changed = repository.save(currencyModel);
-        CurrencyModel found = repository.findByName(currencyModel.getName()).orElse(new CurrencyModel());
-        assertEquals(changed, found);
+        super.findByNameIfExistsInDatabase(repository, generator, CurrencyModel.class);
     }
 
     @Test
     @DisplayName("Attempt to search by name for a non-existent model returns Optional.empty()")
     void findByNameIfNotExistsInDatabase() {
-        CurrencyModel currencyModel = generator.generateCurrencyModel();
-        Optional<CurrencyModel> found = repository.findByName(currencyModel.getName());
-        assertEquals(found, Optional.empty());
+        super.findByNameIfNotExistsInDatabase(repository, generator, CurrencyModel.class);
     }
 
     @Test
     @DisplayName("Search for all models returns collection of models ")
     void findAllExistsOneEntry() {
-        CurrencyModel currencyModel = generator.generateCurrencyModel();
-        CurrencyModel model = repository.save(currencyModel);
-        Collection<CurrencyModel> models = repository.findAll();
-        assertEquals(1, models.size());
-        assertTrue(models.contains(model));
+        super.findAllExistsOneEntry(repository, generator, CurrencyModel.class);
     }
 
     @Test
     @DisplayName("Attempt to search models in empty table returns empty collection")
     void findAllEmptyTable() {
-        Collection<CurrencyModel> models = repository.findAll();
-        assertEquals(0, models.size());
+        super.findAllEmptyTable(repository);
     }
 
     @Test
     @DisplayName("Remove existing model returns true")
     void removeExistingEntryReturnsTrue() {
-        CurrencyModel currencyModel = generator.generateCurrencyModel();
-        CurrencyModel model = repository.save(currencyModel);
-        assertTrue(repository.remove(model.getId()));
+        super.removeExistingEntryReturnsTrue(repository, generator, CurrencyModel.class);
     }
 
     @Test
     @DisplayName("Remove non-existent model returns false")
     void removeIfNotExistsReturnsFalse() {
-        CurrencyModel currencyModel = generator.generateCurrencyModel();
-        assertFalse(repository.remove(currencyModel.getId()));
+        super.removeIfNotExistsReturnsFalse(repository, generator, CurrencyModel.class);
     }
 
     @Test
     @DisplayName("update correct Model returns the same model")
     void updateCorrectModelSameModelReturned() {
+        //arrange
         CurrencyModel currencyModel = generator.generateCurrencyModel();
-        CurrencyModel changed = repository.save(currencyModel).setName("Эскудо").setCode("CVE");
-        CurrencyModel updated = repository.update(changed);
-        assertEquals(changed, repository.findByName(updated.getName()).orElse(new CurrencyModel()));
+        CurrencyModel expected = repository.save(currencyModel).setName("Эскудо").setCode("CVE");
+
+        //act
+        CurrencyModel actual = repository.update(expected);
+
+        //assert
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -95,24 +87,19 @@ class CurrencyRepositoryTest extends CommonRepositoryTest implements RepositoryT
     void updateIncorrectModelCausesException() throws HomeFinanceDaoException {
         CurrencyModel currencyModel = generator.generateCurrencyModel();
         CurrencyModel modelWithLongCode = repository.save(currencyModel).setCode("Too long code");
-        Throwable thrown = assertThrows(HomeFinanceDaoException.class, () -> repository.update(modelWithLongCode));
-        assertNotNull(thrown.getMessage());
+
+        assertThrows(HomeFinanceDaoException.class, () -> repository.update(modelWithLongCode));
     }
 
     @Test
     @DisplayName("Search by id for an existing model in the database")
     void findByIdIfExistsInDatabase() {
-        CurrencyModel currencyModel = generator.generateCurrencyModel();
-        CurrencyModel changed = repository.save(currencyModel);
-        CurrencyModel found = repository.findById(currencyModel.getId()).orElse(new CurrencyModel());
-        assertEquals(changed, found);
+        super.findByIdIfExistsInDatabase(repository, generator, CurrencyModel.class);
     }
 
     @Test
     @DisplayName("Attempt to search by id for a non-existent model returns Optional.empty()")
     void findByIdIfNotExistsInDatabase() {
-        CurrencyModel currencyModel = generator.generateCurrencyModel();
-        Optional<CurrencyModel> found = repository.findById(currencyModel.getId());
-        assertEquals(found, Optional.empty());
+        super.findByIdIfNotExistsInDatabase(repository, generator, CurrencyModel.class);
     }
 }

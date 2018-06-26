@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Accessors(chain = true)
 @Valid
 @NoArgsConstructor
-public class AccountModel {
+public class AccountModel extends TagModel {
     private Long id;
     @NotEmpty
     private String name;

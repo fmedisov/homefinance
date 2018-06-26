@@ -63,4 +63,27 @@ public class TestModelGenerator {
     public BigDecimal getBaseAmount() {
         return BigDecimal.ZERO.setScale(2, BigDecimal.ROUND_CEILING);
     }
+
+    public <T> T generateModel(Class<T> aClass) {
+        Object obj = null;
+        switch (aClass.getSimpleName()) {
+            case "AccountModel":
+                obj = generateAccountModel();
+                break;
+            case "CurrencyModel":
+                obj = generateCurrencyModel();
+                break;
+            case "CategoryTransactionModel":
+                obj = generateCategoryModel();
+                break;
+            case "TransactionModel":
+                obj = generateTransactionModel();
+                break;
+            case "TagModel":
+                obj = generateTagModel();
+                break;
+        }
+
+        return (T) obj;
+    }
 }

@@ -5,7 +5,7 @@ import ru.medisov.home_finance.common.model.CurrencyModel;
 import java.util.Collection;
 import java.util.Optional;
 
-public interface CurrencyService {
+public interface CurrencyService extends Service<CurrencyModel> {
     Optional<CurrencyModel> findByName(String name);
 
     Collection<CurrencyModel> findAll();

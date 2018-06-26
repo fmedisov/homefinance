@@ -10,7 +10,7 @@ import ru.medisov.home_finance.common.validator.Valid;
 @Accessors(chain = true)
 @Valid
 @NoArgsConstructor
-public class CategoryTransactionModel {
+public class CategoryTransactionModel extends TagModel{
     private Long id;
     @NotEmpty
     private String name;
