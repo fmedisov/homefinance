@@ -1,6 +1,7 @@
 package ru.medisov.home_finance.console_ui;
 
 import ru.medisov.home_finance.common.model.CurrencyModel;
+import ru.medisov.home_finance.console_ui.exception.HomeFinanceUIException;
 import ru.medisov.home_finance.service.CurrencyService;
 import ru.medisov.home_finance.service.CurrencyServiceImpl;
 
@@ -9,7 +10,6 @@ import java.util.*;
 public class CurrencyCommandGroup implements CommandGroup<CurrencyModel> {
     private Scanner scanner = new Scanner(System.in);
     private CurrencyService currencyService = new CurrencyServiceImpl();
-    private List<CurrencyModel> currencies = new ArrayList<>(currencyService.findAll());
 
     @Override
     public CurrencyModel save() {
@@ -40,10 +40,11 @@ public class CurrencyCommandGroup implements CommandGroup<CurrencyModel> {
 
     @Override
     public CurrencyModel find() {
-        System.out.println("Find currency. Enter your currency name. e. g. [Russian ruble]");
-        String name = scanner.nextLine();
-        Optional<CurrencyModel> byName = currencyService.findByName(name);
-        CurrencyModel found = byName.orElse(save()); //todo
+        System.out.println("Find currency. Enter your currency id.");
+        String userChoice = scanner.nextLine();
+        Long id = Long.parseLong(userChoice);
+        Optional<CurrencyModel> byName = currencyService.findById(id);
+        CurrencyModel found = byName.orElseThrow(HomeFinanceUIException::new);
         System.out.println("Выбрана валюта - " + found);
 
         return found;
@@ -61,6 +62,7 @@ public class CurrencyCommandGroup implements CommandGroup<CurrencyModel> {
     }
 
     public CurrencyModel requestCurrency() {
+        final List<CurrencyModel> currencies = new ArrayList<>(currencyService.findAll());
         int size = currencies.size();
 
         System.out.println("enter number of currency: ");
@@ -79,9 +81,9 @@ public class CurrencyCommandGroup implements CommandGroup<CurrencyModel> {
             }
 
             try {
-                int categoryNum = Integer.parseInt(userChoice);
+                int currencyNum = Integer.parseInt(userChoice);
 
-                return currencies.get(categoryNum);
+                return currencies.get(currencyNum);
             } catch (Exception e) {
                 System.out.println("Введите номер команды (Enter - для возврата к предыдущему пункту): ");
             }

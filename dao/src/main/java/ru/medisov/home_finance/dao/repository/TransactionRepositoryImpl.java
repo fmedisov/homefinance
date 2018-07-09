@@ -12,10 +12,16 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class TransactionRepositoryImpl extends AbstractRepository<TransactionModel, Long> implements TransactionRepository {
+    private static final String FIELDS = "id, amount, datetime, account, category, transaction_type, name";
     private static final String INSERT = "INSERT INTO transaction_tbl (amount, datetime, account, category, transaction_type, name) VALUES (?, ?, ?, ?, ?, ?)";
-    private static final String SELECT_BY_NAME = "SELECT id, amount, datetime, account, category, transaction_type, name FROM transaction_tbl WHERE name = ?";
-    private static final String SELECT_BY_ID = "SELECT id, amount, datetime, account, category, transaction_type, name FROM transaction_tbl WHERE id = ?";
-    private static final String SELECT_ALL = "SELECT id, amount, datetime, account, category, transaction_type, name FROM transaction_tbl";
+    private static final String SELECT_BY_NAME = "SELECT " + FIELDS + " FROM transaction_tbl WHERE name = ?";
+    private static final String SELECT_BY_ID = "SELECT " + FIELDS + " FROM transaction_tbl WHERE id = ?";
+    private static final String SELECT_ALL = "SELECT " + FIELDS + " FROM transaction_tbl";
+    private static final String SELECT_BY_PERIOD = "SELECT " + FIELDS + " FROM transaction_tbl WHERE datetime >= ? AND datetime <= ?";
+    private static final String SELECT_INCOME_BY_PERIOD = "SELECT " + FIELDS + " FROM transaction_tbl WHERE transaction_type = 'Income' AND datetime >= ? AND datetime <= ?";
+    private static final String SELECT_EXPENSE_BY_PERIOD = "SELECT " + FIELDS + " FROM transaction_tbl WHERE transaction_type = 'Expense' AND datetime >= ? AND datetime <= ?";
+    private static final String SELECT_BY_CATEGORY = "SELECT " + FIELDS + " FROM transaction_tbl WHERE category = ?";
+    private static final String SELECT_BY_NULL_CATEGORY = "SELECT " + FIELDS + " FROM transaction_tbl WHERE category IS NULL";
     private static final String UPDATE = "UPDATE transaction_tbl SET amount = ?, datetime = ?, account = ?, category = ?, transaction_type = ?, name = ? WHERE id = ?";
 
     private ConnectionBuilder connectionBuilder = new DbConnectionBuilder();
@@ -54,7 +60,8 @@ public class TransactionRepositoryImpl extends AbstractRepository<TransactionMod
 
                 connection.commit();
 
-                model.setTags(getTagRepository().saveByTransaction(model.getTags(), model.getId()));
+                model.setTags(getTagRepository().saveUpdateByTransaction(model.getTags(), model.getId()));
+
                 return model;
             } catch (SQLException e) {
                 connection.rollback();
@@ -101,36 +108,7 @@ public class TransactionRepositoryImpl extends AbstractRepository<TransactionMod
 
     @Override
     public Collection<TransactionModel> findAll() {
-        try (Connection connection = connectionBuilder.getConnection()) {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL)) {
-                ResultSet resultSet = preparedStatement.executeQuery();
-                Collection<TransactionModel> models = new ArrayList<>();
-
-                while (resultSet.next()) {
-                    long id = resultSet.getLong("id");
-                    BigDecimal amount = resultSet.getBigDecimal("amount");
-                    LocalDateTime dateTime = resultSet.getTimestamp("datetime").toLocalDateTime();
-                    Optional<AccountModel> optionalAccount = getAccountRepository().findById(resultSet.getLong("account"));
-                    Optional<CategoryTransactionModel> optionalCategory = getCategoryRepository().findById(resultSet.getLong("category"));
-                    TransactionType transactionType = Enum.valueOf(TransactionType.class, resultSet.getString("transaction_type"));
-                    String name = resultSet.getString("name");
-
-                    TransactionModel model = new TransactionModel().setId(id).setAmount(amount).setDateTime(dateTime)
-                            .setAccount(optionalAccount.orElse(null)).setCategory(optionalCategory.orElse(null))
-                            .setTransactionType(transactionType).setName(name);
-
-                    model.setTags(getTagRepository().findByTransaction(model.getId()));
-
-                    models.add(model);
-                }
-
-                return models;
-            } catch (SQLException e) {
-                throw new HomeFinanceDaoException("error while find transaction models", e);
-            }
-        } catch (SQLException e) {
-            throw new HomeFinanceDaoException("error while find transaction models", e);
-        }
+        return find(SELECT_ALL, null, null);
     }
 
     @Override
@@ -171,7 +149,7 @@ public class TransactionRepositoryImpl extends AbstractRepository<TransactionMod
 
                 connection.commit();
 
-                model.setTags(getTagRepository().saveByTransaction(model.getTags(), model.getId()));
+                model.setTags(getTagRepository().saveUpdateByTransaction(model.getTags(), model.getId()));
                 return model;
             } catch (SQLException e) {
                 connection.rollback();
@@ -179,6 +157,47 @@ public class TransactionRepositoryImpl extends AbstractRepository<TransactionMod
             }
         } catch (SQLException e) {
             throw new HomeFinanceDaoException("error while update transaction model " + model, e);
+        }
+    }
+
+    @Override
+    public Collection<TransactionModel> findByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate) {
+        return find(SELECT_BY_PERIOD, Arrays.asList(dateFrom, upToDate), LocalDateTime.class);
+    }
+
+    @Override
+    public Collection<TransactionModel> findByCategory(Long categoryId) {
+        if (categoryId == null) {
+            return find(SELECT_BY_NULL_CATEGORY, null, null);
+        } else {
+            return find(SELECT_BY_CATEGORY, Arrays.asList(categoryId), Long.class);
+        }
+    }
+
+    @Override
+    public Collection<TransactionModel> incomeByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate) {
+        return find(SELECT_INCOME_BY_PERIOD, Arrays.asList(dateFrom, upToDate), LocalDateTime.class);
+    }
+
+    @Override
+    public Collection<TransactionModel> expenseByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate) {
+        return find(SELECT_EXPENSE_BY_PERIOD, Arrays.asList(dateFrom, upToDate), LocalDateTime.class);
+    }
+
+    @Override
+    public boolean removeByAccount(Long accountId) {
+        return false;
+    }
+
+    private void updateCategoryModel(TransactionModel model) {
+        if (model.getCategory() != null && model.getCategory().getId() == null) {
+            model.setCategory(getCategoryRepository().saveWithParents(model.getCategory()));
+        }
+    }
+
+    private void updateAccountModel(TransactionModel model) {
+        if (model.getAccount() != null && model.getAccount().getId() == null) {
+            model.setAccount(getAccountRepository().save(model.getAccount()));
         }
     }
 
@@ -202,50 +221,63 @@ public class TransactionRepositoryImpl extends AbstractRepository<TransactionMod
         return transactionModel;
     }
 
-    @Override
-    public Collection<TransactionModel> findByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate) {
-        return new ArrayList<>();
+    private Collection<TransactionModel> getTransactionModels(ResultSet resultSet) throws SQLException {
+        Collection<TransactionModel> models = new ArrayList<>();
+
+        while (resultSet.next()) {
+            long id = resultSet.getLong("id");
+            BigDecimal amount = resultSet.getBigDecimal("amount");
+            LocalDateTime dateTime = resultSet.getTimestamp("datetime").toLocalDateTime();
+            Optional<AccountModel> optionalAccount = getAccountRepository().findById(resultSet.getLong("account"));
+            Optional<CategoryTransactionModel> optionalCategory = getCategoryRepository().findById(resultSet.getLong("category"));
+            TransactionType transactionType = Enum.valueOf(TransactionType.class, resultSet.getString("transaction_type"));
+            String name = resultSet.getString("name");
+
+            TransactionModel model = new TransactionModel().setId(id).setAmount(amount).setDateTime(dateTime)
+                    .setAccount(optionalAccount.orElse(null)).setCategory(optionalCategory.orElse(null))
+                    .setTransactionType(transactionType).setName(name);
+
+            model.setTags(getTagRepository().findByTransaction(model.getId()));
+
+            models.add(model);
+        }
+
+        return models;
     }
 
-    @Override
-    public Collection<TransactionModel> findByCategory(long categoryId) {
-        return new ArrayList<>();
-    }
+    private Collection<TransactionModel> find(String selectQuery, List properties, Class propertyClass) {
+        try (Connection connection = connectionBuilder.getConnection()) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)) {
+                if (properties != null && properties.size() > 0) {
+                    setStatementProperties(preparedStatement, properties, propertyClass);
+                }
 
-    @Override
-    public BigDecimal incomeByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate) {
-        return BigDecimal.ZERO;
-    }
+                ResultSet resultSet = preparedStatement.executeQuery();
 
-    @Override
-    public BigDecimal expenseByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate) {
-        return BigDecimal.ZERO;
-    }
-
-    @Override
-    public Map<String, BigDecimal> incomeByCategory(LocalDateTime dateFrom, LocalDateTime upToDate) {
-        return new HashMap<>();
-    }
-
-    @Override
-    public Map<String, BigDecimal> expenseByCategory(LocalDateTime dateFrom, LocalDateTime upToDate) {
-        return new HashMap<>();
-    }
-
-    @Override
-    public boolean removeByAccount(Long accountId) {
-        return false;
-    }
-
-    private void updateCategoryModel(TransactionModel model) {
-        if (model.getCategory() != null && model.getCategory().getId() == null) {
-            model.setCategory(getCategoryRepository().saveWithParents(model.getCategory()));
+                return getTransactionModels(resultSet);
+            } catch (SQLException e) {
+                throw new HomeFinanceDaoException("error while find transaction models", e);
+            }
+        } catch (SQLException e) {
+            throw new HomeFinanceDaoException("error while find transaction models", e);
         }
     }
 
-    private void updateAccountModel(TransactionModel model) {
-        if (model.getAccount() != null && model.getAccount().getId() == null) {
-            model.setAccount(getAccountRepository().save(model.getAccount()));
+    private void setStatementProperties(PreparedStatement statement, List properties, Class propertyClass) throws SQLException {
+        for (int i = 0; i < properties.size(); i++) {
+            if ("LocalDateTime".equals(propertyClass.getSimpleName())) {
+                if (properties.get(i) == null) {
+                    statement.setNull(i + 1, Types.TIMESTAMP);
+                } else {
+                    statement.setTimestamp(i + 1, Timestamp.valueOf((LocalDateTime) properties.get(i)));
+                }
+            } else if ("Long".equals(propertyClass.getSimpleName())) {
+                if (properties.get(i) == null) {
+                    statement.setNull(i + 1, Types.INTEGER);
+                } else {
+                    statement.setLong(i + 1, (Long) properties.get(i));
+                }
+            }
         }
     }
 }

@@ -2,6 +2,7 @@ package ru.medisov.home_finance.common.model;
 
 import lombok.*;
 import lombok.experimental.Accessors;
+import ru.medisov.home_finance.common.validator.Amount;
 import ru.medisov.home_finance.common.validator.DateSince;
 import ru.medisov.home_finance.common.validator.NotEmpty;
 import ru.medisov.home_finance.common.validator.Valid;
@@ -16,8 +17,8 @@ import java.util.List;
 @NoArgsConstructor
 public class TransactionModel extends TagModel {
     private Long id;
-    @NotEmpty
     private String name;
+    @Amount
     private BigDecimal amount;
     @DateSince(year = 1970, month = 1, day = 1, hour = 0, minute = 0)
     private LocalDateTime dateTime;

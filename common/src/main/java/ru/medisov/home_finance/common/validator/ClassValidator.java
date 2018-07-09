@@ -2,6 +2,7 @@ package ru.medisov.home_finance.common.validator;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ public class ClassValidator implements Validator {
                 throw new Exception("У класса " +  oClass.getSimpleName() + " нет аннотации Valid");
             }
 
-            return isValidStrFields(object) & isCheckedForMin(object) & isCheckedDates(object);
+            return isValidStrFields(object) & isCheckedForMin(object) & isCheckedDates(object) & isValidAmountFields(object);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return false;
@@ -93,6 +94,32 @@ public class ClassValidator implements Validator {
                 if (fieldVal == null || fieldVal.length() == 0) {
                     String message = "Значение поля '" + field.getName();
                     message = message + "' не может быть " + (fieldVal == null ? "null" : "пустым");
+                    throw new Exception(message, new Throwable());
+                }
+            } catch (IllegalAccessException e) {
+                System.out.println("Нет доступа к полю '" + field.getName() + "'");
+                return false;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isValidAmountFields(Object object) {
+        Class oClass = object.getClass();
+        List<Field> notEmptyTestList = getFieldsByAnnotation(oClass.getDeclaredFields(), Amount.class);
+
+        for (Field field : notEmptyTestList) {
+            try {
+                field.setAccessible(true);
+                BigDecimal fieldVal = (BigDecimal) field.get(object);
+                field.setAccessible(false);
+
+                if (fieldVal == null) {
+                    String message = "Значение поля '" + field.getName();
+                    message = message + "' не может быть null";
                     throw new Exception(message, new Throwable());
                 }
             } catch (IllegalAccessException e) {

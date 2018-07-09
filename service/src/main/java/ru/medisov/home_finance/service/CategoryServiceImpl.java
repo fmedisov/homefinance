@@ -4,7 +4,6 @@ import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import ru.medisov.home_finance.dao.repository.CategoryRepository;
 import ru.medisov.home_finance.dao.repository.CategoryRepositoryImpl;
-import ru.medisov.home_finance.dao.repository.Repository;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -16,6 +15,21 @@ public class CategoryServiceImpl extends AbstractService implements CategoryServ
     public Optional<CategoryTransactionModel> findByName(String name) {
         try {
             Optional<CategoryTransactionModel> optional = repository.findByName(name);
+            CategoryTransactionModel model = optional.orElseThrow(HomeFinanceDaoException::new);
+            validate(model);
+
+            return Optional.of(model);
+        } catch (HomeFinanceDaoException e) {
+            throw new HomeFinanceServiceException(e);
+        } catch (HomeFinanceServiceException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<CategoryTransactionModel> findById(Long aLong) {
+        try {
+            Optional<CategoryTransactionModel> optional = repository.findById(aLong);
             CategoryTransactionModel model = optional.orElseThrow(HomeFinanceDaoException::new);
             validate(model);
 

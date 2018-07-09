@@ -8,6 +8,8 @@ import java.util.Optional;
 public interface AccountService extends Service<AccountModel> {
     Optional<AccountModel> findByName(String name);
 
+    Optional<AccountModel> findById(Long aLong);
+
     Collection<AccountModel> findAll();
 
     boolean remove(Long id);

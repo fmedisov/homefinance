@@ -14,6 +14,8 @@ public final class CommandRunner {
             executeByAccount();
         } else if (commandType == Command.CURRENCY) {
             executeByCurrency();
+        } else if (commandType == Command.CATEGORY) {
+            executeByCategory();
         } else if (commandType == Command.TRANSACTION) {
             executeByTransaction();
         } else if (commandType == Command.ACCOUNT_TYPE) {
@@ -74,6 +76,31 @@ public final class CommandRunner {
         }
     }
 
+    private void executeByCategory() {
+        command = new CommandRequester().request(Command.CommandType.CATEGORY);
+
+        if (command != null) {
+            CategoryCommandGroup categoryCommandGroup = new CategoryCommandGroup();
+            switch (command) {
+                case CATEGORY_CREATE:
+                    categoryCommandGroup.save();
+                    break;
+                case CATEGORY_EDIT:
+                    categoryCommandGroup.update();
+                    break;
+                case CATEGORY_DELETE:
+                    categoryCommandGroup.remove();
+                    break;
+                case CATEGORY_GET:
+                    categoryCommandGroup.find();
+                    break;
+                case CATEGORY_LIST:
+                    categoryCommandGroup.findAll();
+                    break;
+            }
+        }
+    }
+
     private void executeByTransaction() {
         command = new CommandRequester().request(Command.CommandType.TRANSACTION);
 
@@ -81,7 +108,13 @@ public final class CommandRunner {
             TransactionCommandGroup transactionCommands = new TransactionCommandGroup();
             switch (command) {
                 case TRANSACTION_CREATE:
-                    transactionCommands.save();
+                    transactionCommands.createTransaction();
+                    break;
+                case TRANSACTION_EDIT:
+                    transactionCommands.editTransaction();
+                    break;
+                case TRANSACTION_DELETE:
+                    transactionCommands.removeTransaction();
                     break;
                 case TRANSACTION_BY_PERIOD:
                     transactionCommands.getByPeriod();

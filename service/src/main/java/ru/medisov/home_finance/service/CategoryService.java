@@ -8,6 +8,8 @@ import java.util.Optional;
 public interface CategoryService extends Service<CategoryTransactionModel> {
     Optional<CategoryTransactionModel> findByName(String name);
 
+    Optional<CategoryTransactionModel> findById(Long aLong);
+
     Collection<CategoryTransactionModel> findAll();
 
     boolean remove(Long id);

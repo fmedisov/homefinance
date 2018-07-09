@@ -4,7 +4,6 @@ import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.CurrencyModel;
 import ru.medisov.home_finance.dao.repository.CurrencyRepository;
 import ru.medisov.home_finance.dao.repository.CurrencyRepositoryImpl;
-import ru.medisov.home_finance.dao.repository.Repository;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -16,6 +15,20 @@ public class CurrencyServiceImpl extends AbstractService implements CurrencyServ
     public Optional<CurrencyModel> findByName(String name) {
         try {
             Optional<CurrencyModel> optional = repository.findByName(name);
+            CurrencyModel currencyModel = optional.orElseThrow(HomeFinanceDaoException::new);
+            validate(currencyModel);
+            return Optional.of(currencyModel);
+        } catch (HomeFinanceDaoException e) {
+            throw new HomeFinanceServiceException(e);
+        } catch (HomeFinanceServiceException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<CurrencyModel> findById(Long aLong) {
+        try {
+            Optional<CurrencyModel> optional = repository.findById(aLong);
             CurrencyModel currencyModel = optional.orElseThrow(HomeFinanceDaoException::new);
             validate(currencyModel);
             return Optional.of(currencyModel);

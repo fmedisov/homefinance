@@ -15,4 +15,10 @@ public class TagModel {
     @NotEmpty
     private String name;
     private long count;
+
+    public TagModel(TagModel model) {
+        this.setId(model.getId());
+        this.setName(model.getName());
+        this.setCount(model.getCount());
+    }
 }

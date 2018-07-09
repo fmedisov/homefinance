@@ -1,0 +1,35 @@
+<?xml version="1.0" character="UTF-8" ?>
+
+<transactions>
+    <transaction id="1">
+        <transaction_type>Expense</transaction_type>
+        <account>
+            <account_type>Cash</account_type>
+            <name>Кошелек</name>
+            <currency>
+                <name>Боливиано</name>
+                <code>BOB</code>
+                <symbol>$</symbol>
+            </currency>
+            <amount>50000</amount>
+        </account>
+        <category>
+            <name>Проезд</name>
+            <parent>null</parent>
+        </category>
+        <date_time>2018-06-26T22:08:01.872</date_time>
+        <amount>3000</amount>
+        <name>Бензин 95</name>
+        <tags>
+            <tag>
+                <name>#отпуск</name>
+            </tag>
+            <tag>
+                <name>#проезд</name>
+            </tag>
+            <tag>
+                <name>#авто</name>
+            </tag>
+        </tags>
+    </transaction>
+</transactions>

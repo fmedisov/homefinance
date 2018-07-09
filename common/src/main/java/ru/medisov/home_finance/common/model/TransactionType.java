@@ -1,6 +1,7 @@
 package ru.medisov.home_finance.common.model;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 public enum  TransactionType {
     EXPENSE(1, "Expense"),
@@ -29,5 +30,9 @@ public enum  TransactionType {
 
     public static void print() {
         Arrays.stream(values()).forEach(System.out::println);
+    }
+
+    public static Optional<TransactionType> findByNum(int num) {
+        return Arrays.stream(TransactionType.values()).filter(x -> x.number == num).findFirst();
     }
 }

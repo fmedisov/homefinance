@@ -71,10 +71,10 @@ CREATE TABLE IF NOT EXISTS `tag_relation_tbl` (
   CONSTRAINT `relation_tag_fk`
     FOREIGN KEY (`tag`)
     REFERENCES `tag_tbl` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE SET NULL
+    ON UPDATE SET NULL,
   CONSTRAINT `relation_transaction_fk`
     FOREIGN KEY (`transaction`)
     REFERENCES `transaction_tbl` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
+    ON DELETE SET NULL
+    ON UPDATE SET NULL);

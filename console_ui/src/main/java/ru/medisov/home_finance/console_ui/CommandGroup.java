@@ -1,5 +1,7 @@
 package ru.medisov.home_finance.console_ui;
 
+import ru.medisov.home_finance.console_ui.exception.HomeFinanceUIException;
+
 import java.util.Optional;
 
 public interface CommandGroup<T> {
@@ -9,5 +11,5 @@ public interface CommandGroup<T> {
 
     Optional<T> remove();
 
-    T find();
+    T find() throws HomeFinanceUIException;
 }

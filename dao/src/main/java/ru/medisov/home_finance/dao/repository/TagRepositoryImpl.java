@@ -2,18 +2,16 @@ package ru.medisov.home_finance.dao.repository;
 
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.TagModel;
-import ru.medisov.home_finance.common.model.TransactionModel;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implements TagRepository {
     private static final String INSERT = "INSERT INTO tag_tbl (name, count) VALUES (?, ?)";
-    private static final String SELECT_BY_NAME = "SELECT id, name, count FROM tag_tbl t " +
-            " WHERE name = ?";
+    private static final String INSERT_TAG_LIST = "INSERT INTO tag_tbl (name, count) VALUES ";
+    private static final String SELECT_BY_NAME = "SELECT id, name, count FROM tag_tbl t WHERE name = ?";
+    private static final String SELECT_BY_NAME_LIST = "SELECT id, name, count FROM tag_tbl t WHERE name IN ";
     private static final String SELECT_BY_ID = "SELECT id, name, count FROM tag_tbl WHERE id = ?";
     private static final String SELECT_ALL = "SELECT id, name, count FROM tag_tbl";
     private static final String UPDATE = "UPDATE tag_tbl SET name = ?, count = ? WHERE id = ?";
@@ -53,8 +51,21 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
 
     @Override
     public Collection<TagModel> findAll() {
+        return find(SELECT_ALL);
+    }
+
+    @Override
+    public Collection<TagModel> findByNames(List<TagModel> models) {
+        return getNameList(models) == null ? new ArrayList<>() : findByNames(getNameList(models));
+    }
+
+    public Collection<TagModel> findByNames(String nameList) {
+        return find(SELECT_BY_NAME_LIST + nameList);
+    }
+
+    private Collection<TagModel> find(String sql) {
         try (Connection connection = connectionBuilder.getConnection()) {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL)) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 ResultSet resultSet = preparedStatement.executeQuery();
                 Collection<TagModel> models = new ArrayList<>();
 
@@ -140,34 +151,91 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
         }
     }
 
-    private TagModel getTagModel(ResultSet resultSet) throws SQLException {
-        TagModel tagModel = null;
+    public List<TagModel> saveTagList(List<TagModel> models) {
+        String namesAndCounts = getNamesAndCounts(models);
 
-        if (resultSet.next()) {
-            Long id = resultSet.getLong("id");
-            String currentName = resultSet.getString("name");
-            Long count = resultSet.getLong("count");
-
-            tagModel = new TagModel().setId(id).setName(currentName).setCount(count);
+        if (namesAndCounts == null || namesAndCounts.length() == 0) {
+            return models;
         }
-        return tagModel;
+
+        try (Connection connection = connectionBuilder.getConnection()) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT_TAG_LIST + namesAndCounts, Statement.RETURN_GENERATED_KEYS)) {
+                preparedStatement.executeUpdate();
+                updateIdList(preparedStatement, models);
+                connection.commit();
+                return models;
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new HomeFinanceDaoException("error while save or replace tag model list " + models, e);
+            }
+        } catch (SQLException e) {
+            throw new HomeFinanceDaoException("error while save or replace tag model list " + models, e);
+        }
     }
 
-    public List<TagModel> saveByTransaction(List<TagModel> tags, Long transactionId) {
-        //todo implement with fewer queries
-        List<TagModel> updatedTags = new ArrayList<>();
-
-        for (TagModel tag : tags) {
-            TagModel foundInTagTable = findByName(tag.getName()).orElse(save(tag));
-            if (saveRelation(foundInTagTable.getId(), transactionId)) {
-                foundInTagTable.setCount(foundInTagTable.getCount() + 1);
-                foundInTagTable = update(foundInTagTable);
-            }
-
-            updatedTags.add(foundInTagTable);
+    public List<TagModel> updateTagList(List<TagModel> models) {
+        if (models == null || models.size() == 0) {
+            return models;
         }
 
-        return updatedTags;
+        models.forEach(m -> m = update(m));
+
+        return models;
+    }
+
+    private void updateIdList(PreparedStatement preparedStatement, List<TagModel> models) throws SQLException{
+        if (models.stream().allMatch(tag -> tag.getId() != null)) {
+            return;
+        }
+
+        List<Long> idList = new IdGetter(preparedStatement).getIdList();
+
+        if (idList.size() == 0) {
+            throw new SQLException("tags don't save or replace correctly");
+        }
+
+        for (int i = 0; i < models.size(); i++) {
+            models.get(i).setId(idList.get(i));
+        }
+    }
+
+    public List<TagModel> saveUpdateByTransaction(List<TagModel> allTags, Long transactionId) {
+        //todo implement with fewer queries
+
+        List<TagModel> existing = new ArrayList<>(findByNames(allTags));
+        List<TagModel> notExisting = allTags.stream()
+                .filter(t -> existing.stream()
+                        .noneMatch(e -> e.getName().equals(t.getName())))
+                .collect(Collectors.toList());
+
+        List<TagModel> updated = updateByTransaction(existing, transactionId);
+        List<TagModel> saved = saveByTransaction(notExisting, transactionId);
+
+        List<TagModel> result = new ArrayList<>();
+
+        result.addAll(updated);
+        result.addAll(saved);
+
+        return result;
+    }
+
+    private List<TagModel> saveByTransaction(List<TagModel> notExisting, Long transactionId) {
+        List<TagModel> saved = saveTagList(notExisting);
+        return updateByTransaction(saved, transactionId);
+    }
+
+    private List<TagModel> updateByTransaction(List<TagModel> existing, Long transactionId) {
+        if (existing == null || existing.size() == 0) {
+            return existing;
+        }
+
+        existing.forEach(tag -> {
+            if (saveRelation(tag.getId(), transactionId)) {
+                tag.setCount(tag.getCount() + 1);
+            }
+        });
+
+        return updateTagList(existing);
     }
 
     public List<TagModel> findByTransaction(Long transactionId) {
@@ -201,6 +269,19 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
                 executeQueryByTransaction(DELETE_BY_TRANSACTION, transactionId);
     }
 
+    private TagModel getTagModel(ResultSet resultSet) throws SQLException {
+        TagModel tagModel = null;
+
+        if (resultSet.next()) {
+            Long id = resultSet.getLong("id");
+            String currentName = resultSet.getString("name");
+            Long count = resultSet.getLong("count");
+
+            tagModel = new TagModel().setId(id).setName(currentName).setCount(count);
+        }
+        return tagModel;
+    }
+
     private boolean executeQueryByTransaction(String query, Long aLong) {
         if (aLong == null) {
             return false;
@@ -227,10 +308,11 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
         }
 
         try (Connection connection = connectionBuilder.getConnection()) {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT_RELATION)) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT_RELATION, Statement.RETURN_GENERATED_KEYS)) {
                 preparedStatement.setLong(1, tagId);
                 preparedStatement.setLong(2, modelId);
-                preparedStatement.execute();
+                preparedStatement.executeUpdate();
+
                 connection.commit();
                 return true;
             } catch (SQLException e) {
@@ -255,14 +337,38 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
                     countRelations = resultSet.getLong("countRelations");
                 }
 
-                connection.rollback();
                 return countRelations != 0;
             } catch (SQLException e) {
-                connection.rollback();
                 throw new HomeFinanceDaoException(e.getMessage());
             }
         } catch (SQLException e) {
             throw new HomeFinanceDaoException(e.getMessage());
         }
+    }
+
+    private String getNamesAndCounts(List<TagModel> tags) {
+        if (tags == null || tags.size() == 0) {
+            return null;
+        }
+
+        StringBuilder builder = new StringBuilder();
+        tags.forEach(tag -> builder.append("('").append(tag.getName()).append("',").append(tag.getCount()).append("),"));
+
+        return builder.substring(0, builder.length() - 1);
+    }
+
+    private String getNameList(List<TagModel> tags) {
+        if (tags == null || tags.size() == 0) {
+            return null;
+        }
+
+        StringBuilder builder = new StringBuilder();
+        tags.forEach(tag -> builder.append("'").append(tag.getName()).append("',"));
+
+        return parentheses(builder.substring(0, builder.length() - 1));
+    }
+
+    private String parentheses(String text) {
+        return "(" + text + ")";
     }
 }

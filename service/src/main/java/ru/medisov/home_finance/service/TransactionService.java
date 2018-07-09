@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface TransactionService extends Service<TransactionModel> {
     Optional<TransactionModel> findByName(String name);
 
-    Collection<TransactionModel> findByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate);
+    Optional<TransactionModel> findById(Long aLong);
 
     Collection<TransactionModel> findAll();
 
@@ -21,7 +21,15 @@ public interface TransactionService extends Service<TransactionModel> {
 
     TransactionModel update(TransactionModel model);
 
+    Collection<TransactionModel> findByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate);
+
     Collection<TransactionModel> findByCategory(CategoryTransactionModel category);
 
-    Map<String, IncomeExpense> sumByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate, Class<CategoryTransactionModel> oClass);
+    Collection<TransactionModel> incomeByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate);
+
+    Collection<TransactionModel> expenseByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate);
+
+    Map<String, IncomeExpense> sumByPeriodNoCategories(LocalDateTime dateFrom, LocalDateTime upToDate);
+
+    Map<CategoryTransactionModel, IncomeExpense> sumByPeriodByCategories(LocalDateTime dateFrom, LocalDateTime upToDate);
 }

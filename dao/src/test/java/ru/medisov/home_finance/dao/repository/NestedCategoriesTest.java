@@ -2,7 +2,7 @@ package ru.medisov.home_finance.dao.repository;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import ru.medisov.home_finance.common.generator.TestModelGenerator;
+import ru.medisov.home_finance.common.generator.TestModel;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 
@@ -11,15 +11,14 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class NestedCategoriesTest extends CommonRepositoryTest implements RepositoryTest {
-    private TestModelGenerator generator = new TestModelGenerator();
+class NestedCategoriesTest extends CommonRepositoryTest {
     private CategoryRepository repository = new CategoryRepositoryImpl();
 
     @Test
     @DisplayName("Save Nested Models to database")
     void saveNestedCategoriesNonNullIdReturned() {
         //arrange
-        CategoryTransactionModel modelWithParents = generator.generateCategoryWithParents();
+        CategoryTransactionModel modelWithParents = TestModel.generateCategoryWithParents();
 
         //act
         CategoryTransactionModel actual = repository.saveWithParents(modelWithParents);
@@ -33,8 +32,8 @@ class NestedCategoriesTest extends CommonRepositoryTest implements RepositoryTes
     @Test
     @DisplayName("Attempt to save an one incorrect Model from nested models throws HomeFinanceDaoException")
     void saveIfOneModelIncorrectCausesException() throws HomeFinanceDaoException {
-        CategoryTransactionModel modelWithParents = generator.generateCategoryWithParents();
-        CategoryTransactionModel modelWithLongName = modelWithParents.getParent().setName(generator.getLongName());
+        CategoryTransactionModel modelWithParents = TestModel.generateCategoryWithParents();
+        CategoryTransactionModel modelWithLongName = modelWithParents.getParent().setName(TestModel.getLongName());
 
         assertThrows(HomeFinanceDaoException.class, () -> repository.saveWithParents(modelWithLongName));
     }
@@ -43,7 +42,7 @@ class NestedCategoriesTest extends CommonRepositoryTest implements RepositoryTes
     @DisplayName("Search by name for an existing Models in the database")
     void findByNameIfExistsInDatabase() {
         //arrange
-        CategoryTransactionModel modelWithParents = generator.generateCategoryWithParents();
+        CategoryTransactionModel modelWithParents = TestModel.generateCategoryWithParents();
         CategoryTransactionModel expected = repository.saveWithParents(modelWithParents);
 
         //act
@@ -58,7 +57,7 @@ class NestedCategoriesTest extends CommonRepositoryTest implements RepositoryTes
     void findAllExistsThreeEntries() {
         //arrange
         int expectedSize = 3;
-        CategoryTransactionModel modelWithParents = generator.generateCategoryWithParents();
+        CategoryTransactionModel modelWithParents = TestModel.generateCategoryWithParents();
         CategoryTransactionModel expectedModel = repository.saveWithParents(modelWithParents);
 
         //act
@@ -75,7 +74,7 @@ class NestedCategoriesTest extends CommonRepositoryTest implements RepositoryTes
     @DisplayName("Remove existing models returns true")
     void removeExistingEntriesReturnsTrue() {
         //arrange
-        CategoryTransactionModel modelWithParents = generator.generateCategoryWithParents();
+        CategoryTransactionModel modelWithParents = TestModel.generateCategoryWithParents();
 
         //act
         CategoryTransactionModel actual = repository.saveWithParents(modelWithParents);
@@ -90,7 +89,7 @@ class NestedCategoriesTest extends CommonRepositoryTest implements RepositoryTes
     @DisplayName("Remove if links exists returns true")
     //requires a valid ddl database file for referential integrity
     void removeIfLinksExistsReturnsTrue() throws HomeFinanceDaoException {
-        CategoryTransactionModel modelWithParents = generator.generateCategoryWithParents();
+        CategoryTransactionModel modelWithParents = TestModel.generateCategoryWithParents();
         CategoryTransactionModel model = repository.saveWithParents(modelWithParents);
 
         assertTrue(repository.remove(model.getParent().getId()));
@@ -101,7 +100,7 @@ class NestedCategoriesTest extends CommonRepositoryTest implements RepositoryTes
     @DisplayName("update parent of Model returns the correct model")
     void updateParentModelCorrectModelReturned() {
         //arrange
-        CategoryTransactionModel modelWithParents = generator.generateCategoryWithParents();
+        CategoryTransactionModel modelWithParents = TestModel.generateCategoryWithParents();
         CategoryTransactionModel expected = repository.saveWithParents(modelWithParents);
         CategoryTransactionModel remove = expected.getParent();
         expected.setParent(expected.getParent().getParent());
@@ -118,7 +117,7 @@ class NestedCategoriesTest extends CommonRepositoryTest implements RepositoryTes
     @DisplayName("Search by id for an existing Models in the database")
     void findByIdIfExistsInDatabase() {
         //arrange
-        CategoryTransactionModel modelWithParents = generator.generateCategoryWithParents();
+        CategoryTransactionModel modelWithParents = TestModel.generateCategoryWithParents();
         CategoryTransactionModel expected = repository.saveWithParents(modelWithParents);
 
         //act
@@ -133,7 +132,7 @@ class NestedCategoriesTest extends CommonRepositoryTest implements RepositoryTes
     void findByIdIfNotExistsInDatabase() {
         //arrange
         Optional<CategoryTransactionModel> expected = Optional.empty();
-        CategoryTransactionModel modelWithParents = generator.generateCategoryWithParents();
+        CategoryTransactionModel modelWithParents = TestModel.generateCategoryWithParents();
 
         //act
         Optional<CategoryTransactionModel> actual = repository.findById(modelWithParents.getId());

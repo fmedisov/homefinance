@@ -3,6 +3,7 @@ package ru.medisov.home_finance.common.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import ru.medisov.home_finance.common.validator.Amount;
 import ru.medisov.home_finance.common.validator.Valid;
 import ru.medisov.home_finance.common.validator.NotEmpty;
 
@@ -18,5 +19,6 @@ public class AccountModel extends TagModel {
     private String name;
     private AccountType accountType;
     private CurrencyModel currencyModel;
+    @Amount
     private BigDecimal amount;
 }

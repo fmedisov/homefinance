@@ -5,7 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.medisov.home_finance.common.generator.TestModelGenerator;
+import ru.medisov.home_finance.common.generator.TestModel;
 import ru.medisov.home_finance.common.model.CurrencyModel;
 import ru.medisov.home_finance.dao.repository.CurrencyRepository;
 
@@ -16,7 +16,6 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CurrencyServiceTest extends CommonServiceTest {
-    private TestModelGenerator generator = new TestModelGenerator();
 
     @Mock
     private CurrencyRepository repositoryMock;
@@ -27,19 +26,19 @@ class CurrencyServiceTest extends CommonServiceTest {
     @Test
     @DisplayName("Search by name for an existing currency. Correct model returned")
     void findByNameIfExistsCorrectModelReturned() {
-        super.findByNameIfExistsCorrectModelReturned(repositoryMock, generator, CurrencyModel.class, currencyService);
+        super.findByNameIfExistsCorrectModelReturned(repositoryMock, CurrencyModel.class, currencyService);
     }
 
     @Test
     @DisplayName("Attempt to search by name for a non-existent currency throws HomeFinanceServiceException")
     void findByNameIfNotExists() {
-        super.findByNameIfNotExists(repositoryMock, generator, CurrencyModel.class, currencyService);
+        super.findByNameIfNotExists(repositoryMock, CurrencyModel.class, currencyService);
     }
 
     @Test
     @DisplayName("Search for all currency models returns collection of models ")
     void findAllExistsOneEntry() {
-        super.findAllExistsOneEntry(repositoryMock, generator, CurrencyModel.class, currencyService);
+        super.findAllExistsOneEntry(repositoryMock, CurrencyModel.class, currencyService);
     }
 
     @Test
@@ -51,43 +50,43 @@ class CurrencyServiceTest extends CommonServiceTest {
     @Test
     @DisplayName("Remove existing model returns true")
     void removeExistingEntryReturnsTrue() {
-        super.removeExistingEntryReturnsTrue(repositoryMock, generator, CurrencyModel.class, currencyService);
+        super.removeExistingEntryReturnsTrue(repositoryMock, CurrencyModel.class, currencyService);
     }
 
     @Test
     @DisplayName("Remove non-existent model returns false")
     void removeIfNotExistsReturnsFalse() {
-        super.removeIfNotExistsReturnsFalse(repositoryMock, generator, CurrencyModel.class, currencyService);
+        super.removeIfNotExistsReturnsFalse(repositoryMock, CurrencyModel.class, currencyService);
     }
 
     @Test
     @DisplayName("Save correct model. Successful Validation")
     void saveCorrectModelSuccessfulValidation() {
-        super.saveCorrectModelSuccessfulValidation(repositoryMock, generator, CurrencyModel.class, currencyService);
+        super.saveCorrectModelSuccessfulValidation(repositoryMock, CurrencyModel.class, currencyService);
     }
 
     @Test
     @DisplayName("Attempt to save an incorrect model throws HomeFinanceServiceException. Validation not accepted")
     void saveIncorrectModelValidationNotAccepted() throws HomeFinanceServiceException {
-        super.saveIncorrectModelValidationNotAccepted(repositoryMock, generator, CurrencyModel.class, currencyService);
+        super.saveIncorrectModelValidationNotAccepted(repositoryMock, CurrencyModel.class, currencyService);
     }
 
     @Test
     @DisplayName("update correct Model returns the same model")
     void updateCorrectModelSameModelReturned() {
-        super.updateCorrectModelSameModelReturned(repositoryMock, generator, CurrencyModel.class, currencyService);
+        super.updateCorrectModelSameModelReturned(repositoryMock, CurrencyModel.class, currencyService);
     }
 
     @Test
     @DisplayName("Attempt to update an incorrect Model throws HomeFinanceServiceException")
     void updateIncorrectModelCausesException() throws HomeFinanceServiceException {
-        super.updateIncorrectModelCausesException(repositoryMock, generator, CurrencyModel.class, currencyService);
+        super.updateIncorrectModelCausesException(repositoryMock, CurrencyModel.class, currencyService);
     }
 
     @Test
-    @DisplayName("Attempt to save an incorrect model throws HomeFinanceServiceException. Varification not accepted")
+    @DisplayName("Attempt to save an incorrect model throws HomeFinanceServiceException. Verification not accepted")
     void saveExistingModelVerificationNotAccepted() throws HomeFinanceServiceException {
-        CurrencyModel model = generator.generateCurrencyModel();
+        CurrencyModel model = TestModel.generateCurrencyModel();
         String name = model.getName();
         CurrencyModel returnModel = new CurrencyModel().setName(name);
         when(repositoryMock.findByName(name)).thenReturn(Optional.of(returnModel));

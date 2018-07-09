@@ -4,7 +4,6 @@ import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.AccountModel;
 import ru.medisov.home_finance.dao.repository.AccountRepository;
 import ru.medisov.home_finance.dao.repository.AccountRepositoryImpl;
-import ru.medisov.home_finance.dao.repository.Repository;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -16,6 +15,23 @@ public class AccountServiceImpl extends AbstractService implements AccountServic
     public Optional<AccountModel> findByName(String name) {
         try {
             Optional<AccountModel> optional = repository.findByName(name);
+            AccountModel model = optional.orElseThrow(HomeFinanceDaoException::new);
+            validate(model);
+
+            return Optional.of(model);
+        } catch (HomeFinanceDaoException e) {
+            throw new HomeFinanceServiceException(e);
+        } catch (HomeFinanceServiceException e) {
+            e.printStackTrace();
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<AccountModel> findById(Long aLong) {
+        try {
+            Optional<AccountModel> optional = repository.findById(aLong);
             AccountModel model = optional.orElseThrow(HomeFinanceDaoException::new);
             validate(model);
 

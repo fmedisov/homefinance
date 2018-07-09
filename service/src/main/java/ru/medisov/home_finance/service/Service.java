@@ -6,6 +6,9 @@ import java.util.Optional;
 public interface Service<T> {
     Optional<T> findByName(String name);
 
+    // todo implement tests for this method
+    Optional<T> findById(Long aLong);
+
     Collection<T> findAll();
 
     boolean remove(Long id);
