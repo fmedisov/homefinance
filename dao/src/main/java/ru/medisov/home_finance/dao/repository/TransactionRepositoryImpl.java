@@ -1,16 +1,21 @@
 package ru.medisov.home_finance.dao.repository;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import ru.medisov.home_finance.common.model.AccountModel;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import ru.medisov.home_finance.common.model.TransactionModel;
 import ru.medisov.home_finance.common.model.TransactionType;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 
+import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
+
+@Transactional
 public class TransactionRepositoryImpl extends AbstractRepository<TransactionModel, Long> implements TransactionRepository {
     private static final String FIELDS = "id, amount, datetime, account, category, transaction_type, name";
     private static final String INSERT = "INSERT INTO transaction_tbl (amount, datetime, account, category, transaction_type, name) VALUES (?, ?, ?, ?, ?, ?)";
@@ -24,16 +29,22 @@ public class TransactionRepositoryImpl extends AbstractRepository<TransactionMod
     private static final String SELECT_BY_NULL_CATEGORY = "SELECT " + FIELDS + " FROM transaction_tbl WHERE category IS NULL";
     private static final String UPDATE = "UPDATE transaction_tbl SET amount = ?, datetime = ?, account = ?, category = ?, transaction_type = ?, name = ? WHERE id = ?";
 
-    private ConnectionBuilder connectionBuilder = new DbConnectionBuilder();
+    @Autowired
+    private CategoryRepository categoryRepository;
 
-    public TransactionRepositoryImpl() {}
+    @Autowired
+    private AccountRepository accountRepository;
+
+    @Autowired
+    private TagRepository tagRepository;
+
+    @Autowired
+    private DataSource dataSource;
 
     @Override
     public TransactionModel save(TransactionModel model) {
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
-                updateCategoryModel(model);
-                updateAccountModel(model);
                 preparedStatement.setBigDecimal(1, model.getAmount());
                 preparedStatement.setTimestamp(2, Timestamp.valueOf(model.getDateTime()));
 
@@ -58,13 +69,10 @@ public class TransactionRepositoryImpl extends AbstractRepository<TransactionMod
                 preparedStatement.executeUpdate();
                 model.setId(new IdGetter(preparedStatement).getId());
 
-                connection.commit();
-
-                model.setTags(getTagRepository().saveUpdateByTransaction(model.getTags(), model.getId()));
+                model.setTags(tagRepository.saveUpdateByTransaction(model.getTags(), model.getId()));
 
                 return model;
             } catch (SQLException e) {
-                connection.rollback();
                 throw new HomeFinanceDaoException("error while save transaction model " + model, e);
             }
         } catch (SQLException e) {
@@ -74,7 +82,7 @@ public class TransactionRepositoryImpl extends AbstractRepository<TransactionMod
 
     @Override
     public Optional<TransactionModel> findByName(String name) {
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_NAME)) {
                 preparedStatement.setString(1, name);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -91,7 +99,7 @@ public class TransactionRepositoryImpl extends AbstractRepository<TransactionMod
 
     @Override
     public Optional<TransactionModel> findById(Long aLong) {
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_ID)) {
                 preparedStatement.setLong(1, aLong);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -113,15 +121,13 @@ public class TransactionRepositoryImpl extends AbstractRepository<TransactionMod
 
     @Override
     public boolean remove(Long aLong) {
-        return getTagRepository().removeByTransaction(aLong) && super.remove(aLong, getClass());
+        return tagRepository.removeByTransaction(aLong) && super.remove(aLong, getClass());
     }
 
     @Override
     public TransactionModel update(TransactionModel model) {
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
-                updateCategoryModel(model);
-                updateAccountModel(model);
                 preparedStatement.setBigDecimal(1, model.getAmount());
                 preparedStatement.setTimestamp(2, Timestamp.valueOf(model.getDateTime()));
 
@@ -147,12 +153,9 @@ public class TransactionRepositoryImpl extends AbstractRepository<TransactionMod
                 preparedStatement.setLong(7, model.getId());
                 preparedStatement.executeUpdate();
 
-                connection.commit();
-
-                model.setTags(getTagRepository().saveUpdateByTransaction(model.getTags(), model.getId()));
+                model.setTags(tagRepository.saveUpdateByTransaction(model.getTags(), model.getId()));
                 return model;
             } catch (SQLException e) {
-                connection.rollback();
                 throw new HomeFinanceDaoException("error while update transaction model " + model, e);
             }
         } catch (SQLException e) {
@@ -189,26 +192,14 @@ public class TransactionRepositoryImpl extends AbstractRepository<TransactionMod
         return false;
     }
 
-    private void updateCategoryModel(TransactionModel model) {
-        if (model.getCategory() != null && model.getCategory().getId() == null) {
-            model.setCategory(getCategoryRepository().saveWithParents(model.getCategory()));
-        }
-    }
-
-    private void updateAccountModel(TransactionModel model) {
-        if (model.getAccount() != null && model.getAccount().getId() == null) {
-            model.setAccount(getAccountRepository().save(model.getAccount()));
-        }
-    }
-
     private TransactionModel getTransactionModel(ResultSet resultSet) throws SQLException {
         TransactionModel transactionModel = null;
         if (resultSet.next()) {
             long id = resultSet.getLong("id");
             BigDecimal amount = resultSet.getBigDecimal("amount");
             LocalDateTime dateTime = resultSet.getTimestamp("datetime").toLocalDateTime();
-            Optional<AccountModel> optionalAccount = getAccountRepository().findById(resultSet.getLong("account"));
-            Optional<CategoryTransactionModel> optionalCategory = getCategoryRepository().findById(resultSet.getLong("category"));
+            Optional<AccountModel> optionalAccount = accountRepository.findById(resultSet.getLong("account"));
+            Optional<CategoryTransactionModel> optionalCategory = categoryRepository.findById(resultSet.getLong("category"));
             TransactionType transactionType = Enum.valueOf(TransactionType.class, resultSet.getString("transaction_type"));
             String currentName = resultSet.getString("name");
 
@@ -216,7 +207,7 @@ public class TransactionRepositoryImpl extends AbstractRepository<TransactionMod
                     .setAccount(optionalAccount.orElse(null)).setCategory(optionalCategory.orElse(null))
                     .setTransactionType(transactionType).setName(currentName);
 
-            transactionModel.setTags(getTagRepository().findByTransaction(transactionModel.getId()));
+            transactionModel.setTags(tagRepository.findByTransaction(transactionModel.getId()));
         }
         return transactionModel;
     }
@@ -228,8 +219,8 @@ public class TransactionRepositoryImpl extends AbstractRepository<TransactionMod
             long id = resultSet.getLong("id");
             BigDecimal amount = resultSet.getBigDecimal("amount");
             LocalDateTime dateTime = resultSet.getTimestamp("datetime").toLocalDateTime();
-            Optional<AccountModel> optionalAccount = getAccountRepository().findById(resultSet.getLong("account"));
-            Optional<CategoryTransactionModel> optionalCategory = getCategoryRepository().findById(resultSet.getLong("category"));
+            Optional<AccountModel> optionalAccount = accountRepository.findById(resultSet.getLong("account"));
+            Optional<CategoryTransactionModel> optionalCategory = categoryRepository.findById(resultSet.getLong("category"));
             TransactionType transactionType = Enum.valueOf(TransactionType.class, resultSet.getString("transaction_type"));
             String name = resultSet.getString("name");
 
@@ -237,7 +228,7 @@ public class TransactionRepositoryImpl extends AbstractRepository<TransactionMod
                     .setAccount(optionalAccount.orElse(null)).setCategory(optionalCategory.orElse(null))
                     .setTransactionType(transactionType).setName(name);
 
-            model.setTags(getTagRepository().findByTransaction(model.getId()));
+            model.setTags(tagRepository.findByTransaction(model.getId()));
 
             models.add(model);
         }
@@ -246,7 +237,7 @@ public class TransactionRepositoryImpl extends AbstractRepository<TransactionMod
     }
 
     private Collection<TransactionModel> find(String selectQuery, List properties, Class propertyClass) {
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)) {
                 if (properties != null && properties.size() > 0) {
                     setStatementProperties(preparedStatement, properties, propertyClass);

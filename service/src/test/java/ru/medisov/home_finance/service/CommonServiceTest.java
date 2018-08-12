@@ -1,7 +1,6 @@
 package ru.medisov.home_finance.service;
 
 import ru.medisov.home_finance.common.generator.TestModel;
-import ru.medisov.home_finance.common.model.CurrencyModel;
 import ru.medisov.home_finance.common.model.TagModel;
 import ru.medisov.home_finance.dao.repository.ExtendedRepository;
 
@@ -14,6 +13,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class CommonServiceTest {
+
     <T extends TagModel> void findByNameIfExistsCorrectModelReturned(ExtendedRepository<T, Long> repositoryMock, Class<T> aModelClass, Service<T> service) {
         //arrange
         T expectedModel = TestModel.generateModel(aModelClass);

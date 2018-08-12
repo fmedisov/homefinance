@@ -1,16 +1,19 @@
 package ru.medisov.home_finance.service;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.medisov.home_finance.common.generator.TestModel;
 import ru.medisov.home_finance.common.model.*;
 import ru.medisov.home_finance.common.utils.MoneyUtils;
 import ru.medisov.home_finance.dao.repository.TransactionRepository;
+import ru.medisov.home_finance.service.config.ServiceConfiguration;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -25,7 +28,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class, SpringExtension.class})
+@ContextConfiguration(classes = {ServiceConfiguration.class})
 class TransactionServiceTest extends CommonServiceTest {
 
     @Mock
@@ -35,7 +39,8 @@ class TransactionServiceTest extends CommonServiceTest {
     private CategoryService categoryServiceMock;
 
     @InjectMocks
-    private TransactionServiceImpl transactionService;
+    @Autowired
+    private TransactionService transactionService;
 
     @Test
     @DisplayName("Search by name for an existing transaction. Correct model returned")

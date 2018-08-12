@@ -1,14 +1,23 @@
 package ru.medisov.home_finance.dao.repository;
 
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.medisov.home_finance.common.generator.TestModel;
+import ru.medisov.home_finance.dao.config.DaoConfiguration;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {DaoConfiguration.class})
 class CategoryRepositoryTest extends CommonRepositoryTest {
-    private CategoryRepository repository = new CategoryRepositoryImpl();
+
+    @Autowired
+    private CategoryRepository repository;
 
     @Test
     @DisplayName("Save correct Model to database")

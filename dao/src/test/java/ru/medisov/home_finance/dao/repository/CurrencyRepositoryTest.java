@@ -1,14 +1,22 @@
 package ru.medisov.home_finance.dao.repository;
 
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import ru.medisov.home_finance.dao.config.DaoConfiguration;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.CurrencyModel;
 import ru.medisov.home_finance.common.generator.TestModel;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {DaoConfiguration.class})
 class CurrencyRepositoryTest extends CommonRepositoryTest {
-    private CurrencyRepository repository = new CurrencyRepositoryImpl();
+    @Autowired
+    private CurrencyRepository repository;
 
     @Test
     @DisplayName("Save correct Model to database")
@@ -23,7 +31,6 @@ class CurrencyRepositoryTest extends CommonRepositoryTest {
         CurrencyModel modelWithLongCode = currencyModel.setCode("Too long code");
 
         assertThrows(HomeFinanceDaoException.class, () -> repository.save(modelWithLongCode));
-
     }
 
     @Test

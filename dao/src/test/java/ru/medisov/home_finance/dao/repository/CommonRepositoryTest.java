@@ -1,26 +1,34 @@
 package ru.medisov.home_finance.dao.repository;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.medisov.home_finance.common.generator.TestModel;
+import ru.medisov.home_finance.common.model.AccountModel;
+import ru.medisov.home_finance.common.model.CurrencyModel;
 import ru.medisov.home_finance.common.model.TagModel;
-import ru.medisov.home_finance.dao.DaoConfig;
+import ru.medisov.home_finance.common.model.TransactionModel;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CommonRepositoryTest {
 
-    @BeforeAll
-    static void initConfig()  {
-        DaoConfig.initConfig();
-    }
+    @Autowired
+    private DataSource dataSource;
+
+    @Autowired
+    private CurrencyRepository currencyRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private AccountRepository accountRepository;
 
     @BeforeEach
     public void truncateAllTables() {
@@ -33,7 +41,7 @@ public class CommonRepositoryTest {
                         "TRUNCATE TABLE `tag_relation_tbl`; " +
                         "TRUNCATE TABLE `tag_tbl`; " +
                         "SET FOREIGN_KEY_CHECKS=1;";
-        try (Connection connection = new DbConnectionBuilder().getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             connection.prepareStatement(sqlQuery).execute();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -41,16 +49,16 @@ public class CommonRepositoryTest {
     }
 
     public <T extends TagModel> void saveCorrectModelNonNullIdReturned(ExtendedRepository<T, Long> repository, Class<T> aModelClass) {
-        T model = TestModel.generateModel(aModelClass);
+        T model = generateModelWithSavedFields(aModelClass);
 
         T actual = repository.save(model);
 
-        assertTrue(actual.getId() != null);
+        assertNotNull(actual.getId());
     }
 
     public <T extends TagModel> void findByNameIfExistsInDatabase(ExtendedRepository<T, Long> repository, Class<T> aModelClass) {
         //arrange
-        T expected = repository.save(TestModel.generateModel(aModelClass));
+        T expected = repository.save(generateModelWithSavedFields(aModelClass));
 
         //act
         T actual = null;
@@ -79,7 +87,7 @@ public class CommonRepositoryTest {
     public <T extends TagModel> void findAllExistsOneEntry(ExtendedRepository<T, Long> repository, Class<T> aModelClass) {
         //arrange
         int expectedSize = 1;
-        T model = TestModel.generateModel(aModelClass);
+        T model = generateModelWithSavedFields(aModelClass);
         T expectedModel = repository.save(model);
 
         //act
@@ -97,10 +105,10 @@ public class CommonRepositoryTest {
     }
 
     public <T extends TagModel> void removeExistingEntryReturnsTrue(ExtendedRepository<T, Long> repository, Class<T> aModelClass) {
-        T model = repository.save(TestModel.generateModel(aModelClass));
+        T model = repository.save(generateModelWithSavedFields(aModelClass));
 
         assertTrue(repository.remove(model.getId()));
-        assertTrue(repository.findAll().size() == 0);
+        assertEquals(0, repository.findAll().size());
     }
 
     public <T extends TagModel> void removeIfNotExistsReturnsFalse(ExtendedRepository<T, Long> repository, Class<T> aModelClass) {
@@ -110,7 +118,7 @@ public class CommonRepositoryTest {
 
     public <T extends TagModel> void findByIdIfExistsInDatabase(ExtendedRepository<T, Long> repository, Class<T> aModelClass) {
         //arrange
-        T expected = repository.save(TestModel.generateModel(aModelClass));
+        T expected = repository.save(generateModelWithSavedFields(aModelClass));
 
         //act
         T actual = null;
@@ -134,5 +142,38 @@ public class CommonRepositoryTest {
 
         //assert
         assertEquals(expected, actual);
+    }
+
+    public <T extends TagModel> T generateModelWithSavedFields(Class<T> aModelClass) {
+        T model = TestModel.generateModel(aModelClass);
+
+        Object obj = null;
+
+        switch (aModelClass.getSimpleName()) {
+            case "AccountModel":
+                AccountModel accountModel = (AccountModel) model;
+                accountModel.setCurrencyModel(currencyRepository.save(accountModel.getCurrencyModel()));
+                obj = accountModel;
+                break;
+            case "CurrencyModel":
+                obj = model;
+                break;
+            case "CategoryTransactionModel":
+                obj = model;
+                break;
+            case "TransactionModel":
+                TransactionModel transactionModel = (TransactionModel) model;
+                transactionModel.setCategory(categoryRepository.saveWithParents(transactionModel.getCategory()));
+                CurrencyModel currency = currencyRepository.save(transactionModel.getAccount().getCurrencyModel());
+                AccountModel account = transactionModel.getAccount().setCurrencyModel(currency);
+                transactionModel.setAccount(accountRepository.save(account));
+                obj = transactionModel;
+                break;
+            case "TagModel":
+                obj = model;
+                break;
+        }
+
+        return (T) obj;
     }
 }

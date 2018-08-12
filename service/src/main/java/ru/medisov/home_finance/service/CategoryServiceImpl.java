@@ -1,15 +1,19 @@
 package ru.medisov.home_finance.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import ru.medisov.home_finance.dao.repository.CategoryRepository;
-import ru.medisov.home_finance.dao.repository.CategoryRepositoryImpl;
 
 import java.util.Collection;
 import java.util.Optional;
 
+@Service
 public class CategoryServiceImpl extends AbstractService implements CategoryService {
-    private CategoryRepository repository = new CategoryRepositoryImpl();
+
+    @Autowired
+    private CategoryRepository repository;
 
     @Override
     public Optional<CategoryTransactionModel> findByName(String name) {
@@ -74,5 +78,11 @@ public class CategoryServiceImpl extends AbstractService implements CategoryServ
         }
 
         return newModel;
+    }
+
+    @Override
+    public CategoryTransactionModel makeFromTextFields(String name, String parent) {
+        CategoryTransactionModel categoryParent = findByName(parent).orElseThrow(HomeFinanceServiceException::new);
+        return new CategoryTransactionModel().setName(name).setParent(categoryParent);
     }
 }

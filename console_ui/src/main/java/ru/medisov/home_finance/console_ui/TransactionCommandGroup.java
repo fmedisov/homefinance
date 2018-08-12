@@ -4,6 +4,7 @@ import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import ru.medisov.home_finance.common.model.TagModel;
 import ru.medisov.home_finance.common.model.TransactionModel;
 import ru.medisov.home_finance.common.model.TransactionType;
+import ru.medisov.home_finance.common.utils.ModelUtils;
 import ru.medisov.home_finance.common.utils.MoneyUtils;
 import ru.medisov.home_finance.service.*;
 
@@ -232,7 +233,7 @@ public class TransactionCommandGroup {
 
         System.out.println("Enter tags separated by colon (transport:car:gasoline) ");
         String tagsString = scanner.nextLine();
-        transaction.setTags(parseTags(tagsString));
+        transaction.setTags(ModelUtils.parseTags(tagsString));
     }
 
     private void setTransactionType(TransactionModel transaction) {
@@ -269,7 +270,7 @@ public class TransactionCommandGroup {
 
         System.out.println("Enter transaction date (2017-12-31): ");
         String dateString = scanner.nextLine();
-        transaction.setDateTime(parseDateTime(dateString));
+        transaction.setDateTime(ModelUtils.parseDateTime(dateString));
     }
 
     private void setAmount(TransactionModel transaction) {
@@ -306,23 +307,5 @@ public class TransactionCommandGroup {
         }
 
         return isNotChange;
-    }
-
-    private List<TagModel> parseTags(String tagsString) {
-        List<TagModel> result = new ArrayList<>();
-
-        if (tagsString == null || tagsString.length() < 2) {
-            return result;
-        }
-
-        List<String> listOfTagStrings = Arrays.asList(tagsString.split(":"));
-        listOfTagStrings.forEach(s -> result.add(new TagModel().setName(s)));
-
-        return result;
-    }
-
-    // from format '2017-12-31'
-    private LocalDateTime parseDateTime(String dateString) {
-        return LocalDateTime.parse(dateString + "T00:00:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 }

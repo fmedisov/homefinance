@@ -1,16 +1,20 @@
 package ru.medisov.home_finance.dao.repository;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.AccountModel;
 import ru.medisov.home_finance.common.model.AccountType;
 import ru.medisov.home_finance.common.model.CurrencyModel;
 
+import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
+@Transactional
 public class AccountRepositoryImpl extends AbstractRepository<AccountModel, Long> implements AccountRepository {
     private static final String INSERT = "INSERT INTO account_tbl (name, account_type, currency, amount) VALUES (?, ?, ?, ?)";
     private static final String SELECT_BY_NAME = "SELECT id, name, account_type, currency, amount FROM account_tbl WHERE name = ?";
@@ -18,15 +22,16 @@ public class AccountRepositoryImpl extends AbstractRepository<AccountModel, Long
     private static final String SELECT_ALL = "SELECT id, name, account_type, currency, amount FROM account_tbl";
     private static final String UPDATE = "UPDATE account_tbl SET name = ?, account_type = ?, currency = ?, amount = ? WHERE id = ?";
 
-    private ConnectionBuilder connectionBuilder = new DbConnectionBuilder();
+    @Autowired
+    private CurrencyRepository currencyRepository;
 
-    public AccountRepositoryImpl() {}
+    @Autowired
+    private DataSource dataSource;
 
     @Override
     public AccountModel save(AccountModel model) {
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
-                updateCurrencyModel(model);
                 preparedStatement.setString(1, model.getName());
 
                 if (model.getAccountType() == null) {
@@ -44,10 +49,8 @@ public class AccountRepositoryImpl extends AbstractRepository<AccountModel, Long
                 preparedStatement.setBigDecimal(4, model.getAmount());
                 preparedStatement.executeUpdate();
                 model.setId(new IdGetter(preparedStatement).getId());
-                connection.commit();
                 return model;
             } catch (SQLException e) {
-                connection.rollback();
                 throw new HomeFinanceDaoException("error while save account model " + model, e);
             }
         } catch (SQLException e) {
@@ -57,7 +60,7 @@ public class AccountRepositoryImpl extends AbstractRepository<AccountModel, Long
 
     @Override
     public Optional<AccountModel> findByName(String name) {
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_NAME)) {
                 preparedStatement.setString(1, name);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -74,7 +77,7 @@ public class AccountRepositoryImpl extends AbstractRepository<AccountModel, Long
 
     @Override
     public Collection<AccountModel> findAll() {
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL)) {
                 ResultSet resultSet = preparedStatement.executeQuery();
                 Collection<AccountModel> models = new ArrayList<>();
@@ -83,7 +86,7 @@ public class AccountRepositoryImpl extends AbstractRepository<AccountModel, Long
                     long id = resultSet.getLong("id");
                     String name = resultSet.getString("name");
                     AccountType accountType = Enum.valueOf(AccountType.class, resultSet.getString("account_type"));
-                    Optional<CurrencyModel> optionalCurrency = getCurrencyRepository().findById(resultSet.getLong("currency"));
+                    Optional<CurrencyModel> optionalCurrency = currencyRepository.findById(resultSet.getLong("currency"));
                     BigDecimal amount = resultSet.getBigDecimal("amount");
 
                     AccountModel accountModel = new AccountModel().setId(id).setName(name).setAccountType(accountType)
@@ -107,9 +110,8 @@ public class AccountRepositoryImpl extends AbstractRepository<AccountModel, Long
 
     @Override
     public AccountModel update(AccountModel model) {
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
-                updateCurrencyModel(model);
                 preparedStatement.setString(1, model.getName());
 
                 if (model.getAccountType() == null) {
@@ -129,20 +131,12 @@ public class AccountRepositoryImpl extends AbstractRepository<AccountModel, Long
                 preparedStatement.setLong(5, model.getId());
                 preparedStatement.executeUpdate();
 
-                connection.commit();
                 return model;
             } catch (SQLException e) {
-                connection.rollback();
                 throw new HomeFinanceDaoException("error while update account model " + model, e);
             }
         } catch (SQLException e) {
             throw new HomeFinanceDaoException("error while update account model " + model, e);
-        }
-    }
-
-    private void updateCurrencyModel(AccountModel model) {
-        if (model.getCurrencyModel() != null && model.getCurrencyModel().getId() == null) {
-            model.setCurrencyModel(getCurrencyRepository().save(model.getCurrencyModel()));
         }
     }
 
@@ -151,7 +145,7 @@ public class AccountRepositoryImpl extends AbstractRepository<AccountModel, Long
             return Optional.empty();
         }
 
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_ID)) {
                 preparedStatement.setLong(1, aLong);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -172,7 +166,7 @@ public class AccountRepositoryImpl extends AbstractRepository<AccountModel, Long
             long id = resultSet.getLong("id");
             String currentName = resultSet.getString("name");
             AccountType accountType = Enum.valueOf(AccountType.class, resultSet.getString("account_type"));
-            Optional<CurrencyModel> optionalCurrency = getCurrencyRepository().findById(resultSet.getLong("currency"));
+            Optional<CurrencyModel> optionalCurrency = currencyRepository.findById(resultSet.getLong("currency"));
             BigDecimal amount = resultSet.getBigDecimal("amount");
 
             accountModel = new AccountModel().setId(id).setName(currentName).setAccountType(accountType)

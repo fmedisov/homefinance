@@ -2,8 +2,13 @@ package ru.medisov.home_finance.dao.repository;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.medisov.home_finance.common.generator.TestModel;
 import ru.medisov.home_finance.common.utils.MoneyUtils;
+import ru.medisov.home_finance.dao.config.DaoConfiguration;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.AccountModel;
 import ru.medisov.home_finance.common.model.AccountType;
@@ -11,8 +16,15 @@ import ru.medisov.home_finance.common.model.CurrencyModel;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {DaoConfiguration.class})
 class AccountRepositoryTest extends CommonRepositoryTest {
-    private AccountRepository repository = new AccountRepositoryImpl();
+
+    @Autowired
+    private CurrencyRepository currencyRepository;
+
+    @Autowired
+    private AccountRepository repository;
 
     @Test
     @DisplayName("Save correct Model to database")
@@ -23,7 +35,7 @@ class AccountRepositoryTest extends CommonRepositoryTest {
     @Test
     @DisplayName("Attempt to save a Model without account type throws HomeFinanceDaoException")
     void saveWithoutAccTypeCausesException() throws HomeFinanceDaoException {
-        AccountModel accountModel = TestModel.generateAccountModel();
+        AccountModel accountModel = super.generateModelWithSavedFields(AccountModel.class);
         AccountModel withoutAccType = accountModel.setAccountType(null);
 
         assertThrows(HomeFinanceDaoException.class, () -> repository.save(withoutAccType));
@@ -32,7 +44,7 @@ class AccountRepositoryTest extends CommonRepositoryTest {
     @Test
     @DisplayName("Attempt to save a Model with too long name throws HomeFinanceDaoException")
     void saveWithLongNameCausesException() throws HomeFinanceDaoException {
-        AccountModel accountModel = TestModel.generateAccountModel();
+        AccountModel accountModel = super.generateModelWithSavedFields(AccountModel.class);
         AccountModel withLongName = accountModel.setName(TestModel.getLongName());
 
         assertThrows(HomeFinanceDaoException.class, () -> repository.save(withLongName));
@@ -78,9 +90,11 @@ class AccountRepositoryTest extends CommonRepositoryTest {
     @DisplayName("update correct Model returns the same model")
     void updateCorrectModelSameModelReturned() {
         //arrange
-        CurrencyModel currencyModel = new CurrencyRepositoryImpl().save(new CurrencyModel()
+        CurrencyModel currencyModel = currencyRepository.save(new CurrencyModel()
                                             .setName("US dollar").setCode("USD").setSymbol("$"));
-        AccountModel expected = repository.save(TestModel.generateAccountModel())
+
+        AccountModel saved = repository.save(super.generateModelWithSavedFields(AccountModel.class));
+        AccountModel expected = saved
                 .setAccountType(AccountType.CREDIT_CARD).setName("Citibank Card")
                 .setCurrencyModel(currencyModel).setAmount(MoneyUtils.inBigDecimal(12345));
 
@@ -94,7 +108,7 @@ class AccountRepositoryTest extends CommonRepositoryTest {
     @Test
     @DisplayName("Attempt to update model without account type throws HomeFinanceDaoException")
     void updateWithoutAccTypeCausesException() throws HomeFinanceDaoException {
-        AccountModel accountModel = TestModel.generateAccountModel();
+        AccountModel accountModel = super.generateModelWithSavedFields(AccountModel.class);
         AccountModel withoutAccType = repository.save(accountModel).setName(TestModel.getLongName());
 
         assertThrows(HomeFinanceDaoException.class, () -> repository.update(withoutAccType));
@@ -103,7 +117,7 @@ class AccountRepositoryTest extends CommonRepositoryTest {
     @Test
     @DisplayName("Attempt to update model with too long name throws HomeFinanceDaoException")
     void updateWithTooLongNameCausesException() throws HomeFinanceDaoException {
-        AccountModel accountModel = TestModel.generateAccountModel();
+        AccountModel accountModel = super.generateModelWithSavedFields(AccountModel.class);
         AccountModel withLongName = repository.save(accountModel).setName(TestModel.getLongName());
 
         assertThrows(HomeFinanceDaoException.class, () -> repository.update(withLongName));

@@ -4,7 +4,7 @@ import org.xml.sax.SAXException;
 import ru.medisov.home_finance.common.model.TransactionModel;
 import ru.medisov.home_finance.common.parser.DOMParser;
 import ru.medisov.home_finance.common.parser.Parser;
-import ru.medisov.home_finance.service.ServiceInit;
+//import ru.medisov.home_finance.service.ServiceInit;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -19,7 +19,7 @@ public class Starter {
     }
 
     private static void startUi() {
-        new ServiceInit().init();
+        //new ServiceInit().init();
         Command commandType;
 
         do {

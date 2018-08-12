@@ -37,4 +37,8 @@ public enum AccountType {
     public static Optional<AccountType> findByNum(int num) {
         return Arrays.stream(AccountType.values()).filter(x -> x.number == num).findFirst();
     }
+
+    public static Optional<AccountType> findByName(String name) {
+        return Arrays.stream(AccountType.values()).filter(x -> x.name.equals(name)).findFirst();
+    }
 }

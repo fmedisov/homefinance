@@ -1,15 +1,20 @@
 package ru.medisov.home_finance.dao.repository;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Optional;
 
+@Transactional
 public abstract class AbstractRepository<T, ID> implements Repository<T, ID> {
-    private ConnectionBuilder connectionBuilder = new DbConnectionBuilder();
+    @Autowired
+    private DataSource dataSource;
 
     public abstract T save(T model);
 
@@ -26,7 +31,7 @@ public abstract class AbstractRepository<T, ID> implements Repository<T, ID> {
 
         boolean isRemoved = false;
 
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             String tblName = getTableName(oClass);
             if (tblName == null) {
                 throw new HomeFinanceDaoException("error while delete model by id: unknown table ");
@@ -36,13 +41,10 @@ public abstract class AbstractRepository<T, ID> implements Repository<T, ID> {
                 preparedStatement.setLong(1, aLong);
                 int rowsAffected = preparedStatement.executeUpdate();
 
-                connection.commit();
-
                 if (rowsAffected > 0) {
                     isRemoved = true;
                 }
             } catch (SQLException e) {
-                connection.rollback();
                 throw new HomeFinanceDaoException("error while delete model by id " + aLong, e);
             }
         } catch (SQLException e) {
@@ -73,25 +75,5 @@ public abstract class AbstractRepository<T, ID> implements Repository<T, ID> {
         }
 
         return tblName;
-    }
-
-    public CurrencyRepository getCurrencyRepository() {
-        return new CurrencyRepositoryImpl();
-    }
-
-    public CategoryRepository getCategoryRepository() {
-        return new CategoryRepositoryImpl();
-    }
-
-    public AccountRepository getAccountRepository() {
-        return new AccountRepositoryImpl();
-    }
-
-    public TagRepository getTagRepository() {
-        return new TagRepositoryImpl();
-    }
-
-    public TransactionRepository getTransactionRepository() {
-        return new TransactionRepositoryImpl();
     }
 }

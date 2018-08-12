@@ -3,8 +3,13 @@ package ru.medisov.home_finance.dao.repository;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.medisov.home_finance.common.generator.TestModel;
 import ru.medisov.home_finance.common.model.TransactionModel;
+import ru.medisov.home_finance.dao.config.DaoConfiguration;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.TagModel;
 
@@ -14,8 +19,15 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {DaoConfiguration.class})
 class TagRepositoryTest extends CommonRepositoryTest {
-    private TagRepository repository = new TagRepositoryImpl();
+
+    @Autowired
+    private TransactionRepository transactionRepository;
+
+    @Autowired
+    private TagRepository repository;
 
     @Test
     @DisplayName("Save correct Model to database")
@@ -240,8 +252,8 @@ class TagRepositoryTest extends CommonRepositoryTest {
     @DisplayName("find by transaction returns the correct models")
     void findByTransactionCorrectModelsReturns() {
         //arrange
-        TransactionModel transaction = TestModel.generateTransactionModel();
-        TransactionModel saved = new TransactionRepositoryImpl().save(transaction);
+        TransactionModel transaction = super.generateModelWithSavedFields(TransactionModel.class);
+        TransactionModel saved = transactionRepository.save(transaction);
         List<TagModel> expected = saved.getTags();
 
         //act
@@ -256,8 +268,8 @@ class TagRepositoryTest extends CommonRepositoryTest {
     @DisplayName("Attempt to find by transaction without tags returns empty list")
     void findByTransactionEmptyTags() {
         //arrange
-        TransactionModel transaction = TestModel.generateTransactionModel().setTags(new ArrayList<>());
-        TransactionModel saved = new TransactionRepositoryImpl().save(transaction);
+        TransactionModel transaction = super.generateModelWithSavedFields(TransactionModel.class).setTags(new ArrayList<>());
+        TransactionModel saved = transactionRepository.save(transaction);
 
         //act
         List<TagModel> actual = repository.findByTransaction(saved.getId());
@@ -270,8 +282,7 @@ class TagRepositoryTest extends CommonRepositoryTest {
     @DisplayName("Find all returns only unique names")
     void findALLOnlyUniqueNamesInDB() {
         //arrange
-        TransactionModel transaction = TestModel.generateTransactionModel();
-        TransactionRepository transactionRepository = new TransactionRepositoryImpl();
+        TransactionModel transaction = super.generateModelWithSavedFields(TransactionModel.class);
 
         transactionRepository.save(transaction);
         transaction.setId(null);

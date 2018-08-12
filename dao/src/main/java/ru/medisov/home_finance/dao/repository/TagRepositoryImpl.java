@@ -1,12 +1,16 @@
 package ru.medisov.home_finance.dao.repository;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.TagModel;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Transactional
 public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implements TagRepository {
     private static final String INSERT = "INSERT INTO tag_tbl (name, count) VALUES (?, ?)";
     private static final String INSERT_TAG_LIST = "INSERT INTO tag_tbl (name, count) VALUES ";
@@ -28,13 +32,12 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
             "WHERE tr.tag = t.id AND tr.transaction = ?";
 
 
-    private ConnectionBuilder connectionBuilder = new DbConnectionBuilder();
-
-    public TagRepositoryImpl() {}
+    @Autowired
+    private DataSource dataSource;
 
     @Override
     public Optional<TagModel> findByName(String name) {
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_NAME)) {
                 preparedStatement.setString(1, name);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -64,21 +67,11 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
     }
 
     private Collection<TagModel> find(String sql) {
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 ResultSet resultSet = preparedStatement.executeQuery();
-                Collection<TagModel> models = new ArrayList<>();
 
-                while (resultSet.next()) {
-                    Long id = resultSet.getLong("id");
-                    String name = resultSet.getString("name");
-                    Long count = resultSet.getLong("count");
-
-                    TagModel tagModel = new TagModel().setId(id).setName(name).setCount(count);
-                    models.add(tagModel);
-                }
-
-                return models;
+                return getModelsFromResultSet(resultSet);
             } catch (SQLException e) {
                 throw new HomeFinanceDaoException("error while find tag models", e);
             }
@@ -94,16 +87,14 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
 
     @Override
     public TagModel save(TagModel model) {
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
                 preparedStatement.setString(1, model.getName());
                 preparedStatement.setLong(2, model.getCount());
                 preparedStatement.executeUpdate();
                 model.setId(new IdGetter(preparedStatement).getId());
-                connection.commit();
                 return model;
             } catch (SQLException e) {
-                connection.rollback();
                 throw new HomeFinanceDaoException("error while save tag model " + model, e);
             }
         } catch (SQLException e) {
@@ -113,17 +104,15 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
 
     @Override
     public TagModel update(TagModel model) {
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
                 preparedStatement.setString(1, model.getName());
                 preparedStatement.setLong(2, model.getCount());
                 preparedStatement.setLong(3, model.getId());
                 preparedStatement.executeUpdate();
 
-                connection.commit();
                 return model;
             } catch (SQLException e) {
-                connection.rollback();
                 throw new HomeFinanceDaoException("error while update tag model " + model, e);
             }
         } catch (SQLException e) {
@@ -136,7 +125,7 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
             return Optional.empty();
         }
 
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_ID)) {
                 preparedStatement.setLong(1, aLong);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -158,14 +147,12 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
             return models;
         }
 
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT_TAG_LIST + namesAndCounts, Statement.RETURN_GENERATED_KEYS)) {
                 preparedStatement.executeUpdate();
                 updateIdList(preparedStatement, models);
-                connection.commit();
                 return models;
             } catch (SQLException e) {
-                connection.rollback();
                 throw new HomeFinanceDaoException("error while save or replace tag model list " + models, e);
             }
         } catch (SQLException e) {
@@ -239,23 +226,12 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
     }
 
     public List<TagModel> findByTransaction(Long transactionId) {
-        List<TagModel> tagModels = new ArrayList<>();
-
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_TRANSACTION)) {
                 preparedStatement.setLong(1, transactionId);
                 ResultSet resultSet = preparedStatement.executeQuery();
 
-                while (resultSet.next()) {
-                    Long id = resultSet.getLong("id");
-                    String name = resultSet.getString("name");
-                    Long count = resultSet.getLong("count");
-
-                    TagModel tagModel = new TagModel().setId(id).setName(name).setCount(count);
-                    tagModels.add(tagModel);
-                }
-
-                return tagModels;
+                return getModelsFromResultSet(resultSet);
             } catch (SQLException e) {
                 throw new HomeFinanceDaoException(e.getMessage());
             }
@@ -287,14 +263,12 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
             return false;
         }
 
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 preparedStatement.setLong(1, aLong);
                 preparedStatement.executeUpdate();
-                connection.commit();
                 return true;
             } catch (SQLException e) {
-                connection.rollback();
                 throw new HomeFinanceDaoException(e.getMessage());
             }
         } catch (SQLException e) {
@@ -307,16 +281,14 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
             return false;
         }
 
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT_RELATION, Statement.RETURN_GENERATED_KEYS)) {
                 preparedStatement.setLong(1, tagId);
                 preparedStatement.setLong(2, modelId);
                 preparedStatement.executeUpdate();
 
-                connection.commit();
                 return true;
             } catch (SQLException e) {
-                connection.rollback();
                 throw new HomeFinanceDaoException(e.getMessage());
             }
         } catch (SQLException e) {
@@ -325,7 +297,7 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
     }
 
     private boolean isRelationExist(Long tagId, Long modelId) {
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(CHECK_RELATION)) {
                 preparedStatement.setLong(1, tagId);
                 preparedStatement.setLong(2, modelId);
@@ -370,5 +342,20 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
 
     private String parentheses(String text) {
         return "(" + text + ")";
+    }
+
+    private List<TagModel> getModelsFromResultSet(ResultSet resultSet) throws SQLException {
+        List<TagModel> result = new ArrayList<>();
+
+        while (resultSet.next()) {
+            Long id = resultSet.getLong("id");
+            String name = resultSet.getString("name");
+            Long count = resultSet.getLong("count");
+
+            TagModel tagModel = new TagModel().setId(id).setName(name).setCount(count);
+            result.add(tagModel);
+        }
+
+        return result;
     }
 }

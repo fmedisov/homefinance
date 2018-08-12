@@ -6,17 +6,23 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import ru.medisov.home_finance.dao.repository.CategoryRepository;
+import ru.medisov.home_finance.service.config.ServiceConfiguration;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class, SpringExtension.class})
+@ContextConfiguration(classes = {ServiceConfiguration.class})
 class CategoryServiceTest extends CommonServiceTest {
 
     @Mock
     private CategoryRepository repositoryMock;
 
     @InjectMocks
-    private CategoryServiceImpl categoryService;
+    @Autowired
+    private CategoryService categoryService;
 
     @Test
     @DisplayName("Search by name for an existing category. Correct model returned")

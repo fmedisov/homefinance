@@ -1,13 +1,17 @@
 package ru.medisov.home_finance.dao.repository;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
+@Transactional
 public class CategoryRepositoryImpl extends AbstractRepository<CategoryTransactionModel, Long> implements CategoryRepository {
     private static final String INSERT = "INSERT INTO category_tbl (name, parent) VALUES (?, ?)";
     private static final String SELECT_BY_NAME = "SELECT id, name, parent FROM category_tbl WHERE name = ?";
@@ -15,17 +19,12 @@ public class CategoryRepositoryImpl extends AbstractRepository<CategoryTransacti
     private static final String SELECT_ALL = "SELECT id, name, parent FROM category_tbl";
     private static final String UPDATE = "UPDATE category_tbl SET name = ?, parent = ? WHERE id = ?";
 
-    private ConnectionBuilder connectionBuilder = new DbConnectionBuilder();
-
-    public CategoryRepositoryImpl() {}
-
-    public CategoryRepositoryImpl(ConnectionBuilder connectionBuilder) {
-        this.connectionBuilder = connectionBuilder;
-    }
+    @Autowired
+    private DataSource dataSource;
 
     @Override
     public CategoryTransactionModel save(CategoryTransactionModel model) {
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
                 preparedStatement.setString(1, model.getName());
 
@@ -37,10 +36,8 @@ public class CategoryRepositoryImpl extends AbstractRepository<CategoryTransacti
 
                 preparedStatement.executeUpdate();
                 model.setId(new IdGetter(preparedStatement).getId());
-                connection.commit();
                 return model;
             } catch (SQLException e) {
-                connection.rollback();
                 throw new HomeFinanceDaoException("error while save category transaction model " + model, e);
             }
         } catch (SQLException e) {
@@ -50,7 +47,7 @@ public class CategoryRepositoryImpl extends AbstractRepository<CategoryTransacti
 
     @Override
     public Optional<CategoryTransactionModel> findByName(String name) {
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_NAME)) {
                 preparedStatement.setString(1, name);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -67,7 +64,7 @@ public class CategoryRepositoryImpl extends AbstractRepository<CategoryTransacti
 
     @Override
     public Collection<CategoryTransactionModel> findAll() {
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL)) {
                 ResultSet resultSet = preparedStatement.executeQuery();
                 Collection<CategoryTransactionModel> models = new ArrayList<>();
@@ -99,7 +96,7 @@ public class CategoryRepositoryImpl extends AbstractRepository<CategoryTransacti
 
     @Override
     public CategoryTransactionModel update(CategoryTransactionModel model) {
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
                 preparedStatement.setString(1, model.getName());
 
@@ -112,10 +109,8 @@ public class CategoryRepositoryImpl extends AbstractRepository<CategoryTransacti
                 preparedStatement.setLong(3, model.getId());
                 preparedStatement.executeUpdate();
 
-                connection.commit();
                 return model;
             } catch (SQLException e) {
-                connection.rollback();
                 throw new HomeFinanceDaoException("error while update category transaction model " + model, e);
             }
         } catch (SQLException e) {
@@ -138,7 +133,7 @@ public class CategoryRepositoryImpl extends AbstractRepository<CategoryTransacti
             return Optional.empty();
         }
 
-        try (Connection connection = connectionBuilder.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_ID)) {
                 preparedStatement.setLong(1, aLong);
                 ResultSet resultSet = preparedStatement.executeQuery();

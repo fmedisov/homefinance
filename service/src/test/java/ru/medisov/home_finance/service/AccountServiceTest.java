@@ -6,17 +6,23 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.medisov.home_finance.common.model.AccountModel;
 import ru.medisov.home_finance.dao.repository.AccountRepository;
+import ru.medisov.home_finance.service.config.ServiceConfiguration;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class, SpringExtension.class})
+@ContextConfiguration(classes = {ServiceConfiguration.class})
 class AccountServiceTest extends CommonServiceTest {
 
     @Mock
     private AccountRepository repositoryMock;
 
     @InjectMocks
-    private AccountService accountService = new AccountServiceImpl();
+    @Autowired
+    private AccountService accountService;
 
     @Test
     @DisplayName("Search by name for an existing account. Correct model returned")

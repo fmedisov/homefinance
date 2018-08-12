@@ -5,23 +5,29 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.medisov.home_finance.common.generator.TestModel;
 import ru.medisov.home_finance.common.model.CurrencyModel;
 import ru.medisov.home_finance.dao.repository.CurrencyRepository;
+import ru.medisov.home_finance.service.config.ServiceConfiguration;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class, SpringExtension.class})
+@ContextConfiguration(classes = {ServiceConfiguration.class})
 class CurrencyServiceTest extends CommonServiceTest {
 
     @Mock
     private CurrencyRepository repositoryMock;
 
     @InjectMocks
-    private CurrencyService currencyService = new CurrencyServiceImpl();
+    @Autowired
+    private CurrencyService currencyService;
 
     @Test
     @DisplayName("Search by name for an existing currency. Correct model returned")

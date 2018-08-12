@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClassValidator implements Validator {
+
+    public ClassValidator() {}
+
     @Override
     public boolean isValid(Object object) {
         try {

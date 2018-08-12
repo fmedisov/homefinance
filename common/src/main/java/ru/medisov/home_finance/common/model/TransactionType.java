@@ -35,4 +35,8 @@ public enum  TransactionType {
     public static Optional<TransactionType> findByNum(int num) {
         return Arrays.stream(TransactionType.values()).filter(x -> x.number == num).findFirst();
     }
+
+    public static Optional<TransactionType> findByName(String name) {
+        return Arrays.stream(TransactionType.values()).filter(x -> x.name.equals(name)).findFirst();
+    }
 }

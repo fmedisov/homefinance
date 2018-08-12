@@ -1,20 +1,29 @@
 package ru.medisov.home_finance.service;
 
-import ru.medisov.home_finance.common.model.TransactionType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import ru.medisov.home_finance.common.model.*;
+import ru.medisov.home_finance.common.utils.ModelUtils;
+import ru.medisov.home_finance.common.utils.MoneyUtils;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
-import ru.medisov.home_finance.common.model.CategoryTransactionModel;
-import ru.medisov.home_finance.common.model.TransactionModel;
 import ru.medisov.home_finance.dao.repository.TransactionRepository;
-import ru.medisov.home_finance.dao.repository.TransactionRepositoryImpl;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Service
 public class TransactionServiceImpl extends AbstractService implements TransactionService {
-    private TransactionRepository repository = new TransactionRepositoryImpl();
-    private CategoryService categoryService = new CategoryServiceImpl();
+
+    @Autowired
+    private TransactionRepository repository;
+
+    @Autowired
+    private CategoryService categoryService;
+
+    @Autowired
+    private AccountService accountService;
 
     @Override
     public Optional<TransactionModel> findByName(String name) {
@@ -152,6 +161,19 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
         result.putAll(withoutCategories(transactionModels));
 
         return !result.equals(new HashMap<>()) ? result : defaultData;
+    }
+
+    @Override
+    public TransactionModel makeFromTextFields(String name, String amount, String account, String category, String dateTime, String tags, String transactionType) {
+        AccountModel parsedAccount = accountService.findByName(account).orElseThrow(HomeFinanceServiceException::new);
+        TransactionType parsedType = TransactionType.findByName(transactionType).orElseThrow(HomeFinanceServiceException::new);
+        CategoryTransactionModel parsedCategory = categoryService.findByName(category).orElseThrow(HomeFinanceServiceException::new);
+        List<TagModel> parsedTags = ModelUtils.parseTags(tags);
+        LocalDateTime parsedDate = ModelUtils.parseDateTime(dateTime);
+        BigDecimal parsedAmount = MoneyUtils.inBigDecimal(amount);
+
+        return new TransactionModel().setName(name).setAmount(parsedAmount)
+                .setAccount(parsedAccount).setCategory(parsedCategory).setDateTime(parsedDate).setTags(parsedTags).setTransactionType(parsedType);
     }
 
     private Map<CategoryTransactionModel, IncomeExpense> withoutCategories(Collection<TransactionModel> transactions) {

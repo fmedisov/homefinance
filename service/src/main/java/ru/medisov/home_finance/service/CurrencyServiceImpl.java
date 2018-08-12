@@ -1,15 +1,19 @@
 package ru.medisov.home_finance.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.CurrencyModel;
 import ru.medisov.home_finance.dao.repository.CurrencyRepository;
-import ru.medisov.home_finance.dao.repository.CurrencyRepositoryImpl;
 
 import java.util.Collection;
 import java.util.Optional;
 
+@Service
 public class CurrencyServiceImpl extends AbstractService implements CurrencyService {
-    private CurrencyRepository repository = new CurrencyRepositoryImpl();
+
+    @Autowired
+    private CurrencyRepository repository;
 
     @Override
     public Optional<CurrencyModel> findByName(String name) {
@@ -71,6 +75,11 @@ public class CurrencyServiceImpl extends AbstractService implements CurrencyServ
         }
 
         return newModel;
+    }
+
+    @Override
+    public CurrencyModel makeFromTextFields(String name, String code, String symbol) {
+        return new CurrencyModel().setName(name).setCode(code).setSymbol(symbol);
     }
 
     private void currencyVerification(CurrencyModel model) throws HomeFinanceServiceException {

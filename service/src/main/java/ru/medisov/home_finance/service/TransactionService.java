@@ -32,4 +32,6 @@ public interface TransactionService extends Service<TransactionModel> {
     Map<String, IncomeExpense> sumByPeriodNoCategories(LocalDateTime dateFrom, LocalDateTime upToDate);
 
     Map<CategoryTransactionModel, IncomeExpense> sumByPeriodByCategories(LocalDateTime dateFrom, LocalDateTime upToDate);
+
+    TransactionModel makeFromTextFields(String name, String amount, String account, String category, String dateTime, String tags, String transactionType);
 }
