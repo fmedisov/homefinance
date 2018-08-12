@@ -12,7 +12,6 @@
     <modules>
         <module>dao</module>
         <module>service</module>
-        <module>console_ui</module>
         <module>common</module>
         <module>web</module>
     </modules>
