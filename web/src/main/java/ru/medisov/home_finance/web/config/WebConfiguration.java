@@ -1,34 +1,52 @@
 package ru.medisov.home_finance.web.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.*;
 
-import ru.medisov.home_finance.dao.config.DaoConfiguration;
-import ru.medisov.home_finance.service.*;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
+import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import ru.medisov.home_finance.service.config.ServiceConfiguration;
 
 @Configuration
-@Import({DaoConfiguration.class, ServiceConfiguration.class})
-public class WebConfiguration {
+@EnableWebMvc
+@Import(ServiceConfiguration.class)
+@ComponentScan("ru.medisov.home_finance.web")
+public class WebConfiguration implements WebMvcConfigurer {
 
-    @Bean("currencyService")
-    public CurrencyService currencyService() {
-        return new CurrencyServiceImpl();
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    @Bean
+    public SpringResourceTemplateResolver templateResolver() {
+        SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
+        templateResolver.setApplicationContext(applicationContext);
+        templateResolver.setPrefix("/WEB-INF/views/");
+        templateResolver.setSuffix(".html");
+        templateResolver.setTemplateMode("HTML5");
+        templateResolver.setCharacterEncoding("UTF-8");
+        return templateResolver;
     }
 
-    @Bean("categoryService")
-    public CategoryService categoryService() {
-        return new CategoryServiceImpl();
+    @Bean
+    public SpringTemplateEngine templateEngine() {
+        SpringTemplateEngine springTemplateEngine = new SpringTemplateEngine();
+        springTemplateEngine.setTemplateResolver(templateResolver());
+        springTemplateEngine.setEnableSpringELCompiler(true);
+
+        return springTemplateEngine;
     }
 
-    @Bean("accountService")
-    public AccountService accountService() {
-        return new AccountServiceImpl();
-    }
-
-    @Bean("transactionService")
-    public TransactionService transactionService() {
-        return new TransactionServiceImpl();
+    @Override
+    public void configureViewResolvers(ViewResolverRegistry registry) {
+        ThymeleafViewResolver thymeleafViewResolver = new ThymeleafViewResolver();
+        thymeleafViewResolver.setTemplateEngine(templateEngine());
+        registry.viewResolver(thymeleafViewResolver);
     }
 }
+
+
