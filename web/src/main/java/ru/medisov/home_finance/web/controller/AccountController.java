@@ -5,16 +5,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import ru.medisov.home_finance.service.AccountService;
+import ru.medisov.home_finance.web.config.UrlMapper;
 
 import java.util.ArrayList;
 
 @Controller
-public class ListAccountController {
+public class AccountController {
 
     @Autowired
-    AccountService service;
+    private AccountService service;
 
-    @GetMapping("/account/list")
+    @GetMapping(UrlMapper.LIST_ACCOUNT)
     public String showListAccount(Model model) {
         model.addAttribute("list_accounts", new ArrayList<>(service.findAll()));
         return "account/listAccount";

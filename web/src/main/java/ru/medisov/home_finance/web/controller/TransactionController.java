@@ -5,16 +5,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import ru.medisov.home_finance.service.TransactionService;
+import ru.medisov.home_finance.web.config.UrlMapper;
 
 import java.util.ArrayList;
 
 @Controller
-public class ListTransactionController {
+//todo rename controller classes
+public class TransactionController {
 
     @Autowired
-    TransactionService service;
+    private TransactionService service;
 
-    @GetMapping("/transaction/list")
+    @GetMapping(UrlMapper.LIST_TRANSACTION)
     public String showListTransaction(Model model) {
         model.addAttribute("list_transactions", new ArrayList<>(service.findAll()));
         return "transaction/listTransaction";

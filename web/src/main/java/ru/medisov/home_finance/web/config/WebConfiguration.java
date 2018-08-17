@@ -2,8 +2,10 @@ package ru.medisov.home_finance.web.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.*;
 
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -14,8 +16,6 @@ import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 import ru.medisov.home_finance.service.config.ServiceConfiguration;
-
-import java.nio.charset.Charset;
 
 @Configuration
 @EnableWebMvc
