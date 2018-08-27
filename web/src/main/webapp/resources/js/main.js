@@ -5,7 +5,7 @@ jQuery(document).ready(function($) {
     $("#currencyModal").on('show.bs.modal', function(e) {
         var currencyId = $(e.relatedTarget).data('currency-id');
         if(typeof currencyId === "undefined")
-            currencyId = 0;
+            currencyId = null;
 
         var name = $('#currency-name-' + currencyId).text();
         var code = $('#currency-code-' + currencyId).text();
@@ -14,7 +14,7 @@ jQuery(document).ready(function($) {
         $('#name').val(name);
         $('#code').val(code);
         $('#symbol').val(symbol);
-        $("#currencyForm").attr("action", "/currency/submit" + "?currencyId=" + currencyId);
+        $("#currencyForm").attr("action", "/currency/submit" + "?currencyId=" + (currencyId ? currencyId : ""));
     });
 
     $("#categoryModal").on('show.bs.modal', function(e) {
@@ -34,7 +34,7 @@ jQuery(document).ready(function($) {
     $("#accountModal").on('show.bs.modal', function(e) {
         var accountId = $(e.relatedTarget).data('account-id');
         if(typeof accountId === "undefined")
-            accountId = 0;
+            accountId = null;
 
         var name = $('#account-name-' + accountId).text();
         var accountType = $('#account-type-' + accountId).text();
@@ -45,7 +45,7 @@ jQuery(document).ready(function($) {
         $('#accountType').val(accountType);
         $('#currencyModel').val(currencyModel);
         $('#amount').val(amount);
-        $("#accountForm").attr("action", "/account/submit" + "?accountId=" + accountId);
+        $("#accountForm").attr("action", "/account/submit" + "?accountId=" + (accountId ? accountId : ""));
     });
 
     $("#transactionModal").on('show.bs.modal', function(e) {

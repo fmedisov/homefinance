@@ -83,8 +83,9 @@ public class AccountServiceImpl extends AbstractService implements AccountServic
     }
 
     @Override
+    //todo null
     public AccountModel saveUpdate(AccountModel model) {
-        if (model.getId() == 0) {
+        if (model.getId() == null) {
             return save(model);
         } else {
             return update(model);

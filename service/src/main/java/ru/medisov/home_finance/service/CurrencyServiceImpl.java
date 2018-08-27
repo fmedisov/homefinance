@@ -79,7 +79,7 @@ public class CurrencyServiceImpl extends AbstractService implements CurrencyServ
 
     @Override
     public CurrencyModel saveUpdate(CurrencyModel model) {
-        if (model.getId() == 0) {
+        if (model.getId() == null) {
             return save(model);
         } else {
             return update(model);

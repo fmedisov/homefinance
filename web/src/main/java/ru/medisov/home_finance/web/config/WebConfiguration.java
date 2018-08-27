@@ -21,6 +21,7 @@ import ru.medisov.home_finance.web.converter.TransactionConverter;
 @Configuration
 @EnableWebMvc
 @Import(ServiceConfiguration.class)
+//todo remove beans
 @ComponentScan("ru.medisov.home_finance.web")
 public class WebConfiguration implements WebMvcConfigurer {
 

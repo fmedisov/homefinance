@@ -20,7 +20,6 @@ public class TransactionConverter {
     private final AccountService accountService;
 
     @Autowired
-    //todo implement without constructor
     public TransactionConverter(CategoryService categoryService, AccountService accountService) {
         this.categoryService = categoryService;
         this.accountService = accountService;

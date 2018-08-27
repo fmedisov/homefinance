@@ -30,7 +30,7 @@ public class CurrencyController {
     }
 
     @PostMapping(value = UrlMapper.SUBMIT_CURRENCY)
-    public String doEditSaveCurrency(@RequestParam Long currencyId, @ModelAttribute CurrencyView objectCurrency) {
+    public String doEditSaveCurrency(@RequestParam(required = false) Long currencyId, @ModelAttribute CurrencyView objectCurrency) {
         objectCurrency.setId(currencyId);
         CurrencyModel currencyModel = currencyConverter.toCurrencyModel(objectCurrency);
         service.saveUpdate(currencyModel);
@@ -49,6 +49,7 @@ public class CurrencyController {
         }
 
         return "redirect:" + UrlMapper.LIST_CURRENCY;
+
     }
 
     private List<CurrencyView> getCurrencyViewList() {

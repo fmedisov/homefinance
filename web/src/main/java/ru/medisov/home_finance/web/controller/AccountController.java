@@ -42,7 +42,7 @@ public class AccountController {
     }
 
     @PostMapping(value = UrlMapper.SUBMIT_ACCOUNT)
-    public String doEditSaveAccount(@RequestParam Long accountId, @ModelAttribute AccountView objectAccount) {
+    public String doEditSaveAccount(@RequestParam(required = false) Long accountId, @ModelAttribute AccountView objectAccount) {
         objectAccount.setId(accountId);
         AccountModel model = getModelFromView(objectAccount);
         service.saveUpdate(model);
