@@ -5,72 +5,25 @@
 
     <div th:fragment="header (current)">
         <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-            <a class="navbar-brand" href="#">Home finance</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand" href="#">Financial planner</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                    aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarTransaction" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Транзакции
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarTransaction">
-                            <a class="dropdown-item" href="#">Добавить</a>
-                            <a class="dropdown-item" href="#">Изменить</a>
-                            <a class="dropdown-item" href="#">Удалить</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="/transaction/list">Список</a>
-                        </div>
+                    <li class="nav-item" th:classappend="${current == 'transactions'} ? 'active'">
+                        <a class="nav-link" href="/transaction/list">Транзакции</a>
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarAccount" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Счета
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarAccount">
-                            <a class="dropdown-item" href="#">Добавить</a>
-                            <a class="dropdown-item" href="#">Изменить</a>
-                            <a class="dropdown-item" href="#">Удалить</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="/account/list">Список</a>
-                        </div>
+                    <li class="nav-item" th:classappend="${current == 'accounts'} ? 'active'">
+                        <a class="nav-link" href="/account/list">Счета</a>
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarCategory" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Категории
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarCategory">
-                            <a class="dropdown-item" href="#">Добавить</a>
-                            <a class="dropdown-item" href="#">Изменить</a>
-                            <a class="dropdown-item" href="#">Удалить</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="/category/list">Список</a>
-                        </div>
+                    <li class="nav-item" th:classappend="${current == 'categories'} ? 'active'">
+                        <a class="nav-link" href="/category/list">Категории</a>
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarCurrency" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Валюта
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarCurrency">
-                            <a class="dropdown-item" href="#">Добавить</a>
-                            <a class="dropdown-item" href="#">Изменить</a>
-                            <a class="dropdown-item" href="#">Удалить</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="/currency/list">Список</a>
-                        </div>
+                    <li class="nav-item" th:classappend="${current == 'currencies'} ? 'active'">
+                        <a class="nav-link" href="/currency/list">Валюты</a>
                     </li>
-                    <!--<li class="nav-item" th:classappend="${current == 'transactions'} ? 'active'">-->
-                        <!--<a class="nav-link" href="/transaction/list">Транзакции</a>-->
-                    <!--</li>-->
-                    <!--<li class="nav-item" th:classappend="${current == 'accounts'} ? 'active'">-->
-                        <!--<a class="nav-link" href="/account/list">Счета</a>-->
-                    <!--</li>-->
-                    <!--<li class="nav-item" th:classappend="${current == 'categories'} ? 'active'">-->
-                        <!--<a class="nav-link" href="/category/list">Категории</a>-->
-                    <!--</li>-->
-                    <!--<li class="nav-item" th:classappend="${current == 'currencies'} ? 'active'">-->
-                        <!--<a class="nav-link" href="/currency/list">Валюты</a>-->
-                    <!--</li>-->
                 </ul>
             </div>
         </nav>

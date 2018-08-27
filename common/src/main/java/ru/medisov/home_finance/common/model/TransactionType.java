@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum  TransactionType {
-    EXPENSE(1, "Expense"),
-    INCOME(2, "Income");
+    EXPENSE(1, "Расход"),
+    INCOME(2, "Доход");
 
     private final int number;
     private final String name;

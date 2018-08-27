@@ -1,35 +1,45 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Список валют</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-    <link rel="stylesheet" type="text/css" href="../../css/template.css" th:href="@{../resources/css/template.css}">
+    <div th:insert="fragments/head :: head(title = ${'Список категорий'})"></div>
 </head>
 <body>
-<div th:insert="header :: header(current = ${'categories'})"></div>
+    <div th:insert="fragments/header :: header(current = ${'categories'})"></div>
+    <div th:insert="category/editCategory :: editCategory"></div>
 
-<main role="main" class="container">
-    <div class="row">
-        <table class="table table-hover">
-            <thead>
-            <tr>
-                <th scope="col">Название</th>
-                <th scope="col">Родительская категория</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="category : ${list_categories}">
-                <td th:text="${category.name}">
-                <td th:text="${category.parent}">
-            </tr>
-            </tbody>
-        </table>
-    </div>
-</main>
+    <main role="main" class="container">
+        <form id="remove-form" th:action="@{/category/list}" method="post">
+        <div class="row">
+            <div>
+                <button type="button" class="btn btn-success add-button" data-toggle="modal" data-target="#categoryModal">Добавить</button>
+                <button id="delete-button" type="submit" class="btn btn-dark del-button" data-target="">Удалить</button>
+            </div>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">...</th>
+                    <th scope="col">Название</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="category : ${list_categories}">
+                    <td th:id="'category-checked-'+${category.id}">
+                        <div class="form-check form-check-inline">
+                            <input th:id="'checkbox-'+${category.id}" th:name="idChecked" class="form-check-input" type="checkbox" id="inlineCheckbox1" th:value="${category.id}">
+                        </div>
+                    </td>
+                    <td th:id="'category-name-'+${category.id}" th:text="${category.name}" data-toggle="modal" data-target="#categoryModal"
+                        th:data-category-id="${category.id}" data-category-id="${category.id}"
+                        th:data-parent="${category.parent}">
+                        <!--th:data-parent="${#strings.isEmpty(category.parent) ? 'null' : category.parent}">-->
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        </form>
+    </main>
+
+    <div th:insert="fragments/footer :: footer"></div>
 
 </body>
 </html>

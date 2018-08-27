@@ -1,22 +1,24 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Список валют</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-    <link rel="stylesheet" type="text/css" href="../../css/template.css" th:href="@{../resources/css/template.css}">
+    <div th:insert="fragments/head :: head(title = ${'Список счетов'})"></div>
 </head>
 <body>
-    <div th:insert="header :: header(current = ${'accounts'})"></div>
+    <div th:insert="fragments/header :: header(current = ${'accounts'})"></div>
+    <div th:insert="account/editAccount :: editAccount"></div>
 
     <main role="main" class="container">
+        <form id="remove-form" th:action="@{/account/list}" method="post">
         <div class="row">
-        <table class="table table-hover">
-            <thead>
+            <div>
+                <button type="button" class="btn btn-success add-button" data-toggle="modal" data-target="#accountModal">Добавить</button>
+                <button id="delete-button" type="submit" class="btn btn-dark del-button" data-target="">Удалить</button>
+            </div>
+        <table class="table table-hover inverse">
+            <thead class="thead-default">
             <tr>
+                <!--todo style of field-->
+                <th scope="col">...</th>
                 <th scope="col">Название</th>
                 <th scope="col">Тип счета</th>
                 <th scope="col">Валюта</th>
@@ -24,16 +26,28 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="account : ${list_accounts}">
-                <td th:text="${account.name}">
-                <td th:text="${account.accountType}">
-                <td th:text="${account.currencyModel}">
-                <td th:text="${account.amount}">
+            <tr th:id="'account-'+${account.id}" th:each="account : ${list_accounts}">
+                <td th:id="'account-checked-'+${account.id}">
+                    <div class="form-check form-check-inline">
+                        <input th:id="'checkbox-'+${account.id}" th:name="idChecked" class="form-check-input" type="checkbox" id="inlineCheckbox1" th:value="${account.id}">
+                    </div>
+                </td>
+                <td th:id="'account-name-'+${account.id}" th:text="${account.name}" data-toggle="modal" data-target="#accountModal"
+                    th:data-account-id="${account.id}" data-account-id="${account.id}">
+                <td th:id="'account-type-'+${account.id}" th:text="${account.accountType}" data-toggle="modal" data-target="#accountModal"
+                    th:data-account-id="${account.id}" data-account-id="${account.id}">
+                <td th:id="'account-currency-'+${account.id}" th:text="${account.currencyModel}" data-toggle="modal" data-target="#accountModal"
+                    th:data-account-id="${account.id}" data-account-id="${account.id}">
+                <td th:id="'account-amount-'+${account.id}" th:text="${account.amount}" data-toggle="modal" data-target="#accountModal"
+                    th:data-account-id="${account.id}" data-account-id="${account.id}">
             </tr>
             </tbody>
         </table>
         </div>
+        </form>
     </main>
+
+    <div th:insert="fragments/footer :: footer"></div>
 
 </body>
 </html>

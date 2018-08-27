@@ -17,6 +17,4 @@ public interface CategoryService extends Service<CategoryTransactionModel> {
     CategoryTransactionModel save(CategoryTransactionModel model);
 
     CategoryTransactionModel update(CategoryTransactionModel model);
-
-    CategoryTransactionModel makeFromTextFields(String name, String parent);
 }

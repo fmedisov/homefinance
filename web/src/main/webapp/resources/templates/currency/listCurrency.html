@@ -5,14 +5,19 @@
 </head>
 <body>
     <div th:insert="fragments/header :: header(current = ${'currencies'})"></div>
-
     <div th:insert="currency/editCurrency :: editCurrency"></div>
 
     <main role="main" class="container">
+        <form id="remove-form" th:action="@{/currency/list}" method="post">
         <div class="row">
+            <div>
+                <button type="button" class="btn btn-success add-button" data-toggle="modal" data-target="#currencyModal">Добавить</button>
+                <button id="delete-button" type="submit" class="btn btn-dark del-button" data-target="">Удалить</button>
+            </div>
             <table class="table table-hover">
                 <thead>
                 <tr>
+                    <th scope="col">...</th>
                     <th scope="col">Название</th>
                     <th scope="col">Код</th>
                     <th scope="col">Символ</th>
@@ -20,19 +25,22 @@
                 </thead>
                 <tbody>
                     <tr th:id="'currency-'+${currency.id}" th:each="currency : ${list_currencies}">
-                        <td th:text="${currency.name}" data-toggle="modal" data-target="#exampleModal" th:data-currency-id="${currency.id}" data-currency-id="${currency.id}">
-                        <!--<td th:text="${currency.name}">-->
-                        <td th:text="${currency.code}" data-toggle="modal" data-target="#exampleModal" th:data-currency-id="${currency.id}" data-currency-id="${currency.id}">
-                        <!--<td th:text="${currency.code}">-->
-                        <td th:text="${currency.symbol}" data-toggle="modal" data-target="#exampleModal" th:data-currency-id="${currency.id}" data-currency-id="${currency.id}">
-                        <!--<td th:text="${currency.symbol}">-->
-                        <!--<td>-->
-                            <!--<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" th:data-currency-id="${currency.id}" data-currency-id="${currency.id}">Edit</button>-->
-                        <!--</td>-->
+                        <td th:id="'currency-checked-'+${currency.id}">
+                            <div class="form-check form-check-inline">
+                                <input th:id="'checkbox-'+${currency.id}" th:name="idChecked" class="form-check-input" type="checkbox" id="inlineCheckbox1" th:value="${currency.id}">
+                            </div>
+                        </td>
+                        <td th:id="'currency-name-'+${currency.id}" th:text="${currency.name}" data-toggle="modal" data-target="#currencyModal"
+                            th:data-currency-id="${currency.id}" data-currency-id="${currency.id}">
+                        <td th:id="'currency-code-'+${currency.id}" th:text="${currency.code}" data-toggle="modal" data-target="#currencyModal"
+                            th:data-currency-id="${currency.id}" data-currency-id="${currency.id}">
+                        <td th:id="'currency-symbol-'+${currency.id}" th:text="${currency.symbol}" data-toggle="modal" data-target="#currencyModal"
+                            th:data-currency-id="${currency.id}" data-currency-id="${currency.id}">
                     </tr>
                 </tbody>
             </table>
         </div>
+        </form>
     </main>
 
     <div th:insert="fragments/footer :: footer"></div>

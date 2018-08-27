@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+    <div th:fragment="editTransaction" data-target="#transactionModal">
+        <div class="modal fade" id="transactionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Транзакция</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="transactionForm" th:action="@{/transaction/submit}" method="post"
+                              th:object="${objectTransaction}"
+                              enctype="application/x-www-form-urlencoded">
+                            <div class="form-group">
+                                <label for="transactionType">Тип транзакции:</label>
+                                <select id="transactionType" class="form-control" name="transactionType" >
+                                    <option th:each="transactionType : ${list_transactionTypes}"
+                                            th:text="${transactionType.name}"
+                                            th:value="${transactionType.name}">Тип транзакции</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="amount">Сумма:</label>
+                                <input id="amount" class="form-control" name="amount" required type="number" step="0.01" th:field="*{amount}" th:value="*{amount}">
+                            </div>
+                            <div class="form-group">
+                                <label for="account">Счет:</label>
+                                <select id="account" class="form-control" name="account" >
+                                    <option th:each="account : ${list_accounts}"
+                                            th:text="${account}"
+                                            th:value="${account}">Счет</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="category">Категория:</label>
+                                <select id="category" class="form-control" name="category" >
+                                    <option th:each="category : ${list_categories}"
+                                            th:text="${category}"
+                                            th:value="${category.name}">Категория</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="dateTime">Дата транзакции:</label>
+                                <input id="dateTime" class="form-control" name="dateTime" type="date" th:field="*{dateTime}" th:value="*{dateTime}">
+                            </div>
+                            <button id="button" type="submit" class="btn btn-success">Сохранить</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                            <div class="result">
+                                <span id="answer"></span>
+                                <span id="loader" style="display:none"><img src="../../images/loader.gif" th:src="@{../resources/images/loader.gif}" alt=""></span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

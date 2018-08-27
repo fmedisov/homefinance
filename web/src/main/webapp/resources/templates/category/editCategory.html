@@ -3,31 +3,31 @@
 
 <body>
 
-    <div th:fragment="editCurrency" data-target="#currencyModal">
-        <div class="modal fade" id="currencyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div th:fragment="editCategory" data-target="#categoryModal">
+        <div class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Валюта</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Категория</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form id="currencyForm" th:action="@{/currency/submit}" method="post"
-                              th:object="${objectCurrency}"
+                        <form id="categoryForm" th:action="@{/category/submit}" method="post"
+                              th:object="${objectCategory}"
                               enctype="application/x-www-form-urlencoded">
                             <div class="form-group">
                                 <label for="name">Название:</label>
                                 <input id="name" class="form-control" name="name" required type="text" th:field="*{name}" th:value="*{name}"/>
                             </div>
                             <div class="form-group">
-                                <label for="code">Код:</label>
-                                <input id="code" class="form-control" name="code" required type="text" th:field="*{code}" th:value="*{code}"/>
-                            </div>
-                            <div class="form-group">
-                                <label for="symbol">Символ:</label>
-                                <input id="symbol" class="form-control" name="symbol" required type="text" th:field="*{symbol}" th:value="*{symbol}"/>
+                                <label for="parent">Родительская категория:</label>
+                                <select id="parent" class="form-control" name="parent" >
+                                    <option th:each="parent : ${list_categories}"
+                                            th:text="${parent}"
+                                            th:value="${parent.name}">Родительская категория</option>
+                                </select>
                             </div>
                             <button id="button" type="submit" class="btn btn-success">Сохранить</button>
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
