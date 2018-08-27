@@ -11,10 +11,10 @@ import ru.medisov.home_finance.web.config.UrlMapper;
 import ru.medisov.home_finance.web.converter.CurrencyModelToViewConverter;
 import ru.medisov.home_finance.web.converter.CurrencyViewToModelConverter;
 import ru.medisov.home_finance.web.exception.HomeFinanceWebException;
-import ru.medisov.home_finance.web.utils.ViewUtils;
 import ru.medisov.home_finance.web.view.CurrencyView;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class CurrencyController {
@@ -24,7 +24,7 @@ public class CurrencyController {
 
     @GetMapping(UrlMapper.LIST_CURRENCY)
     public String showListCurrency(Model model) {
-        model.addAttribute("list_currencies", currencyViewList());
+        model.addAttribute("list_currencies", getCurrencyViewList());
         model.addAttribute("objectCurrency", new CurrencyView());
 
         return "currency/listCurrency";
@@ -66,9 +66,7 @@ public class CurrencyController {
         return "redirect:" + UrlMapper.LIST_CURRENCY;
     }
 
-    //todo implement with stream
-    //todo rename
-    private List<CurrencyView> currencyViewList() {
-        return ViewUtils.listViews(service, new CurrencyModelToViewConverter());
+    private List<CurrencyView> getCurrencyViewList() {
+        return service.findAll().stream().map(model -> new CurrencyModelToViewConverter().convert(model)).collect(Collectors.toList());
     }
 }

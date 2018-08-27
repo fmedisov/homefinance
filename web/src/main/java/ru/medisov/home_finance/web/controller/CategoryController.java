@@ -14,10 +14,10 @@ import ru.medisov.home_finance.web.config.UrlMapper;
 import ru.medisov.home_finance.web.converter.CategoryModelToViewConverter;
 import ru.medisov.home_finance.web.converter.CategoryViewToModelConverter;
 import ru.medisov.home_finance.web.exception.HomeFinanceWebException;
-import ru.medisov.home_finance.web.utils.ViewUtils;
 import ru.medisov.home_finance.web.view.CategoryTransactionView;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class CategoryController {
@@ -27,7 +27,7 @@ public class CategoryController {
 
     @GetMapping(UrlMapper.LIST_CATEGORY)
     public String showListCategory(Model model) {
-        model.addAttribute("list_categories", listCategoryViews());
+        model.addAttribute("list_categories", getCategoryViewList());
         model.addAttribute("objectCategory", new CategoryTransactionView());
         return "category/listCategory";
     }
@@ -65,7 +65,7 @@ public class CategoryController {
         return "redirect:" + UrlMapper.LIST_CATEGORY;
     }
 
-    private List<CategoryTransactionView> listCategoryViews() {
-        return ViewUtils.listViews(service, new CategoryModelToViewConverter());
+    private List<CategoryTransactionView> getCategoryViewList() {
+        return service.findAll().stream().map(model -> new CategoryModelToViewConverter().convert(model)).collect(Collectors.toList());
     }
 }

@@ -17,7 +17,6 @@ import ru.medisov.home_finance.web.converter.CategoryModelToViewConverter;
 import ru.medisov.home_finance.web.converter.TransactionModelToViewConverter;
 import ru.medisov.home_finance.web.converter.TransactionViewToModelConverter;
 import ru.medisov.home_finance.web.exception.HomeFinanceWebException;
-import ru.medisov.home_finance.web.utils.ViewUtils;
 import ru.medisov.home_finance.web.view.AccountView;
 import ru.medisov.home_finance.web.view.CategoryTransactionView;
 import ru.medisov.home_finance.web.view.TransactionView;
@@ -25,6 +24,7 @@ import ru.medisov.home_finance.web.view.TransactionView;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class TransactionController {
@@ -43,7 +43,7 @@ public class TransactionController {
 
     @GetMapping(UrlMapper.LIST_TRANSACTION)
     public String showListTransaction(Model model) {
-        model.addAttribute("list_transactions", listTransactionViews());
+        model.addAttribute("list_transactions", getTransactionViewList());
         setModelParameters(model);
         return "transaction/listTransaction";
     }
@@ -91,8 +91,8 @@ public class TransactionController {
         return "redirect:" + UrlMapper.LIST_TRANSACTION;
     }
 
-    private List<TransactionView> listTransactionViews() {
-        return ViewUtils.listViews(service, new TransactionModelToViewConverter());
+    private List<TransactionView> getTransactionViewList() {
+        return service.findAll().stream().map(model -> new TransactionModelToViewConverter().convert(model)).collect(Collectors.toList());
     }
 
     private List<TransactionView> listTransactionViewsByDate(String fromDate, String upToDate) {
@@ -115,12 +115,12 @@ public class TransactionController {
         return viewList;
     }
 
-    private List<CategoryTransactionView> listCategoryViews() {
-        return ViewUtils.listViews(categoryService, new CategoryModelToViewConverter());
+    private List<CategoryTransactionView> getCategoryViewList() {
+        return categoryService.findAll().stream().map(model -> new CategoryModelToViewConverter().convert(model)).collect(Collectors.toList());
     }
 
-    private List<AccountView> listAccountViews() {
-        return ViewUtils.listViews(accountService, new AccountModelToViewConverter());
+    private List<AccountView> getAccountViewList() {
+        return accountService.findAll().stream().map(model -> new AccountModelToViewConverter().convert(model)).collect(Collectors.toList());
     }
 
     private TransactionModel getModelFromView(TransactionView transactionView) {
@@ -128,8 +128,8 @@ public class TransactionController {
     }
 
     private void setModelParameters(Model model) {
-        model.addAttribute("list_categories", listCategoryViews());
-        model.addAttribute("list_accounts", listAccountViews());
+        model.addAttribute("list_categories", getCategoryViewList());
+        model.addAttribute("list_accounts", getAccountViewList());
         model.addAttribute("list_transactionTypes", TransactionType.values());
         model.addAttribute("objectTransaction", new TransactionView());
     }

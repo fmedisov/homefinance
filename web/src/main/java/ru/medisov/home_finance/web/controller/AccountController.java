@@ -13,12 +13,12 @@ import ru.medisov.home_finance.web.converter.AccountModelToViewConverter;
 import ru.medisov.home_finance.web.converter.AccountViewToModelConverter;
 import ru.medisov.home_finance.web.converter.CurrencyModelToViewConverter;
 import ru.medisov.home_finance.web.exception.HomeFinanceWebException;
-import ru.medisov.home_finance.web.utils.ViewUtils;
 import ru.medisov.home_finance.web.view.AccountView;
 import ru.medisov.home_finance.web.config.UrlMapper;
 import ru.medisov.home_finance.web.view.CurrencyView;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class AccountController {
@@ -31,8 +31,8 @@ public class AccountController {
 
     @GetMapping(UrlMapper.LIST_ACCOUNT)
     public String showListAccount(Model model) {
-        model.addAttribute("list_accounts", listAccountViews());
-        model.addAttribute("list_currencies", listCurrencyViews());
+        model.addAttribute("list_accounts", getAccountViewList());
+        model.addAttribute("list_currencies", getCurrencyViewList());
         model.addAttribute("list_accountTypes", AccountType.values());
         model.addAttribute("objectAccount", new AccountView());
         return "account/listAccount";
@@ -71,12 +71,12 @@ public class AccountController {
         return "redirect:" + UrlMapper.LIST_ACCOUNT;
     }
 
-    private List<AccountView> listAccountViews() {
-        return ViewUtils.listViews(accountService, new AccountModelToViewConverter());
+    private List<AccountView> getAccountViewList() {
+        return accountService.findAll().stream().map(model -> new AccountModelToViewConverter().convert(model)).collect(Collectors.toList());
     }
 
-    private List<CurrencyView> listCurrencyViews() {
-        return ViewUtils.listViews(currencyService, new CurrencyModelToViewConverter());
+    private List<CurrencyView> getCurrencyViewList() {
+        return currencyService.findAll().stream().map(model -> new CurrencyModelToViewConverter().convert(model)).collect(Collectors.toList());
     }
 
     private AccountModel getModelFromView(AccountView accountView) {
