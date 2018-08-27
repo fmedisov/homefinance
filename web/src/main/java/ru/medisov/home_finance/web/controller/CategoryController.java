@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import ru.medisov.home_finance.service.CategoryService;
 import ru.medisov.home_finance.web.config.UrlMapper;
-import ru.medisov.home_finance.web.converter.CategoryModelToViewConverter;
-import ru.medisov.home_finance.web.converter.CategoryViewToModelConverter;
+import ru.medisov.home_finance.web.converter.CategoryConverter;
 import ru.medisov.home_finance.web.view.CategoryTransactionView;
 
 import java.util.List;
@@ -33,7 +32,7 @@ public class CategoryController {
     @PostMapping(value = UrlMapper.SUBMIT_CATEGORY)
     public String doEditSaveCategory(@RequestParam Long categoryId, @ModelAttribute CategoryTransactionView objectCategory) {
         objectCategory.setId(categoryId);
-        CategoryTransactionModel categoryModel = new CategoryViewToModelConverter(service).convert(objectCategory);
+        CategoryTransactionModel categoryModel = new CategoryConverter(service).toCategoryModel(objectCategory);
         service.saveUpdate(categoryModel);
 
         return "redirect:" + UrlMapper.LIST_CATEGORY;
@@ -52,6 +51,6 @@ public class CategoryController {
     }
 
     private List<CategoryTransactionView> getCategoryViewList() {
-        return service.findAll().stream().map(model -> new CategoryModelToViewConverter().convert(model)).collect(Collectors.toList());
+        return service.findAll().stream().map(model -> new CategoryConverter(service).toCategoryView(model)).collect(Collectors.toList());
     }
 }

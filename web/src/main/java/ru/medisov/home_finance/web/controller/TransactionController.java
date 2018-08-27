@@ -12,10 +12,7 @@ import ru.medisov.home_finance.common.model.TransactionType;
 import ru.medisov.home_finance.common.utils.ModelUtils;
 import ru.medisov.home_finance.service.*;
 import ru.medisov.home_finance.web.config.UrlMapper;
-import ru.medisov.home_finance.web.converter.AccountModelToViewConverter;
-import ru.medisov.home_finance.web.converter.CategoryModelToViewConverter;
-import ru.medisov.home_finance.web.converter.TransactionModelToViewConverter;
-import ru.medisov.home_finance.web.converter.TransactionViewToModelConverter;
+import ru.medisov.home_finance.web.converter.*;
 import ru.medisov.home_finance.web.view.AccountView;
 import ru.medisov.home_finance.web.view.CategoryTransactionView;
 import ru.medisov.home_finance.web.view.TransactionView;
@@ -79,7 +76,7 @@ public class TransactionController {
     }
 
     private List<TransactionView> getTransactionViewList() {
-        return service.findAll().stream().map(model -> new TransactionModelToViewConverter().convert(model)).collect(Collectors.toList());
+        return service.findAll().stream().map(model -> new TransactionConverter(categoryService, accountService).convert(model)).collect(Collectors.toList());
     }
 
     private List<TransactionView> listTransactionViewsByDate(String fromDate, String upToDate) {
@@ -97,21 +94,21 @@ public class TransactionController {
         }
         List<TransactionView> viewList = new ArrayList<>();
         service.findByPeriod(from, to)
-                .forEach(model -> viewList.add(new TransactionModelToViewConverter().convert(model)));
+                .forEach(model -> viewList.add(new TransactionConverter(categoryService, accountService).convert(model)));
 
         return viewList;
     }
 
     private List<CategoryTransactionView> getCategoryViewList() {
-        return categoryService.findAll().stream().map(model -> new CategoryModelToViewConverter().convert(model)).collect(Collectors.toList());
+        return categoryService.findAll().stream().map(model -> new CategoryConverter(categoryService).toCategoryView(model)).collect(Collectors.toList());
     }
 
     private List<AccountView> getAccountViewList() {
-        return accountService.findAll().stream().map(model -> new AccountModelToViewConverter().convert(model)).collect(Collectors.toList());
+        return accountService.findAll().stream().map(model -> new AccountConverter(currencyService).toAccountView(model)).collect(Collectors.toList());
     }
 
     private TransactionModel getModelFromView(TransactionView transactionView) {
-        return new TransactionViewToModelConverter(categoryService, currencyService, accountService).convert(transactionView);
+        return new TransactionConverter(categoryService, accountService).convert(transactionView);
     }
 
     private void setModelParameters(Model model) {

@@ -7,8 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.medisov.home_finance.common.model.CurrencyModel;
 import ru.medisov.home_finance.service.CurrencyService;
 import ru.medisov.home_finance.web.config.UrlMapper;
-import ru.medisov.home_finance.web.converter.CurrencyModelToViewConverter;
-import ru.medisov.home_finance.web.converter.CurrencyViewToModelConverter;
+import ru.medisov.home_finance.web.converter.CurrencyConverter;
 import ru.medisov.home_finance.web.view.CurrencyView;
 
 import java.util.List;
@@ -32,7 +31,7 @@ public class CurrencyController {
     public String doEditSaveCurrency(@RequestParam Long currencyId, @ModelAttribute CurrencyView objectCurrency) {
         objectCurrency.setId(currencyId);
         //todo autowire converters
-        CurrencyModel currencyModel = new CurrencyViewToModelConverter().convert(objectCurrency);
+        CurrencyModel currencyModel = new CurrencyConverter().toCurrencyModel(objectCurrency);
         service.saveUpdate(currencyModel);
 
         return "redirect:" + UrlMapper.LIST_CURRENCY;
@@ -52,6 +51,6 @@ public class CurrencyController {
     }
 
     private List<CurrencyView> getCurrencyViewList() {
-        return service.findAll().stream().map(model -> new CurrencyModelToViewConverter().convert(model)).collect(Collectors.toList());
+        return service.findAll().stream().map(model -> new CurrencyConverter().toCurrencyView(model)).collect(Collectors.toList());
     }
 }

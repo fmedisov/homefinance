@@ -1,23 +1,36 @@
 package ru.medisov.home_finance.web.converter;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.converter.Converter;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import ru.medisov.home_finance.service.CategoryService;
 import ru.medisov.home_finance.service.HomeFinanceServiceException;
 import ru.medisov.home_finance.web.view.CategoryTransactionView;
 
-public class CategoryViewToModelConverter implements Converter<CategoryTransactionView, CategoryTransactionModel> {
+public class CategoryConverter {
 
     private final CategoryService categoryService;
 
     @Autowired
-    //todo implement without constructor
-    public CategoryViewToModelConverter(CategoryService categoryService) {
+    public CategoryConverter(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
 
-    public CategoryTransactionModel convert(CategoryTransactionView categoryView) {
+    public CategoryTransactionView toCategoryView(CategoryTransactionModel categoryModel) {
+        CategoryTransactionView categoryView = new CategoryTransactionView();
+        categoryView
+                .setId(categoryModel.getId())
+                .setName(categoryModel.getName());
+
+        if (categoryModel.getParent() != null) {
+            String parent = categoryModel.getParent().getName();
+            categoryView.setParent(parent);
+            categoryView.setParentView(toCategoryView(categoryModel.getParent()));
+        }
+
+        return categoryView;
+    }
+
+    public CategoryTransactionModel toCategoryModel(CategoryTransactionView categoryView) {
         CategoryTransactionModel categoryModel = new CategoryTransactionModel();
         categoryModel
                 .setId(categoryView.getId())

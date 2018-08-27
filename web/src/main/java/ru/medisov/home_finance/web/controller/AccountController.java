@@ -8,9 +8,8 @@ import ru.medisov.home_finance.common.model.AccountModel;
 import ru.medisov.home_finance.common.model.AccountType;
 import ru.medisov.home_finance.service.AccountService;
 import ru.medisov.home_finance.service.CurrencyService;
-import ru.medisov.home_finance.web.converter.AccountModelToViewConverter;
-import ru.medisov.home_finance.web.converter.AccountViewToModelConverter;
-import ru.medisov.home_finance.web.converter.CurrencyModelToViewConverter;
+import ru.medisov.home_finance.web.converter.AccountConverter;
+import ru.medisov.home_finance.web.converter.CurrencyConverter;
 import ru.medisov.home_finance.web.view.AccountView;
 import ru.medisov.home_finance.web.config.UrlMapper;
 import ru.medisov.home_finance.web.view.CurrencyView;
@@ -58,14 +57,14 @@ public class AccountController {
     }
 
     private List<AccountView> getAccountViewList() {
-        return service.findAll().stream().map(model -> new AccountModelToViewConverter().convert(model)).collect(Collectors.toList());
+        return service.findAll().stream().map(model -> new AccountConverter(currencyService).toAccountView(model)).collect(Collectors.toList());
     }
 
     private List<CurrencyView> getCurrencyViewList() {
-        return currencyService.findAll().stream().map(model -> new CurrencyModelToViewConverter().convert(model)).collect(Collectors.toList());
+        return currencyService.findAll().stream().map(model -> new CurrencyConverter().toCurrencyView(model)).collect(Collectors.toList());
     }
 
     private AccountModel getModelFromView(AccountView accountView) {
-        return new AccountViewToModelConverter(currencyService).convert(accountView);
+        return new AccountConverter(currencyService).toAccountModel(accountView);
     }
 }
