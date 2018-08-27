@@ -77,11 +77,6 @@ public class CurrencyServiceImpl extends AbstractService implements CurrencyServ
         return newModel;
     }
 
-    @Override
-    public CurrencyModel makeFromTextFields(String name, String code, String symbol) {
-        return new CurrencyModel().setName(name).setCode(code).setSymbol(symbol);
-    }
-
     private void currencyVerification(CurrencyModel model) throws HomeFinanceServiceException {
         String name = model.getName();
         repository.findByName(name).ifPresent(found -> {

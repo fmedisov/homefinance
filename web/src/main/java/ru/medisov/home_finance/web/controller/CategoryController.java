@@ -34,7 +34,7 @@ public class CategoryController {
     }
 
     @PostMapping(value = UrlMapper.SUBMIT_CATEGORY)
-    public String doEditSaveCategory(@RequestParam(value = "categoryId") Long categoryId, @ModelAttribute CategoryTransactionView objectCategory) {
+    public String doEditSaveCategory(@RequestParam Long categoryId, @ModelAttribute CategoryTransactionView objectCategory) {
         objectCategory.setId(categoryId);
         CategoryTransactionModel categoryModel = new CategoryViewToModelConverter(service).convert(objectCategory);
 
@@ -55,7 +55,7 @@ public class CategoryController {
     }
 
     @PostMapping(value = UrlMapper.LIST_CATEGORY, produces = MediaType.APPLICATION_JSON_VALUE)
-    public String doRemoveCategory(@RequestParam("idChecked") List<String> idCategories) {
+    public String doRemoveCategory(@RequestParam List<String> idCategories) {
         if(idCategories != null){
             for(String categoryIdStr : idCategories){
                 Long categoryId = Long.parseLong(categoryIdStr);

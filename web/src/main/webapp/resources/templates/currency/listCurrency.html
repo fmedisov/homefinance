@@ -27,7 +27,7 @@
                     <tr th:id="'currency-'+${currency.id}" th:each="currency : ${list_currencies}">
                         <td th:id="'currency-checked-'+${currency.id}">
                             <div class="form-check form-check-inline">
-                                <input th:id="'checkbox-'+${currency.id}" th:name="idChecked" class="form-check-input" type="checkbox" id="inlineCheckbox1" th:value="${currency.id}">
+                                <input th:id="'checkbox-'+${currency.id}" th:name="idCurrencies" class="form-check-input" type="checkbox" id="inlineCheckbox1" th:value="${currency.id}">
                             </div>
                         </td>
                         <td th:id="'currency-name-'+${currency.id}" th:text="${currency.name}" data-toggle="modal" data-target="#currencyModal"

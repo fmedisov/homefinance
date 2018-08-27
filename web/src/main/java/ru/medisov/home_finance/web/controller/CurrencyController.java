@@ -33,7 +33,7 @@ public class CurrencyController {
 
     @PostMapping(value = UrlMapper.SUBMIT_CURRENCY)
     //todo remove value from requestparam
-    public String doEditSaveCurrency(@RequestParam(value = "currencyId") Long currencyId, @ModelAttribute CurrencyView objectCurrency) {
+    public String doEditSaveCurrency(@RequestParam Long currencyId, @ModelAttribute CurrencyView objectCurrency) {
         objectCurrency.setId(currencyId);
         //todo autowire converters
         CurrencyModel currencyModel = new CurrencyViewToModelConverter().convert(objectCurrency);
@@ -57,7 +57,7 @@ public class CurrencyController {
 
     //todo remove produces
     @PostMapping(value = UrlMapper.LIST_CURRENCY, produces = MediaType.APPLICATION_JSON_VALUE)
-    public String doRemoveCurrency(@RequestParam("idChecked") List<String> idCurrencies) {
+    public String doRemoveCurrency(@RequestParam List<String> idCurrencies) {
         if(idCurrencies != null){
             for(String currencyIdStr : idCurrencies){
                 Long currencyId = Long.parseLong(currencyIdStr);

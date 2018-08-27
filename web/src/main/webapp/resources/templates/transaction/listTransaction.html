@@ -35,7 +35,7 @@
             <tr th:each="transaction : ${list_transactions}">
                 <td th:id="'transaction-checked-'+${transaction.id}">
                     <div class="form-check form-check-inline">
-                        <input th:id="'checkbox-'+${transaction.id}" th:name="idChecked" class="form-check-input" type="checkbox" id="inlineCheckbox1" th:value="${transaction.id}">
+                        <input th:id="'checkbox-'+${transaction.id}" th:name="idTransactions" class="form-check-input" type="checkbox" id="inlineCheckbox1" th:value="${transaction.id}">
                     </div>
                 </td>
                 <td th:id="'transaction-dateTime-'+${transaction.id}" th:text="${transaction.dateTime}" data-toggle="modal" data-target="#transactionModal"

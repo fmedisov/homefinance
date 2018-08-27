@@ -79,10 +79,4 @@ public class CategoryServiceImpl extends AbstractService implements CategoryServ
 
         return newModel;
     }
-
-    @Override
-    public CategoryTransactionModel makeFromTextFields(String name, String parent) {
-        CategoryTransactionModel categoryParent = findByName(parent).orElseThrow(HomeFinanceServiceException::new);
-        return new CategoryTransactionModel().setName(name).setParent(categoryParent);
-    }
 }

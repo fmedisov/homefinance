@@ -40,7 +40,7 @@ public class AccountController {
     }
 
     @PostMapping(value = UrlMapper.SUBMIT_ACCOUNT, produces = MediaType.APPLICATION_JSON_VALUE)
-    public String doEditSaveAccount(@RequestParam(value = "accountId") Long accountId, @ModelAttribute AccountView objectAccount) {
+    public String doEditSaveAccount(@RequestParam Long accountId, @ModelAttribute AccountView objectAccount) {
         objectAccount.setId(accountId);
         AccountModel model = getModelFromView(objectAccount);
 
@@ -61,7 +61,7 @@ public class AccountController {
     }
 
     @PostMapping(value = UrlMapper.LIST_ACCOUNT, produces = MediaType.APPLICATION_JSON_VALUE)
-    public String doRemoveAccount(@RequestParam("idChecked") List<String> idAccounts) {
+    public String doRemoveAccount(@RequestParam List<String> idAccounts) {
         if(idAccounts != null){
             for(String accountIdStr : idAccounts){
                 Long accountId = Long.parseLong(accountIdStr);

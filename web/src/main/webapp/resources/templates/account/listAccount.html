@@ -29,7 +29,7 @@
             <tr th:id="'account-'+${account.id}" th:each="account : ${list_accounts}">
                 <td th:id="'account-checked-'+${account.id}">
                     <div class="form-check form-check-inline">
-                        <input th:id="'checkbox-'+${account.id}" th:name="idChecked" class="form-check-input" type="checkbox" id="inlineCheckbox1" th:value="${account.id}">
+                        <input th:id="'checkbox-'+${account.id}" th:name="idAccounts" class="form-check-input" type="checkbox" id="inlineCheckbox1" th:value="${account.id}">
                     </div>
                 </td>
                 <td th:id="'account-name-'+${account.id}" th:text="${account.name}" data-toggle="modal" data-target="#accountModal"

@@ -50,8 +50,8 @@ public class TransactionController {
     }
 
     @GetMapping(UrlMapper.LIST_TRANSACTION_BY_PERIOD)
-    public String showListTransactionByDate(@RequestParam(value = "fromDate") String fromDate,
-                                        @RequestParam(value = "upToDate") String upToDate, Model model) {
+    public String showListTransactionByDate(@RequestParam String fromDate,
+                                        @RequestParam String upToDate, Model model) {
         model.addAttribute("fromDate", fromDate);
         model.addAttribute("upToDate", upToDate);
         model.addAttribute("list_transactions", listTransactionViewsByDate(fromDate, upToDate));
@@ -60,7 +60,7 @@ public class TransactionController {
     }
 
     @PostMapping(value = UrlMapper.SUBMIT_TRANSACTION, produces = MediaType.APPLICATION_JSON_VALUE)
-    public String doEditSaveAccount(@RequestParam(value = "transactionId") Long transactionId, @ModelAttribute TransactionView objectTransaction) {
+    public String doEditSaveAccount(@RequestParam Long transactionId, @ModelAttribute TransactionView objectTransaction) {
         objectTransaction.setId(transactionId);
         TransactionModel model = getModelFromView(objectTransaction);
 
@@ -81,7 +81,7 @@ public class TransactionController {
     }
 
     @PostMapping(value = UrlMapper.LIST_TRANSACTION, produces = MediaType.APPLICATION_JSON_VALUE)
-    public String doRemoveAccount(@RequestParam("idChecked") List<String> idTransactions) {
+    public String doRemoveAccount(@RequestParam List<String> idTransactions) {
         if(idTransactions != null){
             for(String transactionIdStr : idTransactions){
                 Long transactionId = Long.parseLong(transactionIdStr);

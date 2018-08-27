@@ -25,7 +25,7 @@
                 <tr th:each="category : ${list_categories}">
                     <td th:id="'category-checked-'+${category.id}">
                         <div class="form-check form-check-inline">
-                            <input th:id="'checkbox-'+${category.id}" th:name="idChecked" class="form-check-input" type="checkbox" id="inlineCheckbox1" th:value="${category.id}">
+                            <input th:id="'checkbox-'+${category.id}" th:name="idCategories" class="form-check-input" type="checkbox" id="inlineCheckbox1" th:value="${category.id}">
                         </div>
                     </td>
                     <td th:id="'category-name-'+${category.id}" th:text="${category.name}" data-toggle="modal" data-target="#categoryModal"
