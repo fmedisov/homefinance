@@ -1,7 +1,6 @@
 package ru.medisov.home_finance.web.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +38,7 @@ public class AccountController {
         return "account/listAccount";
     }
 
-    @PostMapping(value = UrlMapper.SUBMIT_ACCOUNT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = UrlMapper.SUBMIT_ACCOUNT)
     public String doEditSaveAccount(@RequestParam Long accountId, @ModelAttribute AccountView objectAccount) {
         objectAccount.setId(accountId);
         AccountModel model = getModelFromView(objectAccount);
@@ -60,7 +59,7 @@ public class AccountController {
         return "redirect:" + UrlMapper.LIST_ACCOUNT;
     }
 
-    @PostMapping(value = UrlMapper.LIST_ACCOUNT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = UrlMapper.LIST_ACCOUNT)
     public String doRemoveAccount(@RequestParam List<String> idAccounts) {
         if(idAccounts != null){
             for(String accountIdStr : idAccounts){

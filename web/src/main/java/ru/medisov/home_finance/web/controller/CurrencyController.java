@@ -1,7 +1,6 @@
 package ru.medisov.home_finance.web.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +31,6 @@ public class CurrencyController {
     }
 
     @PostMapping(value = UrlMapper.SUBMIT_CURRENCY)
-    //todo remove value from requestparam
     public String doEditSaveCurrency(@RequestParam Long currencyId, @ModelAttribute CurrencyView objectCurrency) {
         objectCurrency.setId(currencyId);
         //todo autowire converters
@@ -55,8 +53,7 @@ public class CurrencyController {
         return "redirect:" + UrlMapper.LIST_CURRENCY;
     }
 
-    //todo remove produces
-    @PostMapping(value = UrlMapper.LIST_CURRENCY, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = UrlMapper.LIST_CURRENCY)
     public String doRemoveCurrency(@RequestParam List<String> idCurrencies) {
         if(idCurrencies != null){
             for(String currencyIdStr : idCurrencies){

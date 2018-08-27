@@ -1,7 +1,6 @@
 package ru.medisov.home_finance.web.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,7 +53,7 @@ public class CategoryController {
         return "redirect:" + UrlMapper.LIST_CATEGORY;
     }
 
-    @PostMapping(value = UrlMapper.LIST_CATEGORY, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = UrlMapper.LIST_CATEGORY)
     public String doRemoveCategory(@RequestParam List<String> idCategories) {
         if(idCategories != null){
             for(String categoryIdStr : idCategories){

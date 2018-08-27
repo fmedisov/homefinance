@@ -1,7 +1,6 @@
 package ru.medisov.home_finance.web.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,7 +58,7 @@ public class TransactionController {
         return "transaction/listTransaction";
     }
 
-    @PostMapping(value = UrlMapper.SUBMIT_TRANSACTION, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = UrlMapper.SUBMIT_TRANSACTION)
     public String doEditSaveAccount(@RequestParam Long transactionId, @ModelAttribute TransactionView objectTransaction) {
         objectTransaction.setId(transactionId);
         TransactionModel model = getModelFromView(objectTransaction);
@@ -80,7 +79,7 @@ public class TransactionController {
         return "redirect:" + UrlMapper.LIST_TRANSACTION;
     }
 
-    @PostMapping(value = UrlMapper.LIST_TRANSACTION, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = UrlMapper.LIST_TRANSACTION)
     public String doRemoveAccount(@RequestParam List<String> idTransactions) {
         if(idTransactions != null){
             for(String transactionIdStr : idTransactions){
