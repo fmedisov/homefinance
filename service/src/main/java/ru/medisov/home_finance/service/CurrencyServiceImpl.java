@@ -77,6 +77,15 @@ public class CurrencyServiceImpl extends AbstractService implements CurrencyServ
         return newModel;
     }
 
+    @Override
+    public CurrencyModel saveUpdate(CurrencyModel model) {
+        if (model.getId() == 0) {
+            return save(model);
+        } else {
+            return update(model);
+        }
+    }
+
     private void currencyVerification(CurrencyModel model) throws HomeFinanceServiceException {
         String name = model.getName();
         repository.findByName(name).ifPresent(found -> {

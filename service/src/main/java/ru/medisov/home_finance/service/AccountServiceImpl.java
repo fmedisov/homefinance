@@ -2,22 +2,15 @@ package ru.medisov.home_finance.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.medisov.home_finance.common.model.AccountType;
-import ru.medisov.home_finance.common.model.CurrencyModel;
-import ru.medisov.home_finance.common.utils.MoneyUtils;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.AccountModel;
 import ru.medisov.home_finance.dao.repository.AccountRepository;
 
-import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Optional;
 
 @Service
 public class AccountServiceImpl extends AbstractService implements AccountService {
-
-    @Autowired
-    private CurrencyService currencyService;
 
     @Autowired
     private AccountRepository repository;
@@ -90,10 +83,11 @@ public class AccountServiceImpl extends AbstractService implements AccountServic
     }
 
     @Override
-    public AccountModel makeFromTextFields(String name, String currency, String accountType, String amount) {
-        CurrencyModel currencyModel = currencyService.findByName(currency).orElseThrow(HomeFinanceServiceException::new);
-        AccountType parsedType = AccountType.findByName(accountType).orElseThrow(HomeFinanceServiceException::new);
-        BigDecimal parsedAmount = MoneyUtils.inBigDecimal(amount);
-        return new AccountModel().setName(name).setCurrencyModel(currencyModel).setAccountType(parsedType).setAmount(parsedAmount);
+    public AccountModel saveUpdate(AccountModel model) {
+        if (model.getId() == 0) {
+            return save(model);
+        } else {
+            return update(model);
+        }
     }
 }

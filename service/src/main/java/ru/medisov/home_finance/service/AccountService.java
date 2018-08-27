@@ -18,5 +18,4 @@ public interface AccountService extends Service<AccountModel> {
 
     AccountModel update(AccountModel model);
 
-    AccountModel makeFromTextFields(String name, String currency, String accountType, String amount);
 }

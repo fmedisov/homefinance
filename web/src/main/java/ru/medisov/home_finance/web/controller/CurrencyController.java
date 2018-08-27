@@ -6,11 +6,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.medisov.home_finance.common.model.CurrencyModel;
 import ru.medisov.home_finance.service.CurrencyService;
-import ru.medisov.home_finance.service.HomeFinanceServiceException;
 import ru.medisov.home_finance.web.config.UrlMapper;
 import ru.medisov.home_finance.web.converter.CurrencyModelToViewConverter;
 import ru.medisov.home_finance.web.converter.CurrencyViewToModelConverter;
-import ru.medisov.home_finance.web.exception.HomeFinanceWebException;
 import ru.medisov.home_finance.web.view.CurrencyView;
 
 import java.util.List;
@@ -35,20 +33,7 @@ public class CurrencyController {
         objectCurrency.setId(currencyId);
         //todo autowire converters
         CurrencyModel currencyModel = new CurrencyViewToModelConverter().convert(objectCurrency);
-
-        try {
-            CurrencyModel updated = service.update(currencyModel);
-            if (updated.getId() < 1) {
-                throw new HomeFinanceWebException();
-            }
-        } catch (HomeFinanceServiceException | HomeFinanceWebException e) {
-           try {
-               //todo move to services
-               service.save(currencyModel);
-           } catch (HomeFinanceServiceException | HomeFinanceWebException e1) {
-               e1.printStackTrace();
-           }
-        }
+        service.saveUpdate(currencyModel);
 
         return "redirect:" + UrlMapper.LIST_CURRENCY;
     }

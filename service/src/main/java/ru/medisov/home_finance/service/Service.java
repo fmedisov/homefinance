@@ -16,4 +16,7 @@ public interface Service<T> {
     T save(T model);
 
     T update(T model);
+
+    //todo implement tests for method
+    T saveUpdate(T model);
 }

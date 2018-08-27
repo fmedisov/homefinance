@@ -9,11 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import ru.medisov.home_finance.service.CategoryService;
-import ru.medisov.home_finance.service.HomeFinanceServiceException;
 import ru.medisov.home_finance.web.config.UrlMapper;
 import ru.medisov.home_finance.web.converter.CategoryModelToViewConverter;
 import ru.medisov.home_finance.web.converter.CategoryViewToModelConverter;
-import ru.medisov.home_finance.web.exception.HomeFinanceWebException;
 import ru.medisov.home_finance.web.view.CategoryTransactionView;
 
 import java.util.List;
@@ -36,19 +34,7 @@ public class CategoryController {
     public String doEditSaveCategory(@RequestParam Long categoryId, @ModelAttribute CategoryTransactionView objectCategory) {
         objectCategory.setId(categoryId);
         CategoryTransactionModel categoryModel = new CategoryViewToModelConverter(service).convert(objectCategory);
-
-        try {
-            CategoryTransactionModel updated = service.update(categoryModel);
-            if (updated.getId() < 1) {
-                throw new HomeFinanceWebException();
-            }
-        } catch (HomeFinanceServiceException | HomeFinanceWebException e) {
-            try {
-                service.save(categoryModel);
-            } catch (HomeFinanceServiceException | HomeFinanceWebException e1) {
-                e1.printStackTrace();
-            }
-        }
+        service.saveUpdate(categoryModel);
 
         return "redirect:" + UrlMapper.LIST_CATEGORY;
     }

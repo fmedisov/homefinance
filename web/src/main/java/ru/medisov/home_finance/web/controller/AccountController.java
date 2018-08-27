@@ -8,11 +8,9 @@ import ru.medisov.home_finance.common.model.AccountModel;
 import ru.medisov.home_finance.common.model.AccountType;
 import ru.medisov.home_finance.service.AccountService;
 import ru.medisov.home_finance.service.CurrencyService;
-import ru.medisov.home_finance.service.HomeFinanceServiceException;
 import ru.medisov.home_finance.web.converter.AccountModelToViewConverter;
 import ru.medisov.home_finance.web.converter.AccountViewToModelConverter;
 import ru.medisov.home_finance.web.converter.CurrencyModelToViewConverter;
-import ru.medisov.home_finance.web.exception.HomeFinanceWebException;
 import ru.medisov.home_finance.web.view.AccountView;
 import ru.medisov.home_finance.web.config.UrlMapper;
 import ru.medisov.home_finance.web.view.CurrencyView;
@@ -24,7 +22,7 @@ import java.util.stream.Collectors;
 public class AccountController {
 
     @Autowired
-    private AccountService accountService;
+    private AccountService service;
 
     @Autowired
     private CurrencyService currencyService;
@@ -42,19 +40,7 @@ public class AccountController {
     public String doEditSaveAccount(@RequestParam Long accountId, @ModelAttribute AccountView objectAccount) {
         objectAccount.setId(accountId);
         AccountModel model = getModelFromView(objectAccount);
-
-        try {
-            AccountModel updated = accountService.update(model);
-            if (updated.getId() < 1) {
-                throw new HomeFinanceWebException();
-            }
-        } catch (HomeFinanceServiceException | HomeFinanceWebException e) {
-            try {
-                accountService.save(model);
-            } catch (HomeFinanceServiceException | HomeFinanceWebException e1) {
-                e1.printStackTrace();
-            }
-        }
+        service.saveUpdate(model);
 
         return "redirect:" + UrlMapper.LIST_ACCOUNT;
     }
@@ -64,7 +50,7 @@ public class AccountController {
         if(idAccounts != null){
             for(String accountIdStr : idAccounts){
                 Long accountId = Long.parseLong(accountIdStr);
-                accountService.remove(accountId);
+                service.remove(accountId);
             }
         }
 
@@ -72,7 +58,7 @@ public class AccountController {
     }
 
     private List<AccountView> getAccountViewList() {
-        return accountService.findAll().stream().map(model -> new AccountModelToViewConverter().convert(model)).collect(Collectors.toList());
+        return service.findAll().stream().map(model -> new AccountModelToViewConverter().convert(model)).collect(Collectors.toList());
     }
 
     private List<CurrencyView> getCurrencyViewList() {

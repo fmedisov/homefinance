@@ -86,6 +86,15 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
     }
 
     @Override
+    public TransactionModel saveUpdate(TransactionModel model) {
+        if (model.getId() == 0) {
+            return save(model);
+        } else {
+            return update(model);
+        }
+    }
+
+    @Override
     public Collection<TransactionModel> findByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate) {
         Collection<TransactionModel> models = repository.findByPeriod(getDateFrom(dateFrom), getUpToDate(upToDate));
         models.forEach(this::validate);

@@ -16,7 +16,6 @@ import ru.medisov.home_finance.web.converter.AccountModelToViewConverter;
 import ru.medisov.home_finance.web.converter.CategoryModelToViewConverter;
 import ru.medisov.home_finance.web.converter.TransactionModelToViewConverter;
 import ru.medisov.home_finance.web.converter.TransactionViewToModelConverter;
-import ru.medisov.home_finance.web.exception.HomeFinanceWebException;
 import ru.medisov.home_finance.web.view.AccountView;
 import ru.medisov.home_finance.web.view.CategoryTransactionView;
 import ru.medisov.home_finance.web.view.TransactionView;
@@ -62,19 +61,7 @@ public class TransactionController {
     public String doEditSaveAccount(@RequestParam Long transactionId, @ModelAttribute TransactionView objectTransaction) {
         objectTransaction.setId(transactionId);
         TransactionModel model = getModelFromView(objectTransaction);
-
-        try {
-            TransactionModel updated = service.update(model);
-            if (updated.getId() < 1) {
-                throw new HomeFinanceWebException();
-            }
-        } catch (HomeFinanceServiceException | HomeFinanceWebException e) {
-            try {
-                service.save(model);
-            } catch (HomeFinanceServiceException | HomeFinanceWebException e1) {
-                e1.printStackTrace();
-            }
-        }
+        service.saveUpdate(model);
 
         return "redirect:" + UrlMapper.LIST_TRANSACTION;
     }
