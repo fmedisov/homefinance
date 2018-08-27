@@ -26,6 +26,12 @@ public class AccountController {
     @Autowired
     private CurrencyService currencyService;
 
+    @Autowired
+    private AccountConverter accountConverter;
+
+    @Autowired
+    private CurrencyConverter currencyConverter;
+
     @GetMapping(UrlMapper.LIST_ACCOUNT)
     public String showListAccount(Model model) {
         model.addAttribute("list_accounts", getAccountViewList());
@@ -57,14 +63,14 @@ public class AccountController {
     }
 
     private List<AccountView> getAccountViewList() {
-        return service.findAll().stream().map(model -> new AccountConverter(currencyService).toAccountView(model)).collect(Collectors.toList());
+        return service.findAll().stream().map(model -> accountConverter.toAccountView(model)).collect(Collectors.toList());
     }
 
     private List<CurrencyView> getCurrencyViewList() {
-        return currencyService.findAll().stream().map(model -> new CurrencyConverter().toCurrencyView(model)).collect(Collectors.toList());
+        return currencyService.findAll().stream().map(model -> currencyConverter.toCurrencyView(model)).collect(Collectors.toList());
     }
 
     private AccountModel getModelFromView(AccountView accountView) {
-        return new AccountConverter(currencyService).toAccountModel(accountView);
+        return accountConverter.toAccountModel(accountView);
     }
 }

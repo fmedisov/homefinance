@@ -9,7 +9,14 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
+import ru.medisov.home_finance.service.AccountService;
+import ru.medisov.home_finance.service.CategoryService;
+import ru.medisov.home_finance.service.CurrencyService;
 import ru.medisov.home_finance.service.config.ServiceConfiguration;
+import ru.medisov.home_finance.web.converter.AccountConverter;
+import ru.medisov.home_finance.web.converter.CategoryConverter;
+import ru.medisov.home_finance.web.converter.CurrencyConverter;
+import ru.medisov.home_finance.web.converter.TransactionConverter;
 
 @Configuration
 @EnableWebMvc
@@ -19,6 +26,15 @@ public class WebConfiguration implements WebMvcConfigurer {
 
     @Autowired
     private ApplicationContext applicationContext;
+
+    @Autowired
+    private CurrencyService currencyService;
+
+    @Autowired
+    private CategoryService categoryService;
+
+    @Autowired
+    private AccountService accountService;
 
     @Bean
     public SpringResourceTemplateResolver templateResolver() {
@@ -38,6 +54,26 @@ public class WebConfiguration implements WebMvcConfigurer {
         springTemplateEngine.setEnableSpringELCompiler(true);
 
         return springTemplateEngine;
+    }
+
+    @Bean("currencyConverter")
+    public CurrencyConverter currencyConverter() {
+        return new CurrencyConverter();
+    }
+
+    @Bean("accountConverter")
+    public AccountConverter accountConverter() {
+        return new AccountConverter(currencyService);
+    }
+
+    @Bean("categoryConverter")
+    public CategoryConverter categoryConverter() {
+        return new CategoryConverter(categoryService);
+    }
+
+    @Bean("transactionConverter")
+    public TransactionConverter transactionConverter() {
+        return new TransactionConverter(categoryService, accountService);
     }
 
     @Override

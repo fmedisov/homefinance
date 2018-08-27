@@ -35,7 +35,13 @@ public class TransactionController {
     private AccountService accountService;
 
     @Autowired
-    private CurrencyService currencyService;
+    private AccountConverter accountConverter;
+
+    @Autowired
+    private CategoryConverter categoryConverter;
+
+    @Autowired
+    private TransactionConverter transactionConverter;
 
     @GetMapping(UrlMapper.LIST_TRANSACTION)
     public String showListTransaction(Model model) {
@@ -76,7 +82,7 @@ public class TransactionController {
     }
 
     private List<TransactionView> getTransactionViewList() {
-        return service.findAll().stream().map(model -> new TransactionConverter(categoryService, accountService).convert(model)).collect(Collectors.toList());
+        return service.findAll().stream().map(model -> transactionConverter.convert(model)).collect(Collectors.toList());
     }
 
     private List<TransactionView> listTransactionViewsByDate(String fromDate, String upToDate) {
@@ -94,21 +100,21 @@ public class TransactionController {
         }
         List<TransactionView> viewList = new ArrayList<>();
         service.findByPeriod(from, to)
-                .forEach(model -> viewList.add(new TransactionConverter(categoryService, accountService).convert(model)));
+                .forEach(model -> viewList.add(transactionConverter.convert(model)));
 
         return viewList;
     }
 
     private List<CategoryTransactionView> getCategoryViewList() {
-        return categoryService.findAll().stream().map(model -> new CategoryConverter(categoryService).toCategoryView(model)).collect(Collectors.toList());
+        return categoryService.findAll().stream().map(model -> categoryConverter.toCategoryView(model)).collect(Collectors.toList());
     }
 
     private List<AccountView> getAccountViewList() {
-        return accountService.findAll().stream().map(model -> new AccountConverter(currencyService).toAccountView(model)).collect(Collectors.toList());
+        return accountService.findAll().stream().map(model -> accountConverter.toAccountView(model)).collect(Collectors.toList());
     }
 
     private TransactionModel getModelFromView(TransactionView transactionView) {
-        return new TransactionConverter(categoryService, accountService).convert(transactionView);
+        return transactionConverter.convert(transactionView);
     }
 
     private void setModelParameters(Model model) {

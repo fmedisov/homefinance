@@ -22,6 +22,9 @@ public class CategoryController {
     @Autowired
     private CategoryService service;
 
+    @Autowired
+    private CategoryConverter categoryConverter;
+
     @GetMapping(UrlMapper.LIST_CATEGORY)
     public String showListCategory(Model model) {
         model.addAttribute("list_categories", getCategoryViewList());
@@ -32,7 +35,7 @@ public class CategoryController {
     @PostMapping(value = UrlMapper.SUBMIT_CATEGORY)
     public String doEditSaveCategory(@RequestParam Long categoryId, @ModelAttribute CategoryTransactionView objectCategory) {
         objectCategory.setId(categoryId);
-        CategoryTransactionModel categoryModel = new CategoryConverter(service).toCategoryModel(objectCategory);
+        CategoryTransactionModel categoryModel = categoryConverter.toCategoryModel(objectCategory);
         service.saveUpdate(categoryModel);
 
         return "redirect:" + UrlMapper.LIST_CATEGORY;
@@ -51,6 +54,6 @@ public class CategoryController {
     }
 
     private List<CategoryTransactionView> getCategoryViewList() {
-        return service.findAll().stream().map(model -> new CategoryConverter(service).toCategoryView(model)).collect(Collectors.toList());
+        return service.findAll().stream().map(model -> categoryConverter.toCategoryView(model)).collect(Collectors.toList());
     }
 }
