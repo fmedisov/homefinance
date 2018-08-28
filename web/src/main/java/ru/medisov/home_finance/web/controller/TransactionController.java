@@ -61,7 +61,7 @@ public class TransactionController {
     }
 
     @PostMapping(value = UrlMapper.SUBMIT_TRANSACTION)
-    public String doEditSaveAccount(@RequestParam Long transactionId, @ModelAttribute TransactionView objectTransaction) {
+    public String doEditSaveAccount(@RequestParam(required = false) Long transactionId, @ModelAttribute TransactionView objectTransaction) {
         objectTransaction.setId(transactionId);
         TransactionModel model = getModelFromView(objectTransaction);
         service.saveUpdate(model);

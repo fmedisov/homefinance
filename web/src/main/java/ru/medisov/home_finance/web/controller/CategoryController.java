@@ -33,7 +33,7 @@ public class CategoryController {
     }
 
     @PostMapping(value = UrlMapper.SUBMIT_CATEGORY)
-    public String doEditSaveCategory(@RequestParam Long categoryId, @ModelAttribute CategoryTransactionView objectCategory) {
+    public String doEditSaveCategory(@RequestParam(required = false) Long categoryId, @ModelAttribute CategoryTransactionView objectCategory) {
         objectCategory.setId(categoryId);
         CategoryTransactionModel categoryModel = categoryConverter.toCategoryModel(objectCategory);
         service.saveUpdate(categoryModel);

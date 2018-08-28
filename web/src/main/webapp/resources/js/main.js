@@ -20,14 +20,14 @@ jQuery(document).ready(function($) {
     $("#categoryModal").on('show.bs.modal', function(e) {
         var categoryId = $(e.relatedTarget).data('category-id');
         if(typeof categoryId === "undefined")
-            categoryId = 0;
+            categoryId = null;
 
         var name = $('#category-name-' + categoryId).text();
         var parent = $('#category-name-' + categoryId).data('parent');
 
         $('#name').val(name);
         $('#parent').val(parent);
-        $("#categoryForm").attr("action", "/category/submit" + "?categoryId=" + categoryId);
+        $("#categoryForm").attr("action", "/category/submit" + "?categoryId=" + (categoryId ? categoryId : ""));
     });
 
     //Записываем в поля формы редактирования значения из таблицы выбранного счета
@@ -51,7 +51,7 @@ jQuery(document).ready(function($) {
     $("#transactionModal").on('show.bs.modal', function(e) {
         var transactionId = $(e.relatedTarget).data('transaction-id');
         if(typeof transactionId === "undefined")
-            transactionId = 0;
+            transactionId = null;
 
         var dateTime = $('#transaction-dateTime-' + transactionId).text();
         var amount = $('#transaction-amount-' + transactionId).text();
@@ -64,7 +64,7 @@ jQuery(document).ready(function($) {
         $('#account').val(account);
         $('#category').val(category);
         $('#transactionType').val(transactionType);
-        $("#transactionForm").attr("action", "/transaction/submit" + "?transactionId=" + transactionId);
+        $("#transactionForm").attr("action", "/transaction/submit" + "?transactionId=" + (transactionId ? transactionId : ""));
     });
 
     $(".modal-header").on("mousedown", function(mousedownEvt) {

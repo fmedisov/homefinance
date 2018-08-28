@@ -82,7 +82,7 @@ public class CategoryServiceImpl extends AbstractService implements CategoryServ
 
     @Override
     public CategoryTransactionModel saveUpdate(CategoryTransactionModel model) {
-        if (model.getId() == 0) {
+        if (model.getId() == null) {
             return save(model);
         } else {
             return update(model);

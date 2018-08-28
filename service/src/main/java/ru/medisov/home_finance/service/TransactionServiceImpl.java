@@ -87,7 +87,7 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
 
     @Override
     public TransactionModel saveUpdate(TransactionModel model) {
-        if (model.getId() == 0) {
+        if (model.getId() == null) {
             return save(model);
         } else {
             return update(model);

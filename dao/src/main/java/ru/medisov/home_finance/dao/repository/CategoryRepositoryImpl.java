@@ -1,10 +1,17 @@
 package ru.medisov.home_finance.dao.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
@@ -12,110 +19,56 @@ import java.util.Collection;
 import java.util.Optional;
 
 @Transactional
+@Repository
+@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class CategoryRepositoryImpl extends AbstractRepository<CategoryTransactionModel, Long> implements CategoryRepository {
-    private static final String INSERT = "INSERT INTO category_tbl (name, parent) VALUES (?, ?)";
-    private static final String SELECT_BY_NAME = "SELECT id, name, parent FROM category_tbl WHERE name = ?";
-    private static final String SELECT_BY_ID = "SELECT id, name, parent FROM category_tbl WHERE id = ?";
-    private static final String SELECT_ALL = "SELECT id, name, parent FROM category_tbl";
-    private static final String UPDATE = "UPDATE category_tbl SET name = ?, parent = ? WHERE id = ?";
+//    private static final String INSERT = "INSERT INTO category_tbl (name, parent) VALUES (?, ?)";
+//    private static final String SELECT_BY_NAME = "SELECT id, name, parent FROM category_tbl WHERE name = ?";
+//    private static final String SELECT_BY_ID = "SELECT id, name, parent FROM category_tbl WHERE id = ?";
+//    private static final String SELECT_ALL = "SELECT id, name, parent FROM category_tbl";
+//    private static final String UPDATE = "UPDATE category_tbl SET name = ?, parent = ? WHERE id = ?";
+//
+//    @Autowired
+//    private DataSource dataSource;
 
-    @Autowired
-    private DataSource dataSource;
+    @PersistenceContext
+    private EntityManager em;
 
     @Override
     public CategoryTransactionModel save(CategoryTransactionModel model) {
-        try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
-                preparedStatement.setString(1, model.getName());
-
-                if (model.getParent() == null) {
-                    preparedStatement.setNull(2, Types.INTEGER);
-                } else {
-                    preparedStatement.setLong(2, model.getParent().getId());
-                }
-
-                preparedStatement.executeUpdate();
-                model.setId(new IdGetter(preparedStatement).getId());
-                return model;
-            } catch (SQLException e) {
-                throw new HomeFinanceDaoException("error while save category transaction model " + model, e);
-            }
-        } catch (SQLException e) {
-            throw new HomeFinanceDaoException("error while save category transaction model " + model, e);
-        }
+        em.persist(model);
+        return model;
     }
 
     @Override
     public Optional<CategoryTransactionModel> findByName(String name) {
-        try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_NAME)) {
-                preparedStatement.setString(1, name);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                CategoryTransactionModel categoryTransactionModel = getCategoryTransactionModel(resultSet);
-
-                return Optional.ofNullable(categoryTransactionModel);
-            } catch (SQLException e) {
-                throw new HomeFinanceDaoException("error while find category transaction model by name " + name, e);
-            }
-        } catch (SQLException e) {
-            throw new HomeFinanceDaoException("error while find category transaction model by name " + name, e);
+        try {
+            Query query = em.createNamedQuery("CategoryTransactionModel.findByName", CategoryTransactionModel.class);
+            query.setParameter("name", name);
+            return Optional.ofNullable((CategoryTransactionModel) query.getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
         }
     }
 
     @Override
     public Collection<CategoryTransactionModel> findAll() {
-        try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL)) {
-                ResultSet resultSet = preparedStatement.executeQuery();
-                Collection<CategoryTransactionModel> models = new ArrayList<>();
-
-                while (resultSet.next()) {
-                    long id = resultSet.getLong("id");
-                    String name = resultSet.getString("name");
-                    long parentId = resultSet.getLong("parent");
-
-                    Optional<CategoryTransactionModel> parent = findById(parentId);
-                    CategoryTransactionModel categoryTransactionModel = new CategoryTransactionModel().setId(id).setName(name)
-                            .setParent(parent.orElse(null));
-                    models.add(categoryTransactionModel);
-                }
-
-                return models;
-            } catch (SQLException e) {
-                throw new HomeFinanceDaoException("error while find category transaction models", e);
-            }
-        } catch (SQLException e) {
-            throw new HomeFinanceDaoException("error while find category transaction models", e);
-        }
+        return em.createNamedQuery("CategoryTransactionModel.findAll", CategoryTransactionModel.class).getResultList();
     }
 
     @Override
     public boolean remove(Long aLong) {
-        return super.remove(aLong, getClass());
+        em.remove(em.find(CategoryTransactionModel.class, aLong));
+        return true;
     }
 
     @Override
     public CategoryTransactionModel update(CategoryTransactionModel model) {
-        try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
-                preparedStatement.setString(1, model.getName());
+        return em.merge(model);
+    }
 
-                if (model.getParent() == null) {
-                    preparedStatement.setNull(2, Types.INTEGER);
-                } else {
-                    preparedStatement.setLong(2, model.getParent().getId());
-                }
-
-                preparedStatement.setLong(3, model.getId());
-                preparedStatement.executeUpdate();
-
-                return model;
-            } catch (SQLException e) {
-                throw new HomeFinanceDaoException("error while update category transaction model " + model, e);
-            }
-        } catch (SQLException e) {
-            throw new HomeFinanceDaoException("error while update category transaction model " + model, e);
-        }
+    public Optional<CategoryTransactionModel> findById(Long aLong) {
+        return Optional.ofNullable(em.find(CategoryTransactionModel.class, aLong));
     }
 
     public CategoryTransactionModel saveWithParents(CategoryTransactionModel model) {
@@ -128,36 +81,16 @@ public class CategoryRepositoryImpl extends AbstractRepository<CategoryTransacti
         return save(model);
     }
 
-    public Optional<CategoryTransactionModel> findById(Long aLong) {
-        if (aLong == null) {
-            return Optional.empty();
-        }
-
-        try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_ID)) {
-                preparedStatement.setLong(1, aLong);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                CategoryTransactionModel categoryTransactionModel = getCategoryTransactionModel(resultSet);
-
-                return Optional.ofNullable(categoryTransactionModel);
-            } catch (SQLException e) {
-                throw new HomeFinanceDaoException("error while find category transaction model by id " + aLong, e);
-            }
-        } catch (SQLException e) {
-            throw new HomeFinanceDaoException("error while find category transaction model by id " + aLong, e);
-        }
-    }
-
-    private CategoryTransactionModel getCategoryTransactionModel(ResultSet resultSet) throws SQLException {
-        CategoryTransactionModel categoryTransactionModel = null;
-        if (resultSet.next()) {
-            long id = resultSet.getLong("id");
-            String currentName = resultSet.getString("name");
-            long parentId = resultSet.getLong("parent");
-            Optional<CategoryTransactionModel> parent = findById(parentId);
-            categoryTransactionModel = new CategoryTransactionModel().setId(id).setName(currentName)
-                    .setParent(parent.orElse(null));
-        }
-        return categoryTransactionModel;
-    }
+//    private CategoryTransactionModel getCategoryTransactionModel(ResultSet resultSet) throws SQLException {
+//        CategoryTransactionModel categoryTransactionModel = null;
+//        if (resultSet.next()) {
+//            long id = resultSet.getLong("id");
+//            String currentName = resultSet.getString("name");
+//            long parentId = resultSet.getLong("parent");
+//            Optional<CategoryTransactionModel> parent = findById(parentId);
+//            categoryTransactionModel = new CategoryTransactionModel().setId(id).setName(currentName)
+//                    .setParent(parent.orElse(null));
+//        }
+//        return categoryTransactionModel;
+//    }
 }
