@@ -63,7 +63,8 @@ public class AccountServiceImpl extends AbstractService implements AccountServic
     public boolean remove(Long id) {
         //new TransactionServiceImpl().removeByAccount(id);
         //repository.removeByAccount(id);
-        return repository.remove(id);
+        repository.deleteById(id);
+        return true;
     }
 
     @Override
@@ -79,7 +80,7 @@ public class AccountServiceImpl extends AbstractService implements AccountServic
     public AccountModel update(AccountModel model) {
         AccountModel newModel = new AccountModel();
         if (validate(model)) {
-            newModel = repository.update(model);
+            newModel = repository.saveAndFlush(model);
         }
         return newModel;
     }

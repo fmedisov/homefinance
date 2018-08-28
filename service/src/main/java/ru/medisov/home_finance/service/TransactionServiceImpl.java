@@ -66,7 +66,8 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
 
     @Override
     public boolean remove(Long id) {
-        return repository.remove(id);
+        repository.deleteById(id);
+        return true;
     }
 
     @Override
@@ -82,7 +83,7 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
     public TransactionModel update(TransactionModel model) {
         TransactionModel newModel = new TransactionModel();
         if (validate(model)) {
-            newModel = repository.update(model);
+            newModel = repository.saveAndFlush(model);
         }
         return newModel;
     }

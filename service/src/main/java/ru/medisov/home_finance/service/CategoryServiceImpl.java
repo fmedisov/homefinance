@@ -58,7 +58,8 @@ public class CategoryServiceImpl extends AbstractService implements CategoryServ
 
     @Override
     public boolean remove(Long id) {
-        return repository.remove(id);
+        repository.deleteById(id);
+        return true;
     }
 
     @Override
@@ -76,7 +77,7 @@ public class CategoryServiceImpl extends AbstractService implements CategoryServ
         CategoryTransactionModel newModel = new CategoryTransactionModel();
 
         if (validate(model)) {
-            newModel = repository.update(model);
+            newModel = repository.saveAndFlush(model);
         }
 
         return newModel;

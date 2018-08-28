@@ -11,17 +11,10 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "currency_tbl")
-@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 @Valid
 @NoArgsConstructor
-@NamedQueries({
-        @NamedQuery(name="CurrencyModel.findAll",
-                query="SELECT c FROM CurrencyModel c"),
-        @NamedQuery(name="CurrencyModel.findByName",
-                query="SELECT c FROM CurrencyModel c WHERE c.name = :name"),
-})
 public class CurrencyModel extends TagModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

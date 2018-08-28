@@ -13,6 +13,8 @@ public interface Repository<T, ID> {
 
     Optional<T> findById(Long aLong);
 
+    Optional<T> findByName(String name);
+
     Collection<T> findAll();
 
     boolean remove(ID id);

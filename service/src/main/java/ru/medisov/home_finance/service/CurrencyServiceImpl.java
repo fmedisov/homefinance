@@ -55,7 +55,8 @@ public class CurrencyServiceImpl extends AbstractService implements CurrencyServ
 
     @Override
     public boolean remove(Long id) {
-        return repository.remove(id);
+        repository.deleteById(id);
+        return true;
     }
 
     @Override
@@ -73,7 +74,7 @@ public class CurrencyServiceImpl extends AbstractService implements CurrencyServ
     public CurrencyModel update(CurrencyModel model) {
         CurrencyModel newModel = new CurrencyModel();
         if (validate(model)) {
-            newModel = repository.update(model);
+            newModel = repository.saveAndFlush(model);
         }
 
         return newModel;

@@ -13,17 +13,10 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "account_tbl")
-@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 @Valid
 @NoArgsConstructor
-@NamedQueries({
-        @NamedQuery(name="AccountModel.findAll",
-                query="SELECT a FROM AccountModel a"),
-        @NamedQuery(name="AccountModel.findByName",
-                query="SELECT a FROM AccountModel a WHERE a.name = :name"),
-})
 public class AccountModel extends TagModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -57,21 +57,21 @@ public abstract class AbstractRepository<T, ID> implements Repository<T, ID> {
     private String getTableName(Class oClass) {
         String tblName = null;
         switch (oClass.getSimpleName()) {
-            case "CurrencyRepositoryImpl":
-                tblName = "currency_tbl";
-                break;
-            case "CategoryRepositoryImpl":
-                tblName = "category_tbl";
-                break;
-            case "AccountRepositoryImpl":
-                tblName = "account_tbl";
-                break;
-            case "TransactionRepositoryImpl":
-                tblName = "transaction_tbl";
-                break;
-            case "TagRepositoryImpl":
-                tblName = "tag_tbl";
-                break;
+//            case "CurrencyRepositoryImpl":
+//                tblName = "currency_tbl";
+//                break;
+//            case "CategoryRepositoryImpl":
+//                tblName = "category_tbl";
+//                break;
+//            case "AccountRepositoryImpl":
+//                tblName = "account_tbl";
+//                break;
+//            case "TransactionRepositoryImpl":
+//                tblName = "transaction_tbl";
+//                break;
+//            case "TagRepositoryImpl":
+//                tblName = "tag_tbl";
+//                break;
         }
 
         return tblName;

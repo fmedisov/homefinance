@@ -14,12 +14,6 @@ import javax.persistence.*;
 @Accessors(chain = true)
 @Valid
 @NoArgsConstructor
-@NamedQueries({
-        @NamedQuery(name="CategoryTransactionModel.findAll",
-                query="SELECT c FROM CategoryTransactionModel c"),
-        @NamedQuery(name="CategoryTransactionModel.findByName",
-                query="SELECT c FROM CategoryTransactionModel c WHERE c.name = :name"),
-})
 public class CategoryTransactionModel extends TagModel{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

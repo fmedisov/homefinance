@@ -24,17 +24,17 @@ class AccountServiceTest extends CommonServiceTest {
     @Autowired
     private AccountService accountService;
 
-    @Test
-    @DisplayName("Search by name for an existing account. Correct model returned")
-    void findByNameIfExistsCorrectModelReturned() {
-        super.findByNameIfExistsCorrectModelReturned(repositoryMock, AccountModel.class, accountService);
-    }
-
-    @Test
-    @DisplayName("Attempt to search by name for a non-existent account throws HomeFinanceServiceException")
-    void findByNameIfNotExists() {
-        super.findByNameIfNotExists(repositoryMock, AccountModel.class, accountService);
-    }
+//    @Test
+//    @DisplayName("Search by name for an existing account. Correct model returned")
+//    void findByNameIfExistsCorrectModelReturned() {
+//        super.findByNameIfExistsCorrectModelReturned(repositoryMock, AccountModel.class, accountService);
+//    }
+//
+//    @Test
+//    @DisplayName("Attempt to search by name for a non-existent account throws HomeFinanceServiceException")
+//    void findByNameIfNotExists() {
+//        super.findByNameIfNotExists(repositoryMock, AccountModel.class, accountService);
+//    }
 
     @Test
     @DisplayName("Search for all account models returns collection of models ")

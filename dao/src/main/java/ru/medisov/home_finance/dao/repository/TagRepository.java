@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Component
-public interface TagRepository extends ExtendedRepository<TagModel, Long> {
+public interface TagRepository extends Repository<TagModel, Long> {
 
     List<TagModel> saveUpdateByTransaction(List<TagModel> tags, Long transactionId);
 

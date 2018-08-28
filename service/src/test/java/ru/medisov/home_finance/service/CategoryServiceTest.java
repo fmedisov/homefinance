@@ -24,17 +24,17 @@ class CategoryServiceTest extends CommonServiceTest {
     @Autowired
     private CategoryService categoryService;
 
-    @Test
-    @DisplayName("Search by name for an existing category. Correct model returned")
-    void findByNameIfExistsCorrectModelReturned() {
-        super.findByNameIfExistsCorrectModelReturned(repositoryMock, CategoryTransactionModel.class, categoryService);
-    }
-
-    @Test
-    @DisplayName("Attempt to search by name for a non-existent Category throws HomeFinanceServiceException")
-    void findByNameIfNotExists() {
-        super.findByNameIfNotExists(repositoryMock, CategoryTransactionModel.class, categoryService);
-    }
+//    @Test
+//    @DisplayName("Search by name for an existing category. Correct model returned")
+//    void findByNameIfExistsCorrectModelReturned() {
+//        super.findByNameIfExistsCorrectModelReturned(repositoryMock, CategoryTransactionModel.class, categoryService);
+//    }
+//
+//    @Test
+//    @DisplayName("Attempt to search by name for a non-existent Category throws HomeFinanceServiceException")
+//    void findByNameIfNotExists() {
+//        super.findByNameIfNotExists(repositoryMock, CategoryTransactionModel.class, categoryService);
+//    }
 
     @Test
     @DisplayName("Search for all Category models returns collection of models ")

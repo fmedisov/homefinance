@@ -29,17 +29,17 @@ class CurrencyServiceTest extends CommonServiceTest {
     @Autowired
     private CurrencyService currencyService;
 
-    @Test
-    @DisplayName("Search by name for an existing currency. Correct model returned")
-    void findByNameIfExistsCorrectModelReturned() {
-        super.findByNameIfExistsCorrectModelReturned(repositoryMock, CurrencyModel.class, currencyService);
-    }
-
-    @Test
-    @DisplayName("Attempt to search by name for a non-existent currency throws HomeFinanceServiceException")
-    void findByNameIfNotExists() {
-        super.findByNameIfNotExists(repositoryMock, CurrencyModel.class, currencyService);
-    }
+//    @Test
+//    @DisplayName("Search by name for an existing currency. Correct model returned")
+//    void findByNameIfExistsCorrectModelReturned() {
+//        super.findByNameIfExistsCorrectModelReturned(repositoryMock, CurrencyModel.class, currencyService);
+//    }
+//
+//    @Test
+//    @DisplayName("Attempt to search by name for a non-existent currency throws HomeFinanceServiceException")
+//    void findByNameIfNotExists() {
+//        super.findByNameIfNotExists(repositoryMock, CurrencyModel.class, currencyService);
+//    }
 
     @Test
     @DisplayName("Search for all currency models returns collection of models ")

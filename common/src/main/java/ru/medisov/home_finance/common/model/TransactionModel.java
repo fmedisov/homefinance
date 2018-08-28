@@ -17,22 +17,6 @@ import java.util.List;
 @Accessors(chain = true)
 @Valid
 @NoArgsConstructor
-@NamedQueries({
-        @NamedQuery(name="TransactionModel.findAll",
-                query="SELECT t FROM TransactionModel t"),
-        @NamedQuery(name="TransactionModel.findByName",
-                query="SELECT t FROM TransactionModel t WHERE t.name = :name"),
-        @NamedQuery(name="TransactionModel.findByCategory",
-                query="SELECT t FROM TransactionModel t WHERE t.category = :category"),
-        @NamedQuery(name="TransactionModel.findByPeriod",
-                query="SELECT t FROM TransactionModel t WHERE t.dateTime >= :dateFrom AND t.dateTime <= :upToDate"),
-        @NamedQuery(name="TransactionModel.incomeByPeriod",
-                query="SELECT t FROM TransactionModel t WHERE t.transactionType = 'Income'" +
-                        " AND t.dateTime >= :dateFrom AND t.dateTime <= :upToDate"),
-        @NamedQuery(name="TransactionModel.expenseByPeriod",
-                query="SELECT t FROM TransactionModel t WHERE t.transactionType = 'Expense'" +
-                        " AND t.dateTime >= :dateFrom AND t.dateTime <= :upToDate"),
-})
 public class TransactionModel extends TagModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

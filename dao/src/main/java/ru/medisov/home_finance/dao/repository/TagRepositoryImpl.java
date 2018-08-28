@@ -37,7 +37,6 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
     @Autowired
     private DataSource dataSource;
 
-    @Override
     public Optional<TagModel> findByName(String name) {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_NAME)) {
