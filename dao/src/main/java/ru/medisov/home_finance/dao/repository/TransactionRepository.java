@@ -1,5 +1,6 @@
 package ru.medisov.home_finance.dao.repository;
 
+import org.springframework.stereotype.Component;
 import ru.medisov.home_finance.common.model.TransactionModel;
 
 import java.time.LocalDateTime;

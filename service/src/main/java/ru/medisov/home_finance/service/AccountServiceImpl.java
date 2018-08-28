@@ -1,6 +1,7 @@
 package ru.medisov.home_finance.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.AccountModel;
@@ -9,6 +10,7 @@ import ru.medisov.home_finance.dao.repository.AccountRepository;
 import java.util.Collection;
 import java.util.Optional;
 
+@Component
 @Service
 public class AccountServiceImpl extends AbstractService implements AccountService {
 

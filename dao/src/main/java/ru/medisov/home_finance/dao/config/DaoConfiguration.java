@@ -2,10 +2,7 @@ package ru.medisov.home_finance.dao.config;
 
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -16,7 +13,6 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import ru.medisov.home_finance.common.config.CommonConfiguration;
-import ru.medisov.home_finance.dao.repository.*;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -26,6 +22,7 @@ import java.util.Properties;
 @EnableJpaRepositories("ru.medisov.home_finance.dao.repository")
 @PropertySource("classpath:dao_config.properties")
 @Import(CommonConfiguration.class)
+@ComponentScan("ru.medisov.home_finance.dao")
 public class DaoConfiguration {
 
     @Value("${db.driver}")
@@ -47,31 +44,6 @@ public class DaoConfiguration {
         dataSource.setUsername(login);
         dataSource.setPassword(password);
         return dataSource;
-    }
-
-    @Bean("currencyRepository")
-    public CurrencyRepository currencyRepository() {
-        return new CurrencyRepositoryImpl();
-    }
-
-    @Bean("categoryRepository")
-    public CategoryRepository categoryRepository() {
-        return new CategoryRepositoryImpl();
-    }
-
-    @Bean("accountRepository")
-    public AccountRepository accountRepository() {
-        return new AccountRepositoryImpl();
-    }
-
-    @Bean("transactionRepository")
-    public TransactionRepository transactionRepository() {
-        return new TransactionRepositoryImpl();
-    }
-
-    @Bean("tagRepository")
-    public TagRepository tagRepository() {
-        return new TagRepositoryImpl();
     }
 
     @Bean

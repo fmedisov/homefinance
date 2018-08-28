@@ -1,6 +1,7 @@
 package ru.medisov.home_finance.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import ru.medisov.home_finance.common.model.*;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Component
 @Service
 public class TransactionServiceImpl extends AbstractService implements TransactionService {
 

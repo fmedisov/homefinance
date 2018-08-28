@@ -1,5 +1,8 @@
 package ru.medisov.home_finance.service;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class HomeFinanceServiceException extends RuntimeException {
 
     public HomeFinanceServiceException() {

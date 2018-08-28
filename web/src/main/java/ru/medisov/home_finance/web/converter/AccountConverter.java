@@ -1,12 +1,14 @@
 package ru.medisov.home_finance.web.converter;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.medisov.home_finance.common.model.AccountModel;
 import ru.medisov.home_finance.common.model.AccountType;
 import ru.medisov.home_finance.common.model.CurrencyModel;
 import ru.medisov.home_finance.service.CurrencyService;
 import ru.medisov.home_finance.web.view.AccountView;
 
+@Component
 public class AccountConverter {
 
     private final CurrencyService currencyService;

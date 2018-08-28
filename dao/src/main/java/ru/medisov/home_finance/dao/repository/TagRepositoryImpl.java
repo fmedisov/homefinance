@@ -1,6 +1,7 @@
 package ru.medisov.home_finance.dao.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.TagModel;
@@ -10,6 +11,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Component
 @Transactional
 public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implements TagRepository {
     private static final String INSERT = "INSERT INTO tag_tbl (name, count) VALUES (?, ?)";

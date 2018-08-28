@@ -1,6 +1,7 @@
 package ru.medisov.home_finance.web.converter;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.medisov.home_finance.common.model.AccountModel;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import ru.medisov.home_finance.common.model.TransactionModel;
@@ -14,6 +15,7 @@ import ru.medisov.home_finance.web.view.TransactionView;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+@Component
 public class TransactionConverter {
 
     private final CategoryService categoryService;

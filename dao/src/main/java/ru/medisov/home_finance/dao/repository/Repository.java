@@ -1,11 +1,14 @@
 package ru.medisov.home_finance.dao.repository;
 
+import org.springframework.stereotype.Component;
+
 import java.util.Collection;
         import java.util.Optional;
 
 /**
  * Generic CRUD
  */
+@Component
 public interface Repository<T, ID> {
 
     Optional<T> findById(Long aLong);
