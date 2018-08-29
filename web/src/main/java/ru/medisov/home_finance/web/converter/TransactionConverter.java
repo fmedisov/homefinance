@@ -27,7 +27,7 @@ public class TransactionConverter {
         this.accountService = accountService;
     }
 
-    public TransactionView convert(TransactionModel transactionModel) {
+    public TransactionView toTransactionWiew(TransactionModel transactionModel) {
         TransactionView transactionView = new TransactionView();
         transactionView
                 .setId(transactionModel.getId())
@@ -42,7 +42,7 @@ public class TransactionConverter {
         return transactionView;
     }
 
-    public TransactionModel convert(TransactionView transactionView) {
+    public TransactionModel toTransactionModel(TransactionView transactionView) {
         TransactionModel transactionModel = new TransactionModel();
         transactionModel
                 .setId(transactionView.getId())

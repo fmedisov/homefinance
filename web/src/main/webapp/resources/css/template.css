@@ -13,3 +13,19 @@ body {
 .del-button {
     margin: 10px 10px 10px 10px;
 }
+
+.block-left {
+    width:65%;
+    height:800px;
+    overflow:auto;
+    float:left;
+    /*margin: 2%*/
+    padding: 2%;
+}
+.block-right {
+    width:35%;
+    height:800px;
+    overflow:auto;
+    padding: 2%;
+    /*margin: 2%*/
+}

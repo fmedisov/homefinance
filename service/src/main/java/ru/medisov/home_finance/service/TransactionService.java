@@ -1,6 +1,5 @@
 package ru.medisov.home_finance.service;
 
-import org.springframework.stereotype.Component;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import ru.medisov.home_finance.common.model.TransactionModel;
 
@@ -9,7 +8,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
-@Component
 public interface TransactionService extends Service<TransactionModel> {
     Optional<TransactionModel> findByName(String name);
 
@@ -34,4 +32,6 @@ public interface TransactionService extends Service<TransactionModel> {
     Map<String, IncomeExpense> sumByPeriodNoCategories(LocalDateTime dateFrom, LocalDateTime upToDate);
 
     Map<CategoryTransactionModel, IncomeExpense> sumByPeriodByCategories(LocalDateTime dateFrom, LocalDateTime upToDate);
+
+    Collection<TransactionModel> getByPeriodAndType(LocalDateTime dateFrom, LocalDateTime upToDate, String transactionTypeString);
 }

@@ -1,11 +1,8 @@
 package ru.medisov.home_finance.service;
 
-import org.springframework.stereotype.Component;
-
 import java.util.Collection;
 import java.util.Optional;
 
-@Component
 public interface Service<T> {
     Optional<T> findByName(String name);
 

@@ -91,3 +91,15 @@ function dateOnChange() {
     var upToDate = document.getElementsByClassName("upToDate")[0].value;
     top.location="/transaction/listByPeriod?" + "fromDate=" + fromDate + "&" + "upToDate=" + upToDate;
 }
+
+function categoryOnChange() {
+    var category = document.getElementsByClassName("categoryFilter")[0].value;
+    top.location="/transaction/listByCategory?" + "category=" + category;
+}
+
+function checkTransactionType() {
+    var fromDate = document.getElementsByClassName("fromDate")[0].value;
+    var upToDate = document.getElementsByClassName("upToDate")[0].value;
+    var transactionType = document.querySelector('input[name=transactionTypeFilter]:checked').value;
+    top.location="/transaction/listByPeriodAndType?" + "fromDate=" + fromDate + "&" + "upToDate=" + upToDate + "&" + "type=" + transactionType;
+}

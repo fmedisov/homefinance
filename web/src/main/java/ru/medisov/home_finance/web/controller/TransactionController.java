@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import ru.medisov.home_finance.common.model.TransactionModel;
 import ru.medisov.home_finance.common.model.TransactionType;
 import ru.medisov.home_finance.common.utils.ModelUtils;
@@ -20,6 +21,8 @@ import ru.medisov.home_finance.web.view.TransactionView;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -46,6 +49,10 @@ public class TransactionController {
     @GetMapping(UrlMapper.LIST_TRANSACTION)
     public String showListTransaction(Model model) {
         model.addAttribute("list_transactions", getTransactionViewList());
+        model.addAttribute("selectedCategory", "Не выбрано");
+        model.addAttribute("selectedType", "Все");
+        model.addAttribute("list_ieNoCategories", getSumsNoCategory(null, null));
+        model.addAttribute("list_ieByCategories", getSumsByCategory(null, null));
         setModelParameters(model);
         return "transaction/listTransaction";
     }
@@ -55,13 +62,44 @@ public class TransactionController {
                                         @RequestParam String upToDate, Model model) {
         model.addAttribute("fromDate", fromDate);
         model.addAttribute("upToDate", upToDate);
+        model.addAttribute("selectedCategory", "Не выбрано");
+        model.addAttribute("selectedType", "Все");
         model.addAttribute("list_transactions", listTransactionViewsByDate(fromDate, upToDate));
+        model.addAttribute("list_ieNoCategories", getSumsNoCategory(fromDate, upToDate));
+        model.addAttribute("list_ieByCategories", getSumsByCategory(fromDate, upToDate));
+        setModelParameters(model);
+        return "transaction/listTransaction";
+    }
+
+    @GetMapping(UrlMapper.LIST_TRANSACTION_BY_PERIOD_AND_TYPE)
+    public String showListTransactionByDateAndType(@RequestParam String fromDate,
+                                            @RequestParam String upToDate,
+                                            @RequestParam String type, Model model) {
+        model.addAttribute("fromDate", fromDate);
+        model.addAttribute("upToDate", upToDate);
+        model.addAttribute("selectedCategory", "Не выбрано");
+        model.addAttribute("selectedType", type);
+        model.addAttribute("list_transactions", listTransactionViewsByDateAndType(fromDate, upToDate, type));
+        model.addAttribute("list_ieNoCategories", getSumsNoCategory(fromDate, upToDate));
+        model.addAttribute("list_ieByCategories", getSumsByCategory(fromDate, upToDate));
+
+        setModelParameters(model);
+        return "transaction/listTransaction";
+    }
+
+    @GetMapping(UrlMapper.LIST_TRANSACTION_BY_CATEGORY)
+    public String showListTransactionByCategory(@RequestParam(required = false) String category, Model model) {
+        model.addAttribute("selectedCategory", category);
+        model.addAttribute("selectedType", "Все");
+        model.addAttribute("list_transactions", listTransactionViewsByCategory(category));
+        model.addAttribute("list_ieNoCategories", getSumsNoCategory(null, null));
+        model.addAttribute("list_ieByCategories", getSumsByCategory(null, null));
         setModelParameters(model);
         return "transaction/listTransaction";
     }
 
     @PostMapping(value = UrlMapper.SUBMIT_TRANSACTION)
-    public String doEditSaveAccount(@RequestParam(required = false) Long transactionId, @ModelAttribute TransactionView objectTransaction) {
+    public String doEditSaveTransaction(@RequestParam(required = false) Long transactionId, @ModelAttribute TransactionView objectTransaction) {
         objectTransaction.setId(transactionId);
         TransactionModel model = getModelFromView(objectTransaction);
         service.saveUpdate(model);
@@ -70,7 +108,7 @@ public class TransactionController {
     }
 
     @PostMapping(value = UrlMapper.LIST_TRANSACTION)
-    public String doRemoveAccount(@RequestParam List<String> idTransactions) {
+    public String doRemoveTransaction(@RequestParam List<String> idTransactions) {
         if(idTransactions != null){
             for(String transactionIdStr : idTransactions){
                 Long transactionId = Long.parseLong(transactionIdStr);
@@ -82,25 +120,46 @@ public class TransactionController {
     }
 
     private List<TransactionView> getTransactionViewList() {
-        return service.findAll().stream().map(model -> transactionConverter.convert(model)).collect(Collectors.toList());
+        return service.findAll().stream().map(model -> transactionConverter.toTransactionWiew(model)).collect(Collectors.toList());
     }
 
     private List<TransactionView> listTransactionViewsByDate(String fromDate, String upToDate) {
-        LocalDateTime from;
-        LocalDateTime to;
-        if ("undefined".equals(fromDate) || "".equals(fromDate)) {
-            from = LocalDateTime.now().minusYears(1000);
-        } else {
-            from = ModelUtils.parseDateTime(fromDate);
-        }
-        if ("undefined".equals(upToDate) || "".equals(upToDate)) {
-            to = LocalDateTime.now();
-        } else {
-            to = ModelUtils.parseDateTime(upToDate);
-        }
+        LocalDateTime from = parseDate(fromDate, LocalDateTime.now().minusYears(1000));
+        LocalDateTime to = parseDate(upToDate, LocalDateTime.now());
         List<TransactionView> viewList = new ArrayList<>();
         service.findByPeriod(from, to)
-                .forEach(model -> viewList.add(transactionConverter.convert(model)));
+                .forEach(model -> viewList.add(transactionConverter.toTransactionWiew(model)));
+
+        return viewList;
+    }
+
+    private List<TransactionView> listTransactionViewsByDateAndType(String fromDate, String upToDate, String type) {
+        LocalDateTime from = parseDate(fromDate, LocalDateTime.now().minusYears(1000));
+        LocalDateTime to = parseDate(upToDate, LocalDateTime.now());
+        List<TransactionView> viewList = new ArrayList<>();
+        service.getByPeriodAndType(from, to, type)
+                .forEach(model -> viewList.add(transactionConverter.toTransactionWiew(model)));
+
+        return viewList;
+    }
+
+    private LocalDateTime parseDate(String dateString, LocalDateTime defaultValue) {
+        LocalDateTime result;
+        if (dateString == null || "undefined".equals(dateString) || "".equals(dateString)) {
+            result = defaultValue;
+        } else {
+            result = ModelUtils.parseDateTime(dateString);
+        }
+
+        return result;
+    }
+
+    private List<TransactionView> listTransactionViewsByCategory(String name) {
+        List<TransactionView> viewList = new ArrayList<>();
+        if (name != null) {
+            service.findByCategory((categoryService.findByName(name)).orElse(null))
+                    .forEach(model -> viewList.add(transactionConverter.toTransactionWiew(model)));
+        }
 
         return viewList;
     }
@@ -114,7 +173,7 @@ public class TransactionController {
     }
 
     private TransactionModel getModelFromView(TransactionView transactionView) {
-        return transactionConverter.convert(transactionView);
+        return transactionConverter.toTransactionModel(transactionView);
     }
 
     private void setModelParameters(Model model) {
@@ -122,5 +181,17 @@ public class TransactionController {
         model.addAttribute("list_accounts", getAccountViewList());
         model.addAttribute("list_transactionTypes", TransactionType.values());
         model.addAttribute("objectTransaction", new TransactionView());
+    }
+
+    private Map<String, IncomeExpense> getSumsNoCategory(String dateFrom, String upToDate) {
+        LocalDateTime from = parseDate(dateFrom, LocalDateTime.now().minusYears(1000));
+        LocalDateTime to = parseDate(upToDate, LocalDateTime.now());
+        return service.sumByPeriodNoCategories(from, to);
+    }
+
+    private Map<CategoryTransactionModel, IncomeExpense> getSumsByCategory(String dateFrom, String upToDate) {
+        LocalDateTime from = parseDate(dateFrom, LocalDateTime.now().minusYears(1000));
+        LocalDateTime to = parseDate(upToDate, LocalDateTime.now());
+        return service.sumByPeriodByCategories(from, to);
     }
 }

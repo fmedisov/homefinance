@@ -21,7 +21,7 @@ public class CategoryServiceImpl extends AbstractService implements CategoryServ
     public Optional<CategoryTransactionModel> findByName(String name) {
         try {
             Optional<CategoryTransactionModel> optional = repository.findByName(name);
-            CategoryTransactionModel model = optional.orElseThrow(HomeFinanceDaoException::new);
+            CategoryTransactionModel model = optional.orElseThrow(HomeFinanceServiceException::new);
             validate(model);
 
             return Optional.of(model);

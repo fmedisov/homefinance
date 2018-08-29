@@ -1,12 +1,10 @@
 package ru.medisov.home_finance.service;
 
-import org.springframework.stereotype.Component;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 
 import java.util.Collection;
 import java.util.Optional;
 
-@Component
 public interface CategoryService extends Service<CategoryTransactionModel> {
     Optional<CategoryTransactionModel> findByName(String name);
 

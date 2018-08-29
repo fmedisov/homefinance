@@ -20,17 +20,17 @@ public interface TransactionRepository extends JpaRepository<TransactionModel, L
     Optional<TransactionModel> findByName(@Param("name") String name);
 
     @Query("SELECT t FROM TransactionModel t WHERE t.dateTime >= :dateFrom AND t.dateTime <= :upToDate")
-    Collection<TransactionModel> findByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate);
+    Collection<TransactionModel> findByPeriod(@Param("dateFrom") LocalDateTime dateFrom, @Param("upToDate") LocalDateTime upToDate);
 
-    @Query("SELECT t FROM TransactionModel t WHERE t.category = :id")
-    Collection<TransactionModel> findByCategory(Long id);
+    @Query("SELECT t FROM TransactionModel t WHERE t.category IS NULL OR t.category.id = :id")
+    Collection<TransactionModel> findByCategory(@Param("id") Long id);
 
     @Query("SELECT t FROM TransactionModel t WHERE t.transactionType = 'Income' AND t.dateTime >= :dateFrom AND t.dateTime <= :upToDate")
-    Collection<TransactionModel> incomeByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate);
+    Collection<TransactionModel> incomeByPeriod(@Param("dateFrom") LocalDateTime dateFrom, @Param("upToDate")LocalDateTime upToDate);
 
     @Query("SELECT t FROM TransactionModel t WHERE t.transactionType = 'Expense' AND t.dateTime >= :dateFrom AND t.dateTime <= :upToDate")
-    Collection<TransactionModel> expenseByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate);
+    Collection<TransactionModel> expenseByPeriod(@Param("dateFrom") LocalDateTime dateFrom, @Param("upToDate") LocalDateTime upToDate);
 
     @Query("DELETE FROM TransactionModel t WHERE t.account = :accountId")
-    boolean removeByAccount(Long accountId);
+    boolean removeByAccount(@Param("accountId") Long accountId);
 }

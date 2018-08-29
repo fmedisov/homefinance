@@ -26,17 +26,16 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
     public Optional<TransactionModel> findByName(String name) {
         try {
             Optional<TransactionModel> optional = repository.findByName(name);
-            TransactionModel model = optional.orElseThrow(HomeFinanceDaoException::new);
+            TransactionModel model = optional.orElseThrow(HomeFinanceServiceException::new);
+//            TransactionModel model = optional.orElse(null);
             validate(model);
 
             return Optional.of(model);
         } catch (HomeFinanceDaoException e) {
             throw new HomeFinanceServiceException(e);
         } catch (HomeFinanceServiceException e) {
-            e.printStackTrace();
+            return Optional.empty();
         }
-
-        return Optional.empty();
     }
 
     @Override
@@ -107,7 +106,13 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
 
     @Override
     public Collection<TransactionModel> findByCategory(CategoryTransactionModel category) {
-        Collection<TransactionModel> models = repository.findByCategory(category.getId());
+        Collection<TransactionModel> models = new ArrayList<>();
+
+        if (category != null) {
+            models = repository.findByCategory(category.getId());
+        } else {
+            models = repository.findAll();
+        }
         models.forEach(this::validate);
 
         return models;
@@ -217,5 +222,16 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
 
     private LocalDateTime getUpToDate(LocalDateTime upToDate) {
         return upToDate != null ? upToDate : LocalDateTime.MAX;
+    }
+
+    public Collection<TransactionModel> getByPeriodAndType(LocalDateTime dateFrom, LocalDateTime upToDate, String transactionTypeString) {
+        TransactionType parsed = TransactionType.findByName(transactionTypeString).orElse(null);
+        if (TransactionType.INCOME.equals(parsed)) {
+            return incomeByPeriod(dateFrom, upToDate);
+        } else if (TransactionType.EXPENSE.equals(parsed)) {
+            return expenseByPeriod(dateFrom, upToDate);
+        } else {
+            return findByPeriod(dateFrom, upToDate);
+        }
     }
 }
