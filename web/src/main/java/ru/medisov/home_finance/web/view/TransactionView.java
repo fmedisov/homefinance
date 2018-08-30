@@ -18,5 +18,5 @@ public class TransactionView {
     private String account;
     private String category;
     private String transactionType;
-    private List<String> tags;
+    private String tags;
 }

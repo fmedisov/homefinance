@@ -2,32 +2,41 @@ package ru.medisov.home_finance.web.converter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.medisov.home_finance.common.model.AccountModel;
-import ru.medisov.home_finance.common.model.CategoryTransactionModel;
-import ru.medisov.home_finance.common.model.TransactionModel;
-import ru.medisov.home_finance.common.model.TransactionType;
+import ru.medisov.home_finance.common.model.*;
 import ru.medisov.home_finance.common.utils.ModelUtils;
 import ru.medisov.home_finance.service.AccountService;
 import ru.medisov.home_finance.service.CategoryService;
 import ru.medisov.home_finance.service.HomeFinanceServiceException;
+import ru.medisov.home_finance.service.TagService;
 import ru.medisov.home_finance.web.view.TransactionView;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 @Component
 public class TransactionConverter {
 
     private final CategoryService categoryService;
     private final AccountService accountService;
+    private final TagService tagService;
 
     @Autowired
-    public TransactionConverter(CategoryService categoryService, AccountService accountService) {
+    public TransactionConverter(CategoryService categoryService, AccountService accountService, TagService tagService) {
         this.categoryService = categoryService;
         this.accountService = accountService;
+        this.tagService = tagService;
     }
 
-    public TransactionView toTransactionWiew(TransactionModel transactionModel) {
+    public TransactionView toTransactionView(TransactionModel transactionModel) {
+        StringBuilder builder = new StringBuilder();
+
+        if (transactionModel.getTags() != null) {
+            transactionModel.getTags().forEach(t -> {
+                if (t != null) {
+                    builder.append(t.getName()).append(" ");
+                }
+            });
+        }
+
         TransactionView transactionView = new TransactionView();
         transactionView
                 .setId(transactionModel.getId())
@@ -36,6 +45,7 @@ public class TransactionConverter {
                 .setAmount(transactionModel.getAmount())
                 .setCategory(transactionModel.getCategory().getName())
                 .setDateTime(formatDate(transactionModel.getDateTime().toLocalDate()))
+                .setTags(builder.toString())
 //                .setTags(transactionModel.getTags().stream().map(TagModel::getName).collect(Collectors.toList()))
                 .setTransactionType(transactionModel.getTransactionType().getName());
 
@@ -52,9 +62,7 @@ public class TransactionConverter {
                 .setAccount(getAccount(transactionView.getAccount()))
                 .setCategory(getCategory(transactionView.getCategory()))
                 .setTransactionType(TransactionType.findByName(transactionView.getTransactionType()).orElse(null))
-                //todo переписать нормально
-                //todo implement Tag Service
-                .setTags(new ArrayList<>());
+                .setTags(tagService.fromStringList(transactionView.getTags(), " "));
 
         return transactionModel;
     }

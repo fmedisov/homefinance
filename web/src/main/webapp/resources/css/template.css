@@ -15,17 +15,15 @@ body {
 }
 
 .block-left {
-    width:65%;
+    width:70%;
     height:800px;
     overflow:auto;
     float:left;
-    /*margin: 2%*/
-    padding: 2%;
+    padding: 1%;
 }
 .block-right {
-    width:35%;
+    width:30%;
     height:800px;
     overflow:auto;
-    padding: 2%;
-    /*margin: 2%*/
+    padding: 1%;
 }

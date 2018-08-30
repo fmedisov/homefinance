@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -120,7 +119,7 @@ public class TransactionController {
     }
 
     private List<TransactionView> getTransactionViewList() {
-        return service.findAll().stream().map(model -> transactionConverter.toTransactionWiew(model)).collect(Collectors.toList());
+        return service.findAll().stream().map(model -> transactionConverter.toTransactionView(model)).collect(Collectors.toList());
     }
 
     private List<TransactionView> listTransactionViewsByDate(String fromDate, String upToDate) {
@@ -128,7 +127,7 @@ public class TransactionController {
         LocalDateTime to = parseDate(upToDate, LocalDateTime.now());
         List<TransactionView> viewList = new ArrayList<>();
         service.findByPeriod(from, to)
-                .forEach(model -> viewList.add(transactionConverter.toTransactionWiew(model)));
+                .forEach(model -> viewList.add(transactionConverter.toTransactionView(model)));
 
         return viewList;
     }
@@ -138,7 +137,7 @@ public class TransactionController {
         LocalDateTime to = parseDate(upToDate, LocalDateTime.now());
         List<TransactionView> viewList = new ArrayList<>();
         service.getByPeriodAndType(from, to, type)
-                .forEach(model -> viewList.add(transactionConverter.toTransactionWiew(model)));
+                .forEach(model -> viewList.add(transactionConverter.toTransactionView(model)));
 
         return viewList;
     }
@@ -158,7 +157,7 @@ public class TransactionController {
         List<TransactionView> viewList = new ArrayList<>();
         if (name != null) {
             service.findByCategory((categoryService.findByName(name)).orElse(null))
-                    .forEach(model -> viewList.add(transactionConverter.toTransactionWiew(model)));
+                    .forEach(model -> viewList.add(transactionConverter.toTransactionView(model)));
         }
 
         return viewList;

@@ -14,7 +14,7 @@ import java.util.Optional;
 //todo implement methods for save tags by transactions
 
 @Component
-public interface TransactionRepository extends JpaRepository<TransactionModel, Long> {
+public interface  TransactionRepository extends JpaRepository<TransactionModel, Long> {
 
     @Query("select t from TransactionModel t where t.name = :name")
     Optional<TransactionModel> findByName(@Param("name") String name);

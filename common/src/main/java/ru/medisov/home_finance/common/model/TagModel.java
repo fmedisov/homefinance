@@ -16,6 +16,10 @@ public class TagModel {
     private String name;
     private long count;
 
+    public TagModel(String name) {
+        this.name = name;
+    }
+
     public TagModel(TagModel model) {
         this.setId(model.getId());
         this.setName(model.getName());

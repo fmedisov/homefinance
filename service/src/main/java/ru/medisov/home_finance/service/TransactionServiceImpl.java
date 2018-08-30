@@ -22,12 +22,16 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private TagService tagService;
+
     @Override
     public Optional<TransactionModel> findByName(String name) {
         try {
             Optional<TransactionModel> optional = repository.findByName(name);
             TransactionModel model = optional.orElseThrow(HomeFinanceServiceException::new);
-//            TransactionModel model = optional.orElse(null);
+            List<TagModel> tagModels = tagService.findByTransaction(model.getId());
+            model.setTags(tagModels);
             validate(model);
 
             return Optional.of(model);
@@ -43,6 +47,8 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
         try {
             Optional<TransactionModel> optional = repository.findById(aLong);
             TransactionModel model = optional.orElseThrow(HomeFinanceDaoException::new);
+            List<TagModel> tagModels = tagService.findByTransaction(model.getId());
+            model.setTags(tagModels);
             validate(model);
 
             return Optional.of(model);
@@ -58,6 +64,7 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
     @Override
     public Collection<TransactionModel> findAll() {
         Collection<TransactionModel> models = repository.findAll();
+        models.forEach(m -> m.setTags(tagService.findByTransaction(m.getId())));
         models.forEach(this::validate);
 
         return models;
@@ -65,6 +72,7 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
 
     @Override
     public boolean remove(Long id) {
+        tagService.removeByTransaction(id);
         repository.deleteById(id);
         return true;
     }
@@ -75,6 +83,10 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
         if (validate(model)) {
             newModel = repository.save(model);
         }
+
+        List<TagModel> tagModels = tagService.saveUpdateByTransaction(model.getTags(), newModel.getId());
+        newModel.setTags(tagModels);
+
         return newModel;
     }
 
@@ -84,21 +96,30 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
         if (validate(model)) {
             newModel = repository.saveAndFlush(model);
         }
+
+        List<TagModel> tagModels = tagService.saveUpdateByTransaction(model.getTags(), newModel.getId());
+        newModel.setTags(tagModels);
+
         return newModel;
     }
 
     @Override
     public TransactionModel saveUpdate(TransactionModel model) {
+        TransactionModel result;
+
         if (model.getId() == null) {
-            return save(model);
+            result = save(model);
         } else {
-            return update(model);
+            result = update(model);
         }
+
+        return result;
     }
 
     @Override
     public Collection<TransactionModel> findByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate) {
         Collection<TransactionModel> models = repository.findByPeriod(getDateFrom(dateFrom), getUpToDate(upToDate));
+        models.forEach(m -> m.setTags(tagService.findByTransaction(m.getId())));
         models.forEach(this::validate);
 
         return models;
@@ -106,13 +127,14 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
 
     @Override
     public Collection<TransactionModel> findByCategory(CategoryTransactionModel category) {
-        Collection<TransactionModel> models = new ArrayList<>();
+        Collection<TransactionModel> models;
 
         if (category != null) {
             models = repository.findByCategory(category.getId());
         } else {
             models = repository.findAll();
         }
+        models.forEach(m -> m.setTags(tagService.findByTransaction(m.getId())));
         models.forEach(this::validate);
 
         return models;
@@ -121,6 +143,7 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
     @Override
     public Collection<TransactionModel> incomeByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate) {
         Collection<TransactionModel> models = repository.incomeByPeriod(getDateFrom(dateFrom), getUpToDate(upToDate));
+        models.forEach(m -> m.setTags(tagService.findByTransaction(m.getId())));
         models.forEach(this::validate);
 
         return models;
@@ -129,6 +152,7 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
     @Override
     public Collection<TransactionModel> expenseByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate) {
         Collection<TransactionModel> models = repository.expenseByPeriod(getDateFrom(dateFrom), getUpToDate(upToDate));
+        models.forEach(m -> m.setTags(tagService.findByTransaction(m.getId())));
         models.forEach(this::validate);
 
         return models;

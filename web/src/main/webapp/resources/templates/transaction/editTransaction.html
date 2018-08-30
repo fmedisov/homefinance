@@ -49,6 +49,10 @@
                                 <label for="dateTime">Дата транзакции:</label>
                                 <input id="dateTime" class="form-control" name="dateTime" type="date" th:field="*{dateTime}" th:value="*{dateTime}">
                             </div>
+                            <div class="form-group">
+                                <label for="tags">Теги (через пробел):</label>
+                                <input id="tags" class="form-control" name="tags" type="text" th:field="*{tags}" th:value="*{tags}">
+                            </div>
                             <button id="button" type="submit" class="btn btn-success">Сохранить</button>
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
                             <div class="result">

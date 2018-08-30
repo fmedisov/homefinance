@@ -121,6 +121,7 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
         }
     }
 
+    @Override
     public Optional<TagModel> findById(Long aLong) {
         if (aLong == null) {
             return Optional.empty();
@@ -141,6 +142,7 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
         }
     }
 
+    @Override
     public List<TagModel> saveTagList(List<TagModel> models) {
         String namesAndCounts = getNamesAndCounts(models);
 
@@ -161,6 +163,7 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
         }
     }
 
+    @Override
     public List<TagModel> updateTagList(List<TagModel> models) {
         if (models == null || models.size() == 0) {
             return models;
@@ -187,6 +190,7 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
         }
     }
 
+    @Override
     public List<TagModel> saveUpdateByTransaction(List<TagModel> allTags, Long transactionId) {
         //todo implement with fewer queries
 
@@ -226,6 +230,7 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
         return updateTagList(existing);
     }
 
+    @Override
     public List<TagModel> findByTransaction(Long transactionId) {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_TRANSACTION)) {
@@ -241,6 +246,7 @@ public class TagRepositoryImpl extends AbstractRepository<TagModel, Long> implem
         }
     }
 
+    @Override
     public boolean removeByTransaction(Long transactionId) {
         return executeQueryByTransaction(UPDATE_TAG_COUNT, transactionId) &&
                 executeQueryByTransaction(DELETE_BY_TRANSACTION, transactionId);

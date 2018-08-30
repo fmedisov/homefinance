@@ -58,12 +58,14 @@ jQuery(document).ready(function($) {
         var account = $('#transaction-account-' + transactionId).text();
         var category = $('#transaction-category-' + transactionId).text();
         var transactionType = $('#transaction-transactionType-' + transactionId).text();
+        var tags = $('#transaction-tags-' + transactionId).text();
 
         $('#dateTime').val(dateTime);
         $('#amount').val(amount);
         $('#account').val(account);
         $('#category').val(category);
         $('#transactionType').val(transactionType);
+        $('#tags').val(tags);
         $("#transactionForm").attr("action", "/transaction/submit" + "?transactionId=" + (transactionId ? transactionId : ""));
     });
 

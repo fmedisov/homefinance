@@ -11,30 +11,40 @@
         <form id="remove-form" th:action="@{/transaction/list}" method="post">
         <div class="row">
             <div>
-                <button type="button" class="btn btn-success add-button" data-toggle="modal" data-target="#transactionModal">Добавить</button>
-                <button id="delete-button" type="submit" class="btn btn-dark del-button" data-target="">Удалить</button>
-                <label for="fromDate">  Показывать транзакции: с  </label>
-                <input id="fromDate" class="fromDate" th:id="${'fromDate'}" name="fromDate" type="date" width="200" th:value="${fromDate}" onchange="dateOnChange();">
-                <label for="upToDate">  по  </label>
-                <input id="upToDate" class="upToDate" th:id="${'upToDate'}" name="upToDate" type="date" width="200" th:value="${upToDate}" onchange="dateOnChange();">
-                <label for="categoryFilter">Категория:</label>
-                <select id="categoryFilter" class="categoryFilter" name="categoryFilter" onchange="categoryOnChange();">
-                    <option th:text="${'Не выбрано'}" th:value="${'Не выбрано'}"></option>
-                    <option th:each="category : ${list_categories}"
-                            th:text="${category}"
-                            th:value="${category.name}"
-                            th:selected="${category.name == selectedCategory}">Категория</option>
-                </select>
+                <div class="form-group">
+                    <button type="button" class="btn btn-success add-button" data-toggle="modal" data-target="#transactionModal">Добавить</button>
+                    <button id="delete-button" type="submit" class="btn btn-dark del-button" data-target="">Удалить</button>
+                    <label for="fromDate">  Показывать транзакции: с  </label>
+                    <input id="fromDate" class="fromDate" th:id="${'fromDate'}" name="fromDate" type="date" width="200" th:value="${fromDate}" onchange="dateOnChange();">
+                    <label for="upToDate">  по  </label>
+                    <input id="upToDate" class="upToDate" th:id="${'upToDate'}" name="upToDate" type="date" width="200" th:value="${upToDate}" onchange="dateOnChange();">
+                    <label for="categoryFilter">Категория:</label>
+                    <select id="categoryFilter" class="form-control-inline categoryFilter" name="categoryFilter" onchange="categoryOnChange();">
+                        <option th:text="${'Не выбрано'}" th:value="${'Не выбрано'}"></option>
+                        <option th:each="category : ${list_categories}"
+                                th:text="${category}"
+                                th:value="${category.name}"
+                                th:selected="${category.name == selectedCategory}">
+                            Категория
+                        </option>
+                    </select>
+                </div>
                 <br>
                 <span>
                     <b>Тип транзакции?</b>
                     <!--todo implement with transactionTypeList-->
-                    <span><input name="transactionTypeFilter" type="radio" value="Все" onchange="checkTransactionType();"
-                                 th:checked="${selectedType == 'Все'}"> Все</span>
-                    <span><input name="transactionTypeFilter" type="radio" value="Доход" onchange="checkTransactionType();"
-                                 th:checked="${selectedType == 'Доход'}"> Доход</span>
-                    <span><input name="transactionTypeFilter" type="radio" value="Расход" onchange="checkTransactionType();"
-                                 th:checked="${selectedType == 'Расход'}"> Расход</span>
+                    <div class="form-check form-check-inline">
+                        <input id="radio1" name="transactionTypeFilter" type="radio" value="Все" onchange="checkTransactionType();" th:checked="${selectedType == 'Все'}">
+                        <label class="form-check-label" for="radio1">Все</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input id="radio2" name="transactionTypeFilter" type="radio" value="Доход" onchange="checkTransactionType();" th:checked="${selectedType == 'Доход'}">
+                        <label class="form-check-label" for="radio2">Доход</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input id="radio3" name="transactionTypeFilter" type="radio" value="Расход" onchange="checkTransactionType();" th:checked="${selectedType == 'Расход'}">
+                        <label class="form-check-label" for="radio3">Расход</label>
+                    </div>
                 </span>
             </div>
             <div class="block-left">
@@ -48,6 +58,7 @@
                         <th scope="col">Счет</th>
                         <th scope="col">Категория</th>
                         <th scope="col">Тип транзакции</th>
+                        <th scope="col">Теги</th>
                         <!--<th scope="col">Теги</th>-->
                     </tr>
                     </thead>
@@ -68,6 +79,8 @@
                         <td th:id="'transaction-category-'+${transaction.id}" th:text="${transaction.category}" data-toggle="modal" data-target="#transactionModal"
                             th:data-transaction-id="${transaction.id}" data-transaction-id="${transaction.id}">
                         <td th:id="'transaction-transactionType-'+${transaction.id}" th:text="${transaction.transactionType}" data-toggle="modal" data-target="#transactionModal"
+                            th:data-transaction-id="${transaction.id}" data-transaction-id="${transaction.id}">
+                        <td th:id="'transaction-tags-'+${transaction.id}" th:text="${transaction.tags}" data-toggle="modal" data-target="#transactionModal"
                             th:data-transaction-id="${transaction.id}" data-transaction-id="${transaction.id}">
                         <!--<td th:text="${transaction.tags}">-->
                     </tr>
