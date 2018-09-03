@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Component
 @Service
-@Transactional
+//todo @Transactional and tests
 public class TransactionServiceImpl extends CommonService implements TransactionService {
 
     @Autowired
@@ -47,7 +47,7 @@ public class TransactionServiceImpl extends CommonService implements Transaction
     public Optional<TransactionModel> findById(Long aLong) {
         try {
             Optional<TransactionModel> optional = repository.findById(aLong);
-            TransactionModel model = optional.orElseThrow(HomeFinanceDaoException::new);
+            TransactionModel model = optional.orElseThrow(HomeFinanceServiceException::new);
             validate(model);
 
             return Optional.of(model);
@@ -77,8 +77,9 @@ public class TransactionServiceImpl extends CommonService implements Transaction
             tags.forEach(t -> tagService.update(t.setCount(t.getCount() - 1)));
         }
 
+        boolean isExist = repository.existsById(id);
         repository.deleteById(id);
-        return true;
+        return isExist;
     }
 
     @Override

@@ -9,10 +9,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import ru.medisov.home_finance.common.generator.TestModel;
 import ru.medisov.home_finance.common.model.AccountModel;
 import ru.medisov.home_finance.dao.repository.AccountRepository;
 import ru.medisov.home_finance.service.config.ServiceConfiguration;
 import ru.medisov.home_finance.service.exception.HomeFinanceServiceException;
+
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith({MockitoExtension.class, SpringExtension.class})
 @ContextConfiguration(classes = {ServiceConfiguration.class})
@@ -25,17 +33,32 @@ class AccountServiceTest extends CommonServiceTest {
     @Autowired
     private AccountService accountService;
 
-//    @Test
-//    @DisplayName("Search by name for an existing account. Correct model returned")
-//    void findByNameIfExistsCorrectModelReturned() {
-//        super.findByNameIfExistsCorrectModelReturned(repositoryMock, AccountModel.class, accountService);
-//    }
-//
-//    @Test
-//    @DisplayName("Attempt to search by name for a non-existent account throws HomeFinanceServiceException")
-//    void findByNameIfNotExists() {
-//        super.findByNameIfNotExists(repositoryMock, AccountModel.class, accountService);
-//    }
+    @Test
+    @DisplayName("Search by name for an existing account. Correct model returned")
+    void findByNameIfExistsCorrectModelReturned() {
+        //arrange
+        AccountModel expectedModel = TestModel.generateAccountModel();
+        expectedModel.setId(1L);
+        Optional<AccountModel> expected = Optional.of(expectedModel);
+        when(repositoryMock.findByName(expectedModel.getName())).thenReturn(expected);
+
+        //act
+        Optional<AccountModel> actual = accountService.findByName(expectedModel.getName());
+
+        //assert
+        assertEquals(expected, actual);
+        verify(repositoryMock, times(1)).findByName(expectedModel.getName());
+    }
+
+    @Test
+    @DisplayName("Attempt to search by name for a non-existent account returns Optional.empty()")
+    void findByNameIfNotExists() {
+        AccountModel model = TestModel.generateAccountModel();
+        model.setId(1L);
+        when(repositoryMock.findByName(model.getName())).thenReturn(Optional.empty());
+
+        assertEquals(Optional.empty(), accountService.findByName(model.getName()));
+    }
 
     @Test
     @DisplayName("Search for all account models returns collection of models ")

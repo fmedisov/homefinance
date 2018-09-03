@@ -11,6 +11,8 @@ import ru.medisov.home_finance.service.exception.HomeFinanceServiceException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+//todo implement tests for tagService
+
 @Component
 @Service
 public class TagServiceImpl extends CommonService implements TagService  {
@@ -37,7 +39,7 @@ public class TagServiceImpl extends CommonService implements TagService  {
     public Optional<TagModel> findById(Long aLong) {
         try {
             Optional<TagModel> optional = repository.findById(aLong);
-            TagModel model = optional.orElseThrow(HomeFinanceDaoException::new);
+            TagModel model = optional.orElseThrow(HomeFinanceServiceException::new);
             validate(model);
 
             return Optional.of(model);
@@ -58,8 +60,9 @@ public class TagServiceImpl extends CommonService implements TagService  {
 
     @Override
     public boolean remove(Long id) {
+        boolean isExist = repository.existsById(id);
         repository.deleteById(id);
-        return true;
+        return isExist;
     }
 
     @Override

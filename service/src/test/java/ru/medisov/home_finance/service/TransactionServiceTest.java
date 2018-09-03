@@ -18,18 +18,13 @@ import ru.medisov.home_finance.service.exception.HomeFinanceServiceException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
-//todo restore non-working methods in tests
 
 @ExtendWith({MockitoExtension.class, SpringExtension.class})
 @ContextConfiguration(classes = {ServiceConfiguration.class})
@@ -45,18 +40,32 @@ class TransactionServiceTest extends CommonServiceTest {
     @Autowired
     private TransactionService transactionService;
 
-//    @Test
-//    @DisplayName("Search by name for an existing transaction. Correct model returned")
-//    void findByNameIfExistsCorrectModelReturned() {
-//        super.findByNameIfExistsCorrectModelReturned(repositoryMock, TransactionModel.class, transactionService);
-//    }
-//
-//    @Test
-//    @DisplayName("Attempt to search by name for a non-existent transaction throws HomeFinanceServiceException")
-//    void findByNameIfNotExists() {
-//        super.findByNameIfNotExists(repositoryMock, TransactionModel.class, transactionService);
-//
-//    }
+    @Test
+    @DisplayName("Search by name for an existing transaction. Correct model returned")
+    void findByNameIfExistsCorrectModelReturned() {
+        //arrange
+        TransactionModel expectedModel = TestModel.generateTransactionModel();
+        expectedModel.setId(1L);
+        Optional<TransactionModel> expected = Optional.of(expectedModel);
+        when(repositoryMock.findByName(expectedModel.getName())).thenReturn(expected);
+
+        //act
+        Optional<TransactionModel> actual = transactionService.findByName(expectedModel.getName());
+
+        //assert
+        assertEquals(expected, actual);
+        verify(repositoryMock, times(1)).findByName(expectedModel.getName());
+    }
+
+    @Test
+    @DisplayName("Attempt to search by name for a non-existent transaction throws HomeFinanceServiceException")
+    void findByNameIfNotExists() {
+        TransactionModel model = TestModel.generateTransactionModel();
+        model.setId(1L);
+        when(repositoryMock.findByName(model.getName())).thenReturn(Optional.empty());
+
+        assertEquals(Optional.empty(), transactionService.findByName(model.getName()));
+    }
 
     @Test
     @DisplayName("Search for all transaction models returns collection of models ")
@@ -87,12 +96,6 @@ class TransactionServiceTest extends CommonServiceTest {
     void saveCorrectModelSuccessfulValidation() {
         super.saveCorrectModelSuccessfulValidation(repositoryMock, TransactionModel.class, transactionService);
     }
-
-//    @Test
-//    @DisplayName("Attempt to save an incorrect model throws HomeFinanceServiceException. Validation not accepted")
-//    void saveIncorrectModelValidationNotAccepted() throws HomeFinanceServiceException {
-//        super.saveIncorrectModelValidationNotAccepted(repositoryMock, TransactionModel.class, transactionService);
-//    }
 
     @Test
     @DisplayName("Attempt to save an model without date throws HomeFinanceServiceException. Validation not accepted")
@@ -126,12 +129,6 @@ class TransactionServiceTest extends CommonServiceTest {
     void updateCorrectModelSameModelReturned() {
         super.updateCorrectModelSameModelReturned(repositoryMock, TransactionModel.class, transactionService);
     }
-
-//    @Test
-//    @DisplayName("Attempt to update an incorrect Model throws HomeFinanceServiceException")
-//    void updateIncorrectModelCausesException() throws HomeFinanceServiceException {
-//        super.updateIncorrectModelCausesException(repositoryMock, TransactionModel.class, transactionService);
-//    }
 
     @Test
     @DisplayName("Search for transaction models by period returns collection of models ")

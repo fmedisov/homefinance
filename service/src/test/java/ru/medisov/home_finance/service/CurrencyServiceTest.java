@@ -30,17 +30,32 @@ class CurrencyServiceTest extends CommonServiceTest {
     @Autowired
     private CurrencyService currencyService;
 
-//    @Test
-//    @DisplayName("Search by name for an existing currency. Correct model returned")
-//    void findByNameIfExistsCorrectModelReturned() {
-//        super.findByNameIfExistsCorrectModelReturned(repositoryMock, CurrencyModel.class, currencyService);
-//    }
-//
-//    @Test
-//    @DisplayName("Attempt to search by name for a non-existent currency throws HomeFinanceServiceException")
-//    void findByNameIfNotExists() {
-//        super.findByNameIfNotExists(repositoryMock, CurrencyModel.class, currencyService);
-//    }
+    @Test
+    @DisplayName("Search by name for an existing currency. Correct model returned")
+    void findByNameIfExistsCorrectModelReturned() {
+        //arrange
+        CurrencyModel expectedModel = TestModel.generateCurrencyModel();
+        expectedModel.setId(1L);
+        Optional<CurrencyModel> expected = Optional.of(expectedModel);
+        when(repositoryMock.findByName(expectedModel.getName())).thenReturn(expected);
+
+        //act
+        Optional<CurrencyModel> actual = currencyService.findByName(expectedModel.getName());
+
+        //assert
+        assertEquals(expected, actual);
+        verify(repositoryMock, times(1)).findByName(expectedModel.getName());
+    }
+
+    @Test
+    @DisplayName("Attempt to search by name for a non-existent currency returns Optional.empty()")
+    void findByNameIfNotExists() {
+        CurrencyModel model = TestModel.generateCurrencyModel();
+        model.setId(1L);
+        when(repositoryMock.findByName(model.getName())).thenReturn(Optional.empty());
+
+        assertEquals(Optional.empty(), currencyService.findByName(model.getName()));
+    }
 
     @Test
     @DisplayName("Search for all currency models returns collection of models ")

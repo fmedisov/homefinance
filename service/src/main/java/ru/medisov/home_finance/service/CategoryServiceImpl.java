@@ -37,7 +37,7 @@ public class CategoryServiceImpl extends CommonService implements CategoryServic
     public Optional<CategoryTransactionModel> findById(Long aLong) {
         try {
             Optional<CategoryTransactionModel> optional = repository.findById(aLong);
-            CategoryTransactionModel model = optional.orElseThrow(HomeFinanceDaoException::new);
+            CategoryTransactionModel model = optional.orElseThrow(HomeFinanceServiceException::new);
             validate(model);
 
             return Optional.of(model);
@@ -59,8 +59,9 @@ public class CategoryServiceImpl extends CommonService implements CategoryServic
 
     @Override
     public boolean remove(Long id) {
+        boolean isExist = repository.existsById(id);
         repository.deleteById(id);
-        return true;
+        return isExist;
     }
 
     @Override

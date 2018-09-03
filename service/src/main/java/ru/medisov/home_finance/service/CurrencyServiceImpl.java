@@ -22,7 +22,7 @@ public class CurrencyServiceImpl extends CommonService implements CurrencyServic
     public Optional<CurrencyModel> findByName(String name) {
         try {
             Optional<CurrencyModel> optional = repository.findByName(name);
-            CurrencyModel currencyModel = optional.orElseThrow(HomeFinanceDaoException::new);
+            CurrencyModel currencyModel = optional.orElseThrow(HomeFinanceServiceException::new);
             validate(currencyModel);
             return Optional.of(currencyModel);
         } catch (HomeFinanceDaoException e) {
@@ -36,7 +36,7 @@ public class CurrencyServiceImpl extends CommonService implements CurrencyServic
     public Optional<CurrencyModel> findById(Long aLong) {
         try {
             Optional<CurrencyModel> optional = repository.findById(aLong);
-            CurrencyModel currencyModel = optional.orElseThrow(HomeFinanceDaoException::new);
+            CurrencyModel currencyModel = optional.orElseThrow(HomeFinanceServiceException::new);
             validate(currencyModel);
             return Optional.of(currencyModel);
         } catch (HomeFinanceDaoException e) {
@@ -56,8 +56,9 @@ public class CurrencyServiceImpl extends CommonService implements CurrencyServic
 
     @Override
     public boolean remove(Long id) {
+        boolean isExist = repository.existsById(id);
         repository.deleteById(id);
-        return true;
+        return isExist;
     }
 
     @Override

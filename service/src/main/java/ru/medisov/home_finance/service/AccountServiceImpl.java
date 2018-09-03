@@ -22,7 +22,7 @@ public class AccountServiceImpl extends CommonService implements AccountService 
     public Optional<AccountModel> findByName(String name) {
         try {
             Optional<AccountModel> optional = repository.findByName(name);
-            AccountModel model = optional.orElseThrow(HomeFinanceDaoException::new);
+            AccountModel model = optional.orElseThrow(HomeFinanceServiceException::new);
             validate(model);
 
             return Optional.of(model);
@@ -39,7 +39,7 @@ public class AccountServiceImpl extends CommonService implements AccountService 
     public Optional<AccountModel> findById(Long aLong) {
         try {
             Optional<AccountModel> optional = repository.findById(aLong);
-            AccountModel model = optional.orElseThrow(HomeFinanceDaoException::new);
+            AccountModel model = optional.orElseThrow(HomeFinanceServiceException::new);
             validate(model);
 
             return Optional.of(model);
@@ -64,8 +64,9 @@ public class AccountServiceImpl extends CommonService implements AccountService 
     public boolean remove(Long id) {
         //new TransactionServiceImpl().removeByAccount(id);
         //repository.removeByAccount(id);
+        boolean isExist = repository.existsById(id);
         repository.deleteById(id);
-        return true;
+        return isExist;
     }
 
     @Override
