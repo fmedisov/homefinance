@@ -12,6 +12,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.medisov.home_finance.common.model.AccountModel;
 import ru.medisov.home_finance.dao.repository.AccountRepository;
 import ru.medisov.home_finance.service.config.ServiceConfiguration;
+import ru.medisov.home_finance.service.exception.HomeFinanceServiceException;
 
 @ExtendWith({MockitoExtension.class, SpringExtension.class})
 @ContextConfiguration(classes = {ServiceConfiguration.class})

@@ -11,13 +11,14 @@ import ru.medisov.home_finance.common.validator.NotEmpty;
 import javax.persistence.*;
 import java.math.BigDecimal;
 
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "account_tbl")
 @Data
 @Accessors(chain = true)
 @Valid
 @NoArgsConstructor
-public class AccountModel extends TagModel {
+public class AccountModel implements SimpleModel<AccountModel> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -6,13 +6,14 @@ import org.springframework.stereotype.Service;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import ru.medisov.home_finance.dao.repository.CategoryRepository;
+import ru.medisov.home_finance.service.exception.HomeFinanceServiceException;
 
 import java.util.Collection;
 import java.util.Optional;
 
 @Component
 @Service
-public class CategoryServiceImpl extends AbstractService implements CategoryService {
+public class CategoryServiceImpl extends CommonService implements CategoryService {
 
     @Autowired
     private CategoryRepository repository;

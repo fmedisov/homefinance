@@ -6,8 +6,8 @@ import ru.medisov.home_finance.common.model.*;
 import ru.medisov.home_finance.common.utils.ModelUtils;
 import ru.medisov.home_finance.service.AccountService;
 import ru.medisov.home_finance.service.CategoryService;
-import ru.medisov.home_finance.service.HomeFinanceServiceException;
 import ru.medisov.home_finance.service.TagService;
+import ru.medisov.home_finance.service.exception.HomeFinanceServiceException;
 import ru.medisov.home_finance.web.view.TransactionView;
 
 import java.time.LocalDate;
@@ -27,16 +27,6 @@ public class TransactionConverter {
     }
 
     public TransactionView toTransactionView(TransactionModel transactionModel) {
-        StringBuilder builder = new StringBuilder();
-
-        if (transactionModel.getTags() != null) {
-            transactionModel.getTags().forEach(t -> {
-                if (t != null) {
-                    builder.append(t.getName()).append(" ");
-                }
-            });
-        }
-
         TransactionView transactionView = new TransactionView();
         transactionView
                 .setId(transactionModel.getId())
@@ -45,8 +35,7 @@ public class TransactionConverter {
                 .setAmount(transactionModel.getAmount())
                 .setCategory(transactionModel.getCategory().getName())
                 .setDateTime(formatDate(transactionModel.getDateTime().toLocalDate()))
-                .setTags(builder.toString())
-//                .setTags(transactionModel.getTags().stream().map(TagModel::getName).collect(Collectors.toList()))
+                .setTags(getTagsString(transactionModel))
                 .setTransactionType(transactionModel.getTransactionType().getName());
 
         return transactionView;
@@ -87,5 +76,19 @@ public class TransactionConverter {
 
     private String formatDate(LocalDate date) {
         return date.toString();
+    }
+
+    private String getTagsString(TransactionModel model) {
+        StringBuilder builder = new StringBuilder();
+
+        if (model.getTags() != null && model.getTags().size() > 0) {
+            model.getTags().forEach(t -> {
+                if (t != null) {
+                    builder.append(t.getName()).append(" ");
+                }
+            });
+        }
+
+        return builder.toString();
     }
 }

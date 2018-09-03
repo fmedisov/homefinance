@@ -1,21 +1,18 @@
 package ru.medisov.home_finance.dao.repository;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import ru.medisov.home_finance.common.model.TagModel;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
-public interface TagRepository extends Repository<TagModel, Long> {
+@Component
+@Transactional
+public interface TagRepository extends JpaRepository<TagModel, Long> {
 
-    List<TagModel> saveUpdateByTransaction(List<TagModel> tags, Long transactionId);
-
-    List<TagModel> findByTransaction(Long transactionId);
-
-    boolean removeByTransaction(Long transactionId);
-
-    List<TagModel> saveTagList(List<TagModel> models);
-
-    List<TagModel> updateTagList(List<TagModel> models);
-
-    Collection<TagModel> findByNames(List<TagModel> models);
+    @Query("select t from TagModel t where t.name = :name")
+    Optional<TagModel> findByName(@Param("name") String name);
 }

@@ -9,15 +9,17 @@ import ru.medisov.home_finance.common.validator.Valid;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "transaction_tbl")
 @Data
 @Accessors(chain = true)
 @Valid
 @NoArgsConstructor
-public class TransactionModel extends TagModel {
+public class TransactionModel implements SimpleModel<TransactionModel> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,6 +40,10 @@ public class TransactionModel extends TagModel {
     @Enumerated(EnumType.STRING)
     @Column(name = "transaction_type")
     private TransactionType transactionType;
-    @Transient
-    private List<TagModel> tags;
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
+    @JoinTable(name = "tag_relation_tbl",
+            joinColumns = {@JoinColumn(name = "transaction")},
+            inverseJoinColumns = {@JoinColumn(name = "tag")}
+    )
+    private Set<TagModel> tags = new HashSet<>();
 }

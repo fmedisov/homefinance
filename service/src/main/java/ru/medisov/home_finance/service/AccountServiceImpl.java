@@ -6,13 +6,14 @@ import org.springframework.stereotype.Service;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.AccountModel;
 import ru.medisov.home_finance.dao.repository.AccountRepository;
+import ru.medisov.home_finance.service.exception.HomeFinanceServiceException;
 
 import java.util.Collection;
 import java.util.Optional;
 
 @Component
 @Service
-public class AccountServiceImpl extends AbstractService implements AccountService {
+public class AccountServiceImpl extends CommonService implements AccountService {
 
     @Autowired
     private AccountRepository repository;
@@ -86,7 +87,6 @@ public class AccountServiceImpl extends AbstractService implements AccountServic
     }
 
     @Override
-    //todo null
     public AccountModel saveUpdate(AccountModel model) {
         if (model.getId() == null) {
             return save(model);

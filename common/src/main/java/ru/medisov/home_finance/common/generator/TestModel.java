@@ -34,7 +34,7 @@ public class TestModel {
     }
 
     public static TagModel generateTagModel() {
-        return new TagModel().setName("#проэзд").setCount(1);
+        return new TagModel().setName("#проэзд").setCount(1L);
     }
 
     public static List<TagModel> generateTags() {
@@ -52,8 +52,9 @@ public class TestModel {
 
         return new TransactionModel().setTransactionType(TransactionType.EXPENSE)
                 .setAccount(accountModel).setCategory(category).setDateTime(LocalDateTime.now())
-                .setAmount(MoneyUtils.inBigDecimal(3000L)).setName("Бензин 95")
-                .setTags(tags);
+                .setAmount(MoneyUtils.inBigDecimal(3000L)).setName("Бензин 95");
+        //todo
+//                .setTags(tags);
     }
 
     public static String getLongName() {

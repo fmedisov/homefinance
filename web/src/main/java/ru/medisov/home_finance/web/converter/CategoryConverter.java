@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import ru.medisov.home_finance.service.CategoryService;
-import ru.medisov.home_finance.service.HomeFinanceServiceException;
+import ru.medisov.home_finance.service.exception.HomeFinanceServiceException;
 import ru.medisov.home_finance.web.view.CategoryTransactionView;
 
 @Component

@@ -11,5 +11,4 @@ public interface CategoryRepository extends JpaRepository<CategoryTransactionMod
 
     @Query("select c from CategoryTransactionModel c where c.name = :name")
     Optional<CategoryTransactionModel> findByName(@Param("name") String name);
-
 }

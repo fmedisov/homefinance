@@ -12,6 +12,7 @@ import ru.medisov.home_finance.common.generator.TestModel;
 import ru.medisov.home_finance.common.model.CurrencyModel;
 import ru.medisov.home_finance.dao.repository.CurrencyRepository;
 import ru.medisov.home_finance.service.config.ServiceConfiguration;
+import ru.medisov.home_finance.service.exception.HomeFinanceServiceException;
 
 import java.util.*;
 

@@ -14,6 +14,7 @@ import ru.medisov.home_finance.common.model.*;
 import ru.medisov.home_finance.common.utils.MoneyUtils;
 import ru.medisov.home_finance.dao.repository.TransactionRepository;
 import ru.medisov.home_finance.service.config.ServiceConfiguration;
+import ru.medisov.home_finance.service.exception.HomeFinanceServiceException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

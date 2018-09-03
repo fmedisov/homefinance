@@ -9,13 +9,14 @@ import ru.medisov.home_finance.common.validator.Valid;
 
 import javax.persistence.*;
 
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "currency_tbl")
 @Data
 @Accessors(chain = true)
 @Valid
 @NoArgsConstructor
-public class CurrencyModel extends TagModel {
+public class CurrencyModel implements SimpleModel<CurrencyModel> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

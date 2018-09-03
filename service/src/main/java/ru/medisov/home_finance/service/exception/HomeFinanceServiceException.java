@@ -1,4 +1,4 @@
-package ru.medisov.home_finance.service;
+package ru.medisov.home_finance.service.exception;
 
 import org.springframework.stereotype.Component;
 

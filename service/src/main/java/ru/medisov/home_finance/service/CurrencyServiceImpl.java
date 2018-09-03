@@ -6,13 +6,14 @@ import org.springframework.stereotype.Service;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.common.model.CurrencyModel;
 import ru.medisov.home_finance.dao.repository.CurrencyRepository;
+import ru.medisov.home_finance.service.exception.HomeFinanceServiceException;
 
 import java.util.Collection;
 import java.util.Optional;
 
 @Component
 @Service
-public class CurrencyServiceImpl extends AbstractService implements CurrencyService {
+public class CurrencyServiceImpl extends CommonService implements CurrencyService {
 
     @Autowired
     private CurrencyRepository repository;

@@ -3,9 +3,11 @@ package ru.medisov.home_finance.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.medisov.home_finance.common.model.*;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.dao.repository.TransactionRepository;
+import ru.medisov.home_finance.service.exception.HomeFinanceServiceException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,7 +16,8 @@ import java.util.stream.Collectors;
 
 @Component
 @Service
-public class TransactionServiceImpl extends AbstractService implements TransactionService {
+@Transactional
+public class TransactionServiceImpl extends CommonService implements TransactionService {
 
     @Autowired
     private TransactionRepository repository;
@@ -30,8 +33,6 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
         try {
             Optional<TransactionModel> optional = repository.findByName(name);
             TransactionModel model = optional.orElseThrow(HomeFinanceServiceException::new);
-            List<TagModel> tagModels = tagService.findByTransaction(model.getId());
-            model.setTags(tagModels);
             validate(model);
 
             return Optional.of(model);
@@ -47,8 +48,6 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
         try {
             Optional<TransactionModel> optional = repository.findById(aLong);
             TransactionModel model = optional.orElseThrow(HomeFinanceDaoException::new);
-            List<TagModel> tagModels = tagService.findByTransaction(model.getId());
-            model.setTags(tagModels);
             validate(model);
 
             return Optional.of(model);
@@ -64,7 +63,6 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
     @Override
     public Collection<TransactionModel> findAll() {
         Collection<TransactionModel> models = repository.findAll();
-        models.forEach(m -> m.setTags(tagService.findByTransaction(m.getId())));
         models.forEach(this::validate);
 
         return models;
@@ -72,33 +70,40 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
 
     @Override
     public boolean remove(Long id) {
-        tagService.removeByTransaction(id);
+        TransactionModel transaction = findById(id).orElse(null);
+
+        if (transaction != null && transaction.getTags() != null && transaction.getTags().size() > 0) {
+            Set<TagModel> tags = transaction.getTags();
+            tags.forEach(t -> tagService.update(t.setCount(t.getCount() - 1)));
+        }
+
         repository.deleteById(id);
         return true;
     }
 
     @Override
     public TransactionModel save(TransactionModel model) {
+        if (model != null && model.getTags() != null && model.getTags().size() > 0) {
+            Set<TagModel> tags = model.getTags();
+            tags.forEach(t -> tagService.update(t.setCount(t.getCount() + 1)));
+        }
+
         TransactionModel newModel = new TransactionModel();
         if (validate(model)) {
             newModel = repository.save(model);
         }
-
-        List<TagModel> tagModels = tagService.saveUpdateByTransaction(model.getTags(), newModel.getId());
-        newModel.setTags(tagModels);
 
         return newModel;
     }
 
     @Override
     public TransactionModel update(TransactionModel model) {
+        updateTagCount(model);
+
         TransactionModel newModel = new TransactionModel();
         if (validate(model)) {
             newModel = repository.saveAndFlush(model);
         }
-
-        List<TagModel> tagModels = tagService.saveUpdateByTransaction(model.getTags(), newModel.getId());
-        newModel.setTags(tagModels);
 
         return newModel;
     }
@@ -119,7 +124,6 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
     @Override
     public Collection<TransactionModel> findByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate) {
         Collection<TransactionModel> models = repository.findByPeriod(getDateFrom(dateFrom), getUpToDate(upToDate));
-        models.forEach(m -> m.setTags(tagService.findByTransaction(m.getId())));
         models.forEach(this::validate);
 
         return models;
@@ -134,7 +138,7 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
         } else {
             models = repository.findAll();
         }
-        models.forEach(m -> m.setTags(tagService.findByTransaction(m.getId())));
+
         models.forEach(this::validate);
 
         return models;
@@ -143,7 +147,6 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
     @Override
     public Collection<TransactionModel> incomeByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate) {
         Collection<TransactionModel> models = repository.incomeByPeriod(getDateFrom(dateFrom), getUpToDate(upToDate));
-        models.forEach(m -> m.setTags(tagService.findByTransaction(m.getId())));
         models.forEach(this::validate);
 
         return models;
@@ -152,7 +155,6 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
     @Override
     public Collection<TransactionModel> expenseByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate) {
         Collection<TransactionModel> models = repository.expenseByPeriod(getDateFrom(dateFrom), getUpToDate(upToDate));
-        models.forEach(m -> m.setTags(tagService.findByTransaction(m.getId())));
         models.forEach(this::validate);
 
         return models;
@@ -256,6 +258,29 @@ public class TransactionServiceImpl extends AbstractService implements Transacti
             return expenseByPeriod(dateFrom, upToDate);
         } else {
             return findByPeriod(dateFrom, upToDate);
+        }
+    }
+
+    private void updateTagCount(TransactionModel model) {
+        TransactionModel oldModel = findById(model.getId()).orElse(null);
+        //if the tag is removed from the model
+        if (oldModel != null && oldModel.getTags() != null) {
+            Set<TagModel> oldModelTags = oldModel.getTags();
+            oldModelTags.forEach(t -> {
+                if (model.getTags() != null && !model.getTags().contains(t)) {
+                    tagService.update(t.setCount(t.getCount() - 1));
+                }
+            });
+        }
+
+        //if the tag appeared in the model
+        if (model.getTags() != null) {
+            Set<TagModel> modelTags = model.getTags();
+            modelTags.forEach(t -> {
+                if (oldModel != null && oldModel.getTags() != null && !oldModel.getTags().contains(t)) {
+                    tagService.update(t.setCount(t.getCount() + 1));
+                }
+            });
         }
     }
 }

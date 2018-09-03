@@ -6,13 +6,14 @@ import org.springframework.stereotype.Service;
 import ru.medisov.home_finance.common.model.TagModel;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.dao.repository.TagRepository;
+import ru.medisov.home_finance.service.exception.HomeFinanceServiceException;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 @Service
-public class TagServiceImpl extends AbstractService implements TagService {
+public class TagServiceImpl extends CommonService implements TagService  {
 
     @Autowired
     private TagRepository repository;
@@ -57,7 +58,7 @@ public class TagServiceImpl extends AbstractService implements TagService {
 
     @Override
     public boolean remove(Long id) {
-        repository.remove(id);
+        repository.deleteById(id);
         return true;
     }
 
@@ -76,47 +77,10 @@ public class TagServiceImpl extends AbstractService implements TagService {
         TagModel newModel = new TagModel();
 
         if (validate(model)) {
-            newModel = repository.update(model);
+            newModel = repository.saveAndFlush(model);
         }
 
         return newModel;
-    }
-
-    @Override
-    public Collection<TagModel> findByNames(List<TagModel> models) {
-        return repository.findByNames(models);
-    }
-
-    @Override
-    public List<TagModel> saveTagList(List<TagModel> models) {
-        return repository.saveTagList(getValidTags(models));
-    }
-
-    @Override
-    public List<TagModel> updateTagList(List<TagModel> models) {
-        return repository.updateTagList(getValidTags(models));
-    }
-
-    @Override
-    public List<TagModel> saveUpdateByTransaction(List<TagModel> allTags, Long transactionId) {
-        List<TagModel> validTags = getValidTags(allTags);
-
-        if (validTags == null || Objects.equals(validTags, new ArrayList<>())) {
-            repository.removeByTransaction(transactionId);
-            return validTags;
-        }
-
-        return repository.saveUpdateByTransaction(validTags, transactionId);
-    }
-
-    @Override
-    public List<TagModel> findByTransaction(Long transactionId) {
-        return repository.findByTransaction(transactionId);
-    }
-
-    @Override
-    public boolean removeByTransaction(Long transactionId) {
-        return repository.removeByTransaction(transactionId);
     }
 
     @Override
@@ -129,27 +93,28 @@ public class TagServiceImpl extends AbstractService implements TagService {
     }
 
     @Override
-    public List<TagModel> saveUpdateFromStringList(List<String> allTags, Long transactionId) {
-        List<TagModel> tags = parseTags(allTags);
-        return saveUpdateByTransaction(tags, transactionId);
+    public Set<TagModel> fromStringList(String allTags, String delimiter) {
+        Set<TagModel> tagList = getValidTags(parseTags(Arrays.stream(allTags.split(delimiter)).collect(Collectors.toSet())));
+        Set<TagModel> existAndNew = tagList.stream().map(t -> findByName(t.getName()).orElse(t)).collect(Collectors.toSet());
+        Set<TagModel> existing = existAndNew.stream().filter(t -> t.getId() != null).collect(Collectors.toSet());
+        Set<TagModel> saved = existAndNew.stream().filter(t -> t.getId() == null).collect(Collectors.toSet());
+
+        Set<TagModel> result = new HashSet<>(existing);
+        result.addAll(saved);
+
+        return result;
     }
 
-    @Override
-    public List<TagModel> fromStringList(String allTags, String delimiter) {
-        List<String> tagList = Arrays.asList(allTags.split(delimiter));
-        return parseTags(tagList);
+    private Set<TagModel> parseTags(Set<String> allTags) {
+        return allTags.stream().map(TagModel::new).collect(Collectors.toSet());
     }
 
-    private List<TagModel> parseTags(List<String> allTags) {
-        return allTags.stream().map(TagModel::new).collect(Collectors.toList());
-    }
-
-    private List<TagModel> getValidTags(List<TagModel> models) {
+    private Set<TagModel> getValidTags(Set<TagModel> models) {
         if (models == null) {
-            return new ArrayList<>();
+            return new HashSet<>();
         }
 
-        return models.stream().filter(this::checkTag).collect(Collectors.toList());
+        return models.stream().filter(this::checkTag).collect(Collectors.toSet());
     }
 
     private boolean checkTag(TagModel model) {
