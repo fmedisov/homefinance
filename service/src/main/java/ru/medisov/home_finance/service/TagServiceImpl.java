@@ -36,6 +36,21 @@ public class TagServiceImpl extends CommonService implements TagService  {
     }
 
     @Override
+    public Optional<TagModel> findByNameAndCurrentUser(String name) {
+        try {
+            Optional<TagModel> optional = repository.findByNameAndUserModel(name, getCurrentUser());
+            TagModel model = optional.orElseThrow(HomeFinanceServiceException::new);
+            validate(model);
+
+            return Optional.of(model);
+        } catch (HomeFinanceDaoException e) {
+            throw new HomeFinanceServiceException(e);
+        } catch (HomeFinanceServiceException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public Optional<TagModel> findById(Long aLong) {
         try {
             Optional<TagModel> optional = repository.findById(aLong);
@@ -59,6 +74,14 @@ public class TagServiceImpl extends CommonService implements TagService  {
     }
 
     @Override
+    public Collection<TagModel> findAllByCurrentUser() {
+        Collection<TagModel> models = repository.findAllByUserModel(getCurrentUser());
+        models.forEach(this::validate);
+
+        return models;
+    }
+
+    @Override
     public boolean remove(Long id) {
         boolean isExist = repository.existsById(id);
         repository.deleteById(id);
@@ -69,6 +92,7 @@ public class TagServiceImpl extends CommonService implements TagService  {
     public TagModel save(TagModel model) {
         TagModel newModel = new TagModel();
         if (validate(model)) {
+            model.setUserModel(getCurrentUser());
             newModel = repository.save(model);
         }
 
@@ -80,6 +104,7 @@ public class TagServiceImpl extends CommonService implements TagService  {
         TagModel newModel = new TagModel();
 
         if (validate(model)) {
+            model.setUserModel(getCurrentUser());
             newModel = repository.saveAndFlush(model);
         }
 
@@ -99,6 +124,19 @@ public class TagServiceImpl extends CommonService implements TagService  {
     public Set<TagModel> fromStringList(String allTags, String delimiter) {
         Set<TagModel> tagList = getValidTags(parseTags(Arrays.stream(allTags.split(delimiter)).collect(Collectors.toSet())));
         Set<TagModel> existAndNew = tagList.stream().map(t -> findByName(t.getName()).orElse(t)).collect(Collectors.toSet());
+        Set<TagModel> existing = existAndNew.stream().filter(t -> t.getId() != null).collect(Collectors.toSet());
+        Set<TagModel> saved = existAndNew.stream().filter(t -> t.getId() == null).collect(Collectors.toSet());
+
+        Set<TagModel> result = new HashSet<>(existing);
+        result.addAll(saved);
+
+        return result;
+    }
+
+    @Override
+    public Set<TagModel> fromStringListByCurrentUser(String allTags, String delimiter) {
+        Set<TagModel> tagList = getValidTags(parseTags(Arrays.stream(allTags.split(delimiter)).collect(Collectors.toSet())));
+        Set<TagModel> existAndNew = tagList.stream().map(t -> findByNameAndCurrentUser(t.getName()).orElse(t)).collect(Collectors.toSet());
         Set<TagModel> existing = existAndNew.stream().filter(t -> t.getId() != null).collect(Collectors.toSet());
         Set<TagModel> saved = existAndNew.stream().filter(t -> t.getId() == null).collect(Collectors.toSet());
 

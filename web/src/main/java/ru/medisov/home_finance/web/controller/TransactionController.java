@@ -1,6 +1,8 @@
 package ru.medisov.home_finance.web.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import ru.medisov.home_finance.common.model.CategoryTransactionModel;
 import ru.medisov.home_finance.common.model.TransactionModel;
 import ru.medisov.home_finance.common.model.TransactionType;
+import ru.medisov.home_finance.common.model.UserModel;
 import ru.medisov.home_finance.common.utils.ModelUtils;
 import ru.medisov.home_finance.service.*;
 import ru.medisov.home_finance.web.config.UrlMapper;
@@ -37,6 +40,9 @@ public class TransactionController {
     private AccountService accountService;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private AccountConverter accountConverter;
 
     @Autowired
@@ -46,7 +52,10 @@ public class TransactionController {
     private TransactionConverter transactionConverter;
 
     @GetMapping(UrlMapper.LIST_TRANSACTION)
-    public String showListTransaction(Model model) {
+    public String showListTransaction(Model model, Authentication authentication) {
+        UserModel user = getUser(authentication);
+
+        model.addAttribute("user", user.getLogin());
         model.addAttribute("list_transactions", getTransactionViewList());
         model.addAttribute("selectedCategory", "Не выбрано");
         model.addAttribute("selectedType", "Все");
@@ -58,7 +67,7 @@ public class TransactionController {
 
     @GetMapping(UrlMapper.LIST_TRANSACTION_BY_PERIOD)
     public String showListTransactionByDate(@RequestParam String fromDate,
-                                        @RequestParam String upToDate, Model model) {
+                                        @RequestParam String upToDate, Model model, Authentication authentication) {
         model.addAttribute("fromDate", fromDate);
         model.addAttribute("upToDate", upToDate);
         model.addAttribute("selectedCategory", "Не выбрано");
@@ -119,14 +128,15 @@ public class TransactionController {
     }
 
     private List<TransactionView> getTransactionViewList() {
-        return service.findAll().stream().map(model -> transactionConverter.toTransactionView(model)).collect(Collectors.toList());
+        return service.findAllByCurrentUser()
+                .stream().map(model -> transactionConverter.toTransactionView(model)).collect(Collectors.toList());
     }
 
     private List<TransactionView> listTransactionViewsByDate(String fromDate, String upToDate) {
         LocalDateTime from = parseDate(fromDate, LocalDateTime.now().minusYears(1000));
         LocalDateTime to = parseDate(upToDate, LocalDateTime.now());
         List<TransactionView> viewList = new ArrayList<>();
-        service.findByPeriod(from, to)
+        service.findByPeriodAndCurrentUser(from, to)
                 .forEach(model -> viewList.add(transactionConverter.toTransactionView(model)));
 
         return viewList;
@@ -136,7 +146,7 @@ public class TransactionController {
         LocalDateTime from = parseDate(fromDate, LocalDateTime.now().minusYears(1000));
         LocalDateTime to = parseDate(upToDate, LocalDateTime.now());
         List<TransactionView> viewList = new ArrayList<>();
-        service.getByPeriodAndType(from, to, type)
+        service.getByPeriodAndTypeAndCurrentUser(from, to, type)
                 .forEach(model -> viewList.add(transactionConverter.toTransactionView(model)));
 
         return viewList;
@@ -156,7 +166,7 @@ public class TransactionController {
     private List<TransactionView> listTransactionViewsByCategory(String name) {
         List<TransactionView> viewList = new ArrayList<>();
         if (name != null) {
-            service.findByCategory((categoryService.findByName(name)).orElse(null))
+            service.findByCategoryAndCurrentUser((categoryService.findByNameAndCurrentUser(name)).orElse(null))
                     .forEach(model -> viewList.add(transactionConverter.toTransactionView(model)));
         }
 
@@ -164,11 +174,11 @@ public class TransactionController {
     }
 
     private List<CategoryTransactionView> getCategoryViewList() {
-        return categoryService.findAll().stream().map(model -> categoryConverter.toCategoryView(model)).collect(Collectors.toList());
+        return categoryService.findAllByCurrentUser().stream().map(model -> categoryConverter.toCategoryView(model)).collect(Collectors.toList());
     }
 
     private List<AccountView> getAccountViewList() {
-        return accountService.findAll().stream().map(model -> accountConverter.toAccountView(model)).collect(Collectors.toList());
+        return accountService.findAllByCurrentUser().stream().map(model -> accountConverter.toAccountView(model)).collect(Collectors.toList());
     }
 
     private TransactionModel getModelFromView(TransactionView transactionView) {
@@ -185,12 +195,17 @@ public class TransactionController {
     private Map<String, IncomeExpense> getSumsNoCategory(String dateFrom, String upToDate) {
         LocalDateTime from = parseDate(dateFrom, LocalDateTime.now().minusYears(1000));
         LocalDateTime to = parseDate(upToDate, LocalDateTime.now());
-        return service.sumByPeriodNoCategories(from, to);
+        return service.sumByPeriodNoCategoriesByCurrentUser(from, to);
     }
 
     private Map<CategoryTransactionModel, IncomeExpense> getSumsByCategory(String dateFrom, String upToDate) {
         LocalDateTime from = parseDate(dateFrom, LocalDateTime.now().minusYears(1000));
         LocalDateTime to = parseDate(upToDate, LocalDateTime.now());
-        return service.sumByPeriodByCategories(from, to);
+        return service.sumByPeriodByCategoriesAndCurrentUser(from, to);
+    }
+
+    private UserModel getUser(Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return userService.getUser(userDetails.getUsername()).orElse(new UserModel().setLogin("Гость"));
     }
 }

@@ -46,4 +46,8 @@ public class TransactionModel implements SimpleModel<TransactionModel> {
             inverseJoinColumns = {@JoinColumn(name = "tag")}
     )
     private Set<TagModel> tags = new HashSet<>();
+
+    @ManyToOne
+    @JoinColumn(name = "user")
+    private UserModel userModel;
 }

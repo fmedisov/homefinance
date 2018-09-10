@@ -8,9 +8,13 @@ import java.util.Optional;
 public interface AccountService extends Service<AccountModel> {
     Optional<AccountModel> findByName(String name);
 
+    Optional<AccountModel> findByNameAndCurrentUser(String name);
+
     Optional<AccountModel> findById(Long aLong);
 
     Collection<AccountModel> findAll();
+
+    Collection<AccountModel> findAllByCurrentUser();
 
     boolean remove(Long id);
 

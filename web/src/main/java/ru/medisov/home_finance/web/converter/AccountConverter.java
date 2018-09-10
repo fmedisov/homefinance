@@ -36,7 +36,7 @@ public class AccountConverter {
                 .setId(accountView.getId())
                 .setName(accountView.getName())
                 .setAccountType(AccountType.findByName(accountView.getAccountType()).orElse(null))
-                .setCurrencyModel(currencyService.findByName(accountView.getCurrencyModel()).orElse(new CurrencyModel()))
+                .setCurrencyModel(currencyService.findByNameAndCurrentUser(accountView.getCurrencyModel()).orElse(new CurrencyModel()))
                 .setAmount(accountView.getAmount());
 
         return accountModel;

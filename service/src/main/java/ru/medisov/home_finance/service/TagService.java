@@ -9,9 +9,13 @@ import java.util.Set;
 public interface TagService extends Service<TagModel> {
     Optional<TagModel> findByName(String name);
 
+    Optional<TagModel> findByNameAndCurrentUser(String name);
+
     Optional<TagModel> findById(Long aLong);
 
     Collection<TagModel> findAll();
+
+    Collection<TagModel> findAllByCurrentUser();
 
     boolean remove(Long id);
 
@@ -20,4 +24,6 @@ public interface TagService extends Service<TagModel> {
     TagModel update(TagModel model);
 
     Set<TagModel> fromStringList(String allTags, String delimiter);
+
+    Set<TagModel> fromStringListByCurrentUser(String allTags, String delimiter);
 }

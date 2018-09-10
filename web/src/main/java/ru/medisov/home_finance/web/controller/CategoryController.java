@@ -54,6 +54,6 @@ public class CategoryController {
     }
 
     private List<CategoryTransactionView> getCategoryViewList() {
-        return service.findAll().stream().map(model -> categoryConverter.toCategoryView(model)).collect(Collectors.toList());
+        return service.findAllByCurrentUser().stream().map(model -> categoryConverter.toCategoryView(model)).collect(Collectors.toList());
     }
 }

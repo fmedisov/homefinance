@@ -8,9 +8,13 @@ import java.util.Optional;
 public interface CategoryService extends Service<CategoryTransactionModel> {
     Optional<CategoryTransactionModel> findByName(String name);
 
+    Optional<CategoryTransactionModel> findByNameAndCurrentUser(String name);
+
     Optional<CategoryTransactionModel> findById(Long aLong);
 
     Collection<CategoryTransactionModel> findAll();
+
+    Collection<CategoryTransactionModel> findAllByCurrentUser();
 
     boolean remove(Long id);
 

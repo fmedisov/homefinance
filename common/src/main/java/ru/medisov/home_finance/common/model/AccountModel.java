@@ -34,4 +34,7 @@ public class AccountModel implements SimpleModel<AccountModel> {
     @Amount
     @Column(name = "amount")
     private BigDecimal amount;
+    @ManyToOne
+    @JoinColumn(name = "user")
+    private UserModel userModel;
 }

@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.medisov.home_finance.common.model.TagModel;
+import ru.medisov.home_finance.common.model.UserModel;
 
 import java.util.*;
 
@@ -13,6 +14,9 @@ import java.util.*;
 @Transactional
 public interface TagRepository extends JpaRepository<TagModel, Long> {
 
-    @Query("select t from TagModel t where t.name = :name")
     Optional<TagModel> findByName(@Param("name") String name);
+
+    Optional<TagModel> findByNameAndUserModel(@Param("name") String name, @Param("userModel") UserModel userModel);
+
+    Collection<TagModel> findAllByUserModel(@Param("userModel") UserModel userModel);
 }

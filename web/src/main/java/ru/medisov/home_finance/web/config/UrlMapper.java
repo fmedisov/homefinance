@@ -13,4 +13,7 @@ public final class UrlMapper {
     public final static String SUBMIT_CATEGORY = "/category/submit";
     public final static String SUBMIT_ACCOUNT = "/account/submit";
     public final static String SUBMIT_TRANSACTION = "/transaction/submit";
+
+
+    public final static String LOGIN = "/login";
 }

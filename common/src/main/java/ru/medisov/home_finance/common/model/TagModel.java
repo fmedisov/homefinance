@@ -27,6 +27,9 @@ public class TagModel implements SimpleModel<TagModel> {
     private String name;
     @Column(name = "count")
     private long count;
+    @ManyToOne
+    @JoinColumn(name = "user")
+    private UserModel userModel;
 
     public TagModel(String name) {
         this.name = name;

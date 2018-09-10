@@ -33,7 +33,7 @@ public class CurrencyController {
     public String doEditSaveCurrency(@RequestParam(required = false) Long currencyId, @ModelAttribute CurrencyView objectCurrency) {
         objectCurrency.setId(currencyId);
         CurrencyModel currencyModel = currencyConverter.toCurrencyModel(objectCurrency);
-        service.saveUpdate(currencyModel);
+        service.saveUpdateByCurrentUser(currencyModel);
 
         return "redirect:" + UrlMapper.LIST_CURRENCY;
     }
@@ -53,6 +53,6 @@ public class CurrencyController {
     }
 
     private List<CurrencyView> getCurrencyViewList() {
-        return service.findAll().stream().map(model -> currencyConverter.toCurrencyView(model)).collect(Collectors.toList());
+        return service.findAllByCurrentUser().stream().map(model -> currencyConverter.toCurrencyView(model)).collect(Collectors.toList());
     }
 }

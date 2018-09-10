@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Component;
 import ru.medisov.home_finance.common.model.TransactionModel;
+import ru.medisov.home_finance.common.model.TransactionType;
+import ru.medisov.home_finance.common.model.UserModel;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -30,4 +32,19 @@ public interface TransactionRepository extends JpaRepository<TransactionModel, L
 
     @Query("DELETE FROM TransactionModel t WHERE t.account = :accountId")
     boolean removeByAccount(@Param("accountId") Long accountId);
+
+    Collection<TransactionModel> findAllByUserModel(@Param("userModel") UserModel userModel);
+
+    Optional<TransactionModel> findByNameAndUserModel(@Param("name") String name, @Param("userModel") UserModel userModel);
+
+    Collection<TransactionModel> findByDateTimeBetweenAndUserModel(@Param("dateFrom") LocalDateTime dateFrom,
+                                                                   @Param("upToDate") LocalDateTime upToDate,
+                                                                   @Param("userModel") UserModel userModel);
+
+    Collection<TransactionModel> findAllByTransactionTypeAndDateTimeBetweenAndUserModel(
+            @Param("transactionType") TransactionType transactionType,
+            @Param("dateFrom") LocalDateTime dateFrom,
+            @Param("upToDate") LocalDateTime upToDate,
+            @Param("userModel") UserModel userModel
+    );
 }

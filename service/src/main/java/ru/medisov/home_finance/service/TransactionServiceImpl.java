@@ -1,6 +1,8 @@
 package ru.medisov.home_finance.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,10 +30,28 @@ public class TransactionServiceImpl extends CommonService implements Transaction
     @Autowired
     private TagService tagService;
 
+    @Autowired
+    private UserService userService;
+
     @Override
     public Optional<TransactionModel> findByName(String name) {
         try {
             Optional<TransactionModel> optional = repository.findByName(name);
+            TransactionModel model = optional.orElseThrow(HomeFinanceServiceException::new);
+            validate(model);
+
+            return Optional.of(model);
+        } catch (HomeFinanceDaoException e) {
+            throw new HomeFinanceServiceException(e);
+        } catch (HomeFinanceServiceException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<TransactionModel> findByNameAndCurrentUser(String name) {
+        try {
+            Optional<TransactionModel> optional = repository.findByNameAndUserModel(name, getCurrentUser());
             TransactionModel model = optional.orElseThrow(HomeFinanceServiceException::new);
             validate(model);
 
@@ -91,6 +111,9 @@ public class TransactionServiceImpl extends CommonService implements Transaction
 
         TransactionModel newModel = new TransactionModel();
         if (validate(model)) {
+            if (model != null) {
+                model.setUserModel(getCurrentUser());
+            }
             newModel = repository.save(model);
         }
 
@@ -103,6 +126,7 @@ public class TransactionServiceImpl extends CommonService implements Transaction
 
         TransactionModel newModel = new TransactionModel();
         if (validate(model)) {
+            model.setUserModel(getCurrentUser());
             newModel = repository.saveAndFlush(model);
         }
 
@@ -131,6 +155,14 @@ public class TransactionServiceImpl extends CommonService implements Transaction
     }
 
     @Override
+    public Collection<TransactionModel> findByPeriodAndCurrentUser(LocalDateTime dateFrom, LocalDateTime upToDate) {
+        Collection<TransactionModel> models = repository.findByDateTimeBetweenAndUserModel(getDateFrom(dateFrom), getUpToDate(upToDate), getCurrentUser());
+        models.forEach(this::validate);
+
+        return models;
+    }
+
+    @Override
     public Collection<TransactionModel> findByCategory(CategoryTransactionModel category) {
         Collection<TransactionModel> models;
 
@@ -138,6 +170,21 @@ public class TransactionServiceImpl extends CommonService implements Transaction
             models = repository.findByCategory(category.getId());
         } else {
             models = repository.findAll();
+        }
+
+        models.forEach(this::validate);
+
+        return models;
+    }
+
+    @Override
+    public Collection<TransactionModel> findByCategoryAndCurrentUser(CategoryTransactionModel category) {
+        Collection<TransactionModel> models;
+
+        if (category != null) {
+            models = repository.findByCategory(category.getId());
+        } else {
+            models = repository.findAllByUserModel(getCurrentUser());
         }
 
         models.forEach(this::validate);
@@ -154,8 +201,32 @@ public class TransactionServiceImpl extends CommonService implements Transaction
     }
 
     @Override
+    public Collection<TransactionModel> incomeByPeriodAndCurrentUser(LocalDateTime dateFrom, LocalDateTime upToDate) {
+        Collection<TransactionModel> models = repository.findAllByTransactionTypeAndDateTimeBetweenAndUserModel(
+                TransactionType.INCOME,
+                getDateFrom(dateFrom),
+                getUpToDate(upToDate),
+                getCurrentUser());
+        models.forEach(this::validate);
+
+        return models;
+    }
+
+    @Override
     public Collection<TransactionModel> expenseByPeriod(LocalDateTime dateFrom, LocalDateTime upToDate) {
         Collection<TransactionModel> models = repository.expenseByPeriod(getDateFrom(dateFrom), getUpToDate(upToDate));
+        models.forEach(this::validate);
+
+        return models;
+    }
+
+    @Override
+    public Collection<TransactionModel> expenseByPeriodAndCurrentUser(LocalDateTime dateFrom, LocalDateTime upToDate) {
+        Collection<TransactionModel> models = repository.findAllByTransactionTypeAndDateTimeBetweenAndUserModel(
+                TransactionType.EXPENSE,
+                getDateFrom(dateFrom),
+                getUpToDate(upToDate),
+                getCurrentUser());
         models.forEach(this::validate);
 
         return models;
@@ -178,6 +249,22 @@ public class TransactionServiceImpl extends CommonService implements Transaction
     }
 
     @Override
+    public Map<String, IncomeExpense> sumByPeriodNoCategoriesByCurrentUser(LocalDateTime dateFrom, LocalDateTime upToDate) {
+        Map<String, IncomeExpense> sumByPeriod = new HashMap<>();
+
+        Collection<TransactionModel> incomeTransactions = incomeByPeriodAndCurrentUser(getDateFrom(dateFrom), getUpToDate(upToDate));
+        Collection<TransactionModel> expenseTransactions = expenseByPeriodAndCurrentUser(getDateFrom(dateFrom), getUpToDate(upToDate));
+
+        BigDecimal commonIncome = getCommonAmount(incomeTransactions);
+        BigDecimal commonExpense = getCommonAmount(expenseTransactions);
+
+        IncomeExpense incomeExpense = new IncomeExpense().setIncome(commonIncome).setExpense(commonExpense);
+        sumByPeriod.put("Без учета категорий", incomeExpense);
+
+        return sumByPeriod;
+    }
+
+    @Override
     public Map<CategoryTransactionModel, IncomeExpense> sumByPeriodByCategories(LocalDateTime dateFrom, LocalDateTime upToDate) {
         Map<CategoryTransactionModel, IncomeExpense> defaultData = new HashMap<>();
         defaultData.put(null, new IncomeExpense().setIncome(BigDecimal.ZERO).setExpense(BigDecimal.ZERO));
@@ -186,6 +273,30 @@ public class TransactionServiceImpl extends CommonService implements Transaction
         List<CategoryTransactionModel> categories = new ArrayList<>(categoryService.findAll());
         Collection<TransactionModel> transactionModels = findByPeriod(getDateFrom(dateFrom), getUpToDate(upToDate));
 
+        incomeExpenseByCategories(result, categories, transactionModels);
+
+        result.putAll(withoutCategories(transactionModels));
+
+        return !result.equals(new HashMap<>()) ? result : defaultData;
+    }
+
+    @Override
+    public Map<CategoryTransactionModel, IncomeExpense> sumByPeriodByCategoriesAndCurrentUser(LocalDateTime dateFrom, LocalDateTime upToDate) {
+        Map<CategoryTransactionModel, IncomeExpense> defaultData = new HashMap<>();
+        defaultData.put(null, new IncomeExpense().setIncome(BigDecimal.ZERO).setExpense(BigDecimal.ZERO));
+
+        Map<CategoryTransactionModel, IncomeExpense> result = new HashMap<>();
+        List<CategoryTransactionModel> categories = new ArrayList<>(categoryService.findAllByCurrentUser());
+        Collection<TransactionModel> transactionModels = findByPeriodAndCurrentUser(getDateFrom(dateFrom), getUpToDate(upToDate));
+
+        incomeExpenseByCategories(result, categories, transactionModels);
+
+        result.putAll(withoutCategories(transactionModels));
+
+        return !result.equals(new HashMap<>()) ? result : defaultData;
+    }
+
+    private void incomeExpenseByCategories(Map<CategoryTransactionModel, IncomeExpense> result, List<CategoryTransactionModel> categories, Collection<TransactionModel> transactionModels) {
         for (CategoryTransactionModel category : categories) {
             Collection<TransactionModel> incomeTransactions = byCategoryAndType(transactionModels, category, TransactionType.INCOME);
             Collection<TransactionModel> expenseTransactions = byCategoryAndType(transactionModels, category, TransactionType.EXPENSE);
@@ -196,10 +307,14 @@ public class TransactionServiceImpl extends CommonService implements Transaction
             IncomeExpense incomeExpense = new IncomeExpense().setIncome(commonIncome).setExpense(commonExpense);
             result.put(category, incomeExpense);
         }
+    }
 
-        result.putAll(withoutCategories(transactionModels));
+    @Override
+    public Collection<TransactionModel> findAllByCurrentUser() {
+        Collection<TransactionModel> models = repository.findAllByUserModel(getCurrentUser());
+        models.forEach(this::validate);
 
-        return !result.equals(new HashMap<>()) ? result : defaultData;
+        return models;
     }
 
     private Map<CategoryTransactionModel, IncomeExpense> withoutCategories(Collection<TransactionModel> transactions) {
@@ -251,6 +366,7 @@ public class TransactionServiceImpl extends CommonService implements Transaction
         return upToDate != null ? upToDate : LocalDateTime.MAX;
     }
 
+    @Override
     public Collection<TransactionModel> getByPeriodAndType(LocalDateTime dateFrom, LocalDateTime upToDate, String transactionTypeString) {
         TransactionType parsed = TransactionType.findByName(transactionTypeString).orElse(null);
         if (TransactionType.INCOME.equals(parsed)) {
@@ -259,6 +375,18 @@ public class TransactionServiceImpl extends CommonService implements Transaction
             return expenseByPeriod(dateFrom, upToDate);
         } else {
             return findByPeriod(dateFrom, upToDate);
+        }
+    }
+
+    @Override
+    public Collection<TransactionModel> getByPeriodAndTypeAndCurrentUser(LocalDateTime dateFrom, LocalDateTime upToDate, String transactionTypeString) {
+        TransactionType parsed = TransactionType.findByName(transactionTypeString).orElse(null);
+        if (TransactionType.INCOME.equals(parsed)) {
+            return incomeByPeriodAndCurrentUser(dateFrom, upToDate);
+        } else if (TransactionType.EXPENSE.equals(parsed)) {
+            return expenseByPeriodAndCurrentUser(dateFrom, upToDate);
+        } else {
+            return findByPeriodAndCurrentUser(dateFrom, upToDate);
         }
     }
 
@@ -283,5 +411,16 @@ public class TransactionServiceImpl extends CommonService implements Transaction
                 }
             });
         }
+    }
+
+    private Long getUserId() {
+        Long userId;
+        if (getCurrentUser() != null) {
+            userId = getCurrentUser().getId();
+        } else {
+            userId = null;
+        }
+
+        return userId;
     }
 }

@@ -36,6 +36,23 @@ public class AccountServiceImpl extends CommonService implements AccountService 
     }
 
     @Override
+    public Optional<AccountModel> findByNameAndCurrentUser(String name) {
+        try {
+            Optional<AccountModel> optional = repository.findByNameAndUserModel(name, getCurrentUser());
+            AccountModel model = optional.orElseThrow(HomeFinanceServiceException::new);
+            validate(model);
+
+            return Optional.of(model);
+        } catch (HomeFinanceDaoException e) {
+            throw new HomeFinanceServiceException(e);
+        } catch (HomeFinanceServiceException e) {
+            e.printStackTrace();
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<AccountModel> findById(Long aLong) {
         try {
             Optional<AccountModel> optional = repository.findById(aLong);
@@ -61,6 +78,14 @@ public class AccountServiceImpl extends CommonService implements AccountService 
     }
 
     @Override
+    public Collection<AccountModel> findAllByCurrentUser() {
+        Collection<AccountModel> models = repository.findAllByUserModel(getCurrentUser());
+        models.forEach(this::validate);
+
+        return models;
+    }
+
+    @Override
     public boolean remove(Long id) {
         //new TransactionServiceImpl().removeByAccount(id);
         //repository.removeByAccount(id);
@@ -73,6 +98,7 @@ public class AccountServiceImpl extends CommonService implements AccountService 
     public AccountModel save(AccountModel model) {
         AccountModel newModel = new AccountModel();
         if (validate(model)) {
+            model.setUserModel(getCurrentUser());
             newModel = repository.save(model);
         }
         return newModel;
@@ -82,6 +108,7 @@ public class AccountServiceImpl extends CommonService implements AccountService 
     public AccountModel update(AccountModel model) {
         AccountModel newModel = new AccountModel();
         if (validate(model)) {
+            model.setUserModel(getCurrentUser());
             newModel = repository.saveAndFlush(model);
         }
         return newModel;

@@ -45,7 +45,7 @@ public class CategoryConverter {
     private CategoryTransactionModel getParent(CategoryTransactionView categoryView) {
         CategoryTransactionModel defaultValue = null;
         try {
-            return categoryService.findByName(categoryView.getParent()).orElse(defaultValue);
+            return categoryService.findByNameAndCurrentUser(categoryView.getParent()).orElse(defaultValue);
         } catch (HomeFinanceServiceException e) {
             return defaultValue;
         }

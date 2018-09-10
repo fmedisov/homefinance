@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <div th:insert="fragments/head :: head(title = ${'Авторизация'})"></div>
+    <link rel="stylesheet" type="text/css" th:href="@{../resources/css/login.css}">
+</head>
+<body>
+
+    <div class="container">
+        <form class="form-signin" th:action="@{/login}" method="post">
+            <h2 class="form-signin-heading">Please sign in</h2>
+
+            <div th:if="${param.error}">
+                <div class="alert alert-danger" role="alert">
+                    Ошибка авторизации.<br>
+                    Invalid username and password.
+                </div>
+
+            </div>
+            <div th:if="${param.logout}">
+                <div class="alert alert-info" role="alert">Вы вышли.</div>
+            </div>
+
+            <label for="inputLogin" class="sr-only">Login</label>
+            <input type="text" id="inputLogin" name="username" class="form-control" placeholder="login"
+                   th:required="required" th:autofocus="autofocus"/>
+            <label for="inputPassword" class="sr-only">Password</label>
+            <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Password"
+                   th:required="required"/>
+            <!--<div class="checkbox">
+                <label>
+                    <input type="checkbox" value="remember-me"> Remember me
+                </label>
+            </div>-->
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        </form>
+
+    </div>
+    <!-- /container -->
+
+    <div th:insert="fragments/footer :: footer"></div>
+    <!--<link rel="stylesheet" type="text/css" href="../../css/login.css" th:href="@{../resources/css/login.css}">-->
+</body>
+</html>

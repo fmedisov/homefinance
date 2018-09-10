@@ -33,6 +33,20 @@ public class CurrencyServiceImpl extends CommonService implements CurrencyServic
     }
 
     @Override
+    public Optional<CurrencyModel> findByNameAndCurrentUser(String name) {
+        try {
+            Optional<CurrencyModel> optional = repository.findByNameAndUserModel(name, getCurrentUser());
+            CurrencyModel currencyModel = optional.orElseThrow(HomeFinanceServiceException::new);
+            validate(currencyModel);
+            return Optional.of(currencyModel);
+        } catch (HomeFinanceDaoException e) {
+            throw new HomeFinanceServiceException(e);
+        } catch (HomeFinanceServiceException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public Optional<CurrencyModel> findById(Long aLong) {
         try {
             Optional<CurrencyModel> optional = repository.findById(aLong);
@@ -55,6 +69,14 @@ public class CurrencyServiceImpl extends CommonService implements CurrencyServic
     }
 
     @Override
+    public Collection<CurrencyModel> findAllByCurrentUser() {
+        Collection<CurrencyModel> models = repository.findAllByUserModel(getCurrentUser());
+        models.forEach(this::validate);
+
+        return models;
+    }
+
+    @Override
     public boolean remove(Long id) {
         boolean isExist = repository.existsById(id);
         repository.deleteById(id);
@@ -66,6 +88,19 @@ public class CurrencyServiceImpl extends CommonService implements CurrencyServic
         currencyVerification(model);
         CurrencyModel newModel = new CurrencyModel();
         if (validate(model)) {
+            model.setUserModel(getCurrentUser());
+            newModel = repository.save(model);
+        }
+
+        return newModel;
+    }
+
+    @Override
+    public CurrencyModel saveByCurrentUser(CurrencyModel model) {
+        currencyVerificationByCurrentUser(model);
+        CurrencyModel newModel = new CurrencyModel();
+        if (validate(model)) {
+            model.setUserModel(getCurrentUser());
             newModel = repository.save(model);
         }
 
@@ -76,6 +111,7 @@ public class CurrencyServiceImpl extends CommonService implements CurrencyServic
     public CurrencyModel update(CurrencyModel model) {
         CurrencyModel newModel = new CurrencyModel();
         if (validate(model)) {
+            model.setUserModel(getCurrentUser());
             newModel = repository.saveAndFlush(model);
         }
 
@@ -91,9 +127,27 @@ public class CurrencyServiceImpl extends CommonService implements CurrencyServic
         }
     }
 
+    @Override
+    public CurrencyModel saveUpdateByCurrentUser(CurrencyModel model) {
+        if (model.getId() == null) {
+            return saveByCurrentUser(model);
+        } else {
+            return update(model);
+        }
+    }
+
     private void currencyVerification(CurrencyModel model) throws HomeFinanceServiceException {
         String name = model.getName();
         repository.findByName(name).ifPresent(found -> {
+            if (name.equals(found.getName())) {
+                throw new HomeFinanceServiceException("Валюта уже существует");
+            }
+        });
+    }
+
+    private void currencyVerificationByCurrentUser(CurrencyModel model) {
+        String name = model.getName();
+        repository.findByNameAndUserModel(name, getCurrentUser()).ifPresent(found -> {
             if (name.equals(found.getName())) {
                 throw new HomeFinanceServiceException("Валюта уже существует");
             }

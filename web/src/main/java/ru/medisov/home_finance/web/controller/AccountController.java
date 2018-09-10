@@ -63,11 +63,11 @@ public class AccountController {
     }
 
     private List<AccountView> getAccountViewList() {
-        return service.findAll().stream().map(model -> accountConverter.toAccountView(model)).collect(Collectors.toList());
+        return service.findAllByCurrentUser().stream().map(model -> accountConverter.toAccountView(model)).collect(Collectors.toList());
     }
 
     private List<CurrencyView> getCurrencyViewList() {
-        return currencyService.findAll().stream().map(model -> currencyConverter.toCurrencyView(model)).collect(Collectors.toList());
+        return currencyService.findAllByCurrentUser().stream().map(model -> currencyConverter.toCurrencyView(model)).collect(Collectors.toList());
     }
 
     private AccountModel getModelFromView(AccountView accountView) {

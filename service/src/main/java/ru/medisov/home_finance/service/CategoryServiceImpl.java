@@ -34,6 +34,21 @@ public class CategoryServiceImpl extends CommonService implements CategoryServic
     }
 
     @Override
+    public Optional<CategoryTransactionModel> findByNameAndCurrentUser(String name) {
+        try {
+            Optional<CategoryTransactionModel> optional = repository.findByNameAndUserModel(name, getCurrentUser());
+            CategoryTransactionModel model = optional.orElseThrow(HomeFinanceServiceException::new);
+            validate(model);
+
+            return Optional.of(model);
+        } catch (HomeFinanceDaoException e) {
+            throw new HomeFinanceServiceException(e);
+        } catch (HomeFinanceServiceException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public Optional<CategoryTransactionModel> findById(Long aLong) {
         try {
             Optional<CategoryTransactionModel> optional = repository.findById(aLong);
@@ -50,8 +65,15 @@ public class CategoryServiceImpl extends CommonService implements CategoryServic
 
     @Override
     public Collection<CategoryTransactionModel> findAll() {
-        //todo как именно валидировать
         Collection<CategoryTransactionModel> models = repository.findAll();
+        models.forEach(this::validate);
+
+        return models;
+    }
+
+    @Override
+    public Collection<CategoryTransactionModel> findAllByCurrentUser() {
+        Collection<CategoryTransactionModel> models = repository.findAllByUserModel(getCurrentUser());
         models.forEach(this::validate);
 
         return models;
@@ -68,6 +90,7 @@ public class CategoryServiceImpl extends CommonService implements CategoryServic
     public CategoryTransactionModel save(CategoryTransactionModel model) {
         CategoryTransactionModel newModel = new CategoryTransactionModel();
         if (validate(model)) {
+            model.setUserModel(getCurrentUser());
             newModel = repository.save(model);
         }
 
@@ -79,6 +102,7 @@ public class CategoryServiceImpl extends CommonService implements CategoryServic
         CategoryTransactionModel newModel = new CategoryTransactionModel();
 
         if (validate(model)) {
+            model.setUserModel(getCurrentUser());
             newModel = repository.saveAndFlush(model);
         }
 

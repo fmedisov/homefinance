@@ -30,4 +30,7 @@ public class CurrencyModel implements SimpleModel<CurrencyModel> {
     @NotEmpty
     @Column(name = "symbol")
     private String symbol;
+    @ManyToOne
+    @JoinColumn(name = "user")
+    private UserModel userModel;
 }

@@ -51,7 +51,7 @@ public class TransactionConverter {
                 .setAccount(getAccount(transactionView.getAccount()))
                 .setCategory(getCategory(transactionView.getCategory()))
                 .setTransactionType(TransactionType.findByName(transactionView.getTransactionType()).orElse(null))
-                .setTags(tagService.fromStringList(transactionView.getTags(), " "));
+                .setTags(tagService.fromStringListByCurrentUser(transactionView.getTags(), " "));
 
         return transactionModel;
     }
@@ -59,7 +59,7 @@ public class TransactionConverter {
     private CategoryTransactionModel getCategory(String category) {
         CategoryTransactionModel defaultValue = null;
         try {
-            return categoryService.findByName(category).orElse(defaultValue);
+            return categoryService.findByNameAndCurrentUser(category).orElse(defaultValue);
         } catch (HomeFinanceServiceException e) {
             return defaultValue;
         }
@@ -68,7 +68,7 @@ public class TransactionConverter {
     private AccountModel getAccount(String account) {
         AccountModel defaultValue = null;
         try {
-            return accountService.findByName(account).orElse(defaultValue);
+            return accountService.findByNameAndCurrentUser(account).orElse(defaultValue);
         } catch (HomeFinanceServiceException e) {
             return defaultValue;
         }
