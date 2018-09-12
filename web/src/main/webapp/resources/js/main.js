@@ -86,6 +86,10 @@ jQuery(document).ready(function($) {
             $("body").off("mousemove.draggable");
         });
     });
+
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
 });
 
 function dateOnChange() {

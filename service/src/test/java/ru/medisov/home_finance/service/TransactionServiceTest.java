@@ -34,6 +34,9 @@ class TransactionServiceTest extends CommonServiceTest {
     private TransactionRepository repositoryMock;
 
     @Mock
+    private TagService tagServiceMock;
+
+    @Mock
     private CategoryService categoryServiceMock;
 
     @InjectMocks
@@ -82,7 +85,13 @@ class TransactionServiceTest extends CommonServiceTest {
     @Test
     @DisplayName("Remove existing model returns true")
     void removeExistingEntryReturnsTrue() {
-        super.removeExistingEntryReturnsTrue(repositoryMock, TransactionModel.class, transactionService);
+        TransactionModel model = TestModel.generateTransactionModel();
+        model.setId(1L);
+        when(repositoryMock.existsById(model.getId())).thenReturn(true);
+        when(repositoryMock.findById(model.getId())).thenReturn(Optional.of(model));
+        when(tagServiceMock.update(any())).thenReturn(any());
+
+        assertTrue(transactionService.remove(model.getId()));
     }
 
     @Test

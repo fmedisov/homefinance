@@ -29,10 +29,8 @@ public class AccountServiceImpl extends CommonService implements AccountService 
         } catch (HomeFinanceDaoException e) {
             throw new HomeFinanceServiceException(e);
         } catch (HomeFinanceServiceException e) {
-            e.printStackTrace();
+            return Optional.empty();
         }
-
-        return Optional.empty();
     }
 
     @Override
@@ -46,10 +44,8 @@ public class AccountServiceImpl extends CommonService implements AccountService 
         } catch (HomeFinanceDaoException e) {
             throw new HomeFinanceServiceException(e);
         } catch (HomeFinanceServiceException e) {
-            e.printStackTrace();
+            return Optional.empty();
         }
-
-        return Optional.empty();
     }
 
     @Override
@@ -63,10 +59,8 @@ public class AccountServiceImpl extends CommonService implements AccountService 
         } catch (HomeFinanceDaoException e) {
             throw new HomeFinanceServiceException(e);
         } catch (HomeFinanceServiceException e) {
-            e.printStackTrace();
+            return Optional.empty();
         }
-
-        return Optional.empty();
     }
 
     @Override

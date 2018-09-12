@@ -1,11 +1,17 @@
 package ru.medisov.home_finance.service;
 
+import org.springframework.social.connect.Connection;
 import ru.medisov.home_finance.common.model.UserModel;
-
-import java.util.Optional;
 
 public interface UserService {
 
-    Optional<UserModel> getUser(String login);
+    UserModel findUserByUserId(Long userId);
 
+    UserModel findUserByUserName(String userName);
+
+    UserModel findByEmail(String email);
+
+    String findAvailableUserName(String userName_prefix);
+
+    UserModel createUser(Connection<?> connection);
 }

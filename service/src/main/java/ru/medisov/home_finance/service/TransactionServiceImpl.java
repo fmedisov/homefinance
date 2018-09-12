@@ -1,11 +1,8 @@
 package ru.medisov.home_finance.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.medisov.home_finance.common.model.*;
 import ru.medisov.home_finance.dao.exception.HomeFinanceDaoException;
 import ru.medisov.home_finance.dao.repository.TransactionRepository;
@@ -29,9 +26,6 @@ public class TransactionServiceImpl extends CommonService implements Transaction
 
     @Autowired
     private TagService tagService;
-
-    @Autowired
-    private UserService userService;
 
     @Override
     public Optional<TransactionModel> findByName(String name) {
@@ -74,10 +68,8 @@ public class TransactionServiceImpl extends CommonService implements Transaction
         } catch (HomeFinanceDaoException e) {
             throw new HomeFinanceServiceException(e);
         } catch (HomeFinanceServiceException e) {
-            e.printStackTrace();
+            return Optional.empty();
         }
-
-        return Optional.empty();
     }
 
     @Override
@@ -416,7 +408,7 @@ public class TransactionServiceImpl extends CommonService implements Transaction
     private Long getUserId() {
         Long userId;
         if (getCurrentUser() != null) {
-            userId = getCurrentUser().getId();
+            userId = getCurrentUser().getUserId();
         } else {
             userId = null;
         }

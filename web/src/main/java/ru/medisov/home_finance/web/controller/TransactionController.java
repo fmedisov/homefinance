@@ -55,7 +55,7 @@ public class TransactionController {
     public String showListTransaction(Model model, Authentication authentication) {
         UserModel user = getUser(authentication);
 
-        model.addAttribute("user", user.getLogin());
+        model.addAttribute("user", user.getUserName());
         model.addAttribute("list_transactions", getTransactionViewList());
         model.addAttribute("selectedCategory", "Не выбрано");
         model.addAttribute("selectedType", "Все");
@@ -206,6 +206,10 @@ public class TransactionController {
 
     private UserModel getUser(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return userService.getUser(userDetails.getUsername()).orElse(new UserModel().setLogin("Гость"));
+        UserModel user = userService.findUserByUserName(userDetails.getUsername());
+        if (user == null) {
+            user = new UserModel().setUserName("Гость");
+        }
+        return user;
     }
 }

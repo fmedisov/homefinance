@@ -4,15 +4,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
-import ru.medisov.home_finance.common.model.UserModel;
+import ru.medisov.home_finance.common.model.UserConnection;
 
 import java.util.Optional;
 
 @Component
 @Repository
-public interface UserRepository extends JpaRepository<UserModel, Long> {
+public interface UserConnectionRepository extends JpaRepository<UserConnection, Long> {
 
-    Optional<UserModel> findByUserName(@Param("userName") String userName);
+    Optional<UserConnection> findByProviderUserId(@Param("providerUserId") String providerUserId);
 
-    Optional<UserModel> findByEmail(@Param("email") String email);
 }

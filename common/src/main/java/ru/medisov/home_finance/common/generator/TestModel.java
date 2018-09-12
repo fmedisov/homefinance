@@ -37,8 +37,8 @@ public class TestModel {
         return new TagModel().setName("#проэзд").setCount(1L);
     }
 
-    public static List<TagModel> generateTags() {
-        List<TagModel> models = new ArrayList<>();
+    public static Set<TagModel> generateTags() {
+        Set<TagModel> models = new HashSet<>();
         models.add(new TagModel().setName("#отпуск"));
         models.add(new TagModel().setName("#проезд"));
         models.add(new TagModel().setName("#авто"));
@@ -48,13 +48,12 @@ public class TestModel {
     public static TransactionModel generateTransactionModel() {
         AccountModel accountModel = generateAccountModel();
         CategoryTransactionModel category = generateCategoryModel();
-        List<TagModel> tags = generateTags();
+        Set<TagModel> tags = generateTags();
 
         return new TransactionModel().setTransactionType(TransactionType.EXPENSE)
                 .setAccount(accountModel).setCategory(category).setDateTime(LocalDateTime.now())
-                .setAmount(MoneyUtils.inBigDecimal(3000L)).setName("Бензин 95");
-        //todo
-//                .setTags(tags);
+                .setAmount(MoneyUtils.inBigDecimal(3000L)).setName("Бензин 95")
+                .setTags(tags);
     }
 
     public static String getLongName() {

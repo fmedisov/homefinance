@@ -26,6 +26,6 @@ public class CommonService {
     public UserModel getCurrentUser() {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        return userService.getUser(userDetails.getUsername()).orElse(null);
+        return userService.findUserByUserName(userDetails.getUsername());
     }
 }
