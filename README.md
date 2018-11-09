@@ -10,9 +10,9 @@
 ## Screenshots
 ![Navigation bar](https://i.gyazo.com/c144f492fbcae186ed16ed9e06f836fc.png)
 
-![Add transaction](https://i.gyazo.com/e52cd7100531cdf61896daaa60b1640d.png)
+![Add transaction](https://i.gyazo.com/e72cad57019d08ff1f3c19164a02bfd5.png)
 
-![Add account](https://i.gyazo.com/217023f2db656a2c5694125b84b65946.png)
+![Add account](https://i.gyazo.com/f5b7db7c7b1f0c54998023a2bc22d15a.png)
 
 ![List of accounts](https://i.gyazo.com/388425d28230124018b9dafb06b427d3.png)
 
@@ -39,4 +39,5 @@ Alternatively, you can import the source into Eclipse or another IDE and make th
 
 ## License
 
-This project is released under the the MIT License. <br/> Please refer to the [LICENSE file](LICENSE) for full details.
+This project is released under the the MIT License. 
+Please refer to the [LICENSE file](LICENSE) for full details.
