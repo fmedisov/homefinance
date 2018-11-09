@@ -8,10 +8,14 @@
 * OAuth2 authentication with Google+
 
 ## Screenshots
-![Navigation bar](https://i.gyazo.com/c144f492fbcae186ed16ed9e06f836fc.png)<br><br>
+![Navigation bar](https://i.gyazo.com/c144f492fbcae186ed16ed9e06f836fc.png)
+
 ![Add transaction](https://i.gyazo.com/e52cd7100531cdf61896daaa60b1640d.png)
-![Add account](https://i.gyazo.com/217023f2db656a2c5694125b84b65946.png)<br><br>
-![List of accounts](https://i.gyazo.com/388425d28230124018b9dafb06b427d3.png)<br><br>
+
+![Add account](https://i.gyazo.com/217023f2db656a2c5694125b84b65946.png)
+
+![List of accounts](https://i.gyazo.com/388425d28230124018b9dafb06b427d3.png)
+
 ![Login page](https://i.gyazo.com/80176342a52aeba17f81ab8a3fa5ea0d.png)
 
 ## Technology stack
